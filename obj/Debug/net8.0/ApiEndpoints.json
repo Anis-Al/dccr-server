@@ -1,0 +1,43 @@
+[
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.ExcelController",
+    "Method": "Get",
+    "RelativePath": "api/Excel",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.ExcelController",
+    "Method": "ImporterExcel",
+    "RelativePath": "api/Excel/importer",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "fichier",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "matricule_utilisateur",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.AuditController",
+    "Method": "Get",
+    "RelativePath": "Audit/test",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]

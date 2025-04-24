@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\DCCR_SERVER.props" />
+</Project>

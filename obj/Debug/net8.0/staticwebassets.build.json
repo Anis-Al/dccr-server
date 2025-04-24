@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "RgvlYADysH/asPYkBV+YZxGkqv6CJ1ABJycfxeUgLiQ=",
+  "Source": "DCCR_SERVER",
+  "BasePath": "_content/DCCR_SERVER",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
