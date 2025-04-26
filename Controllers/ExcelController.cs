@@ -82,10 +82,6 @@ namespace DCCR_SERVER.Controllers
         //     }
         // }
 
-        [HttpGet]
-        public IActionResult Get()
-        {
-            return new JsonResult("Hello World!");
-        }
+       
     }
 }

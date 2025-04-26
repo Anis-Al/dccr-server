@@ -9,7 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<DCCR_SERVER.Context.BddContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<DCCR_SERVER.Context.BddContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), 
+sqlOptions => sqlOptions.CommandTimeout(1000)));
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",

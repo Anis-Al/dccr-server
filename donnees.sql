@@ -8,7 +8,7 @@ INSERT INTO mapping_colonnes (colonne_excel, colonne_bdd, table_bdd, ordre, nom_
 ('cle_int', NULL, NULL, 6, NULL, NULL, 0, 'string'),
 ('cle_onomastique', NULL, NULL, 7, NULL, NULL, 0, 'string'),
 ('niveau_respons', 'role_niveau_responsabilite', 'intervenants_credits', 8, 'niveaux_responsabilite', 'code', 0, 'string'),
-('plafond_accorde', Null, 'credits', 9, NULL, NULL, 0, 'bool'), -- a ajouter apres 
+('plafond_accorde', NULL, 'credits', 9, NULL, NULL, 0, 'bool'),
 ('numero_contrat', 'numero_contrat', 'credits', 10, NULL, NULL, 1, 'string'),
 ('dev', 'monnaie', 'credits', 11, 'monnaies', 'code', 1, 'string'),
 ('rib', 'participant_rib', 'intervenants', 12, NULL, NULL, 0, 'string'),
@@ -34,13 +34,14 @@ INSERT INTO mapping_colonnes (colonne_excel, colonne_bdd, table_bdd, ordre, nom_
 ('date_rejet', 'date_rejet', 'credits', 32, NULL, NULL, 0, 'date'),
 ('date_octroi', 'date_octroi', 'credits', 33, NULL, NULL, 0, 'date'),
 ('date_expi', 'date_expiration', 'credits', 34, NULL, NULL, 0, 'date'),
-('type_garantie', 'garantie_type_garantie', 'garanties', 35, 'types_garantie', 'code', 0, 'string'),
-('montant_garantie', 'garantie_montant_garantie', 'garanties', 36, NULL, NULL, 0, 'decimal'),
+('type_garantie', 'type_garantie', 'garanties', 35, 'types_garantie', 'code', 0, 'string'),
+('montant_garantie', 'montant_garantie', 'garanties', 36, NULL, NULL, 0, 'decimal'),
 ('type_credit_declare', NULL, NULL, 37, NULL, NULL, 0, 'string'),
 ('numero_plafond', 'id_plafond', 'credits', 38, NULL, NULL, 0, 'string'),
 ('statut', NULL, NULL, 39, NULL, NULL, 0, 'string'),
 ('motif', 'motif', 'credits', 40, NULL, NULL, 0, 'string'),
 ('date_exe', 'date_execution', NULL, 41, NULL, NULL, 0, 'date');
+
 -- #endregion
 
 -- #region tables des domaines
@@ -285,74 +286,129 @@ INSERT INTO pays (code, domaine) VALUES
 -- #endregion
 
 
--- #region regles_validation (CLEAN STRUCTURE - NO nom_table)
--- === Required Fields ===
+-- #region regles_validation 
 INSERT INTO regles_validation (
-    nom_colonne, type_regle, valeur_regle, message_erreur, categorie_regle,
+    nom_colonne, type_regle, valeur_regle, message_erreur,
     colonne_dependante, valeur_dependante, colonne_cible, valeur_cible_attendue
 ) VALUES
-('numero_contrat', 'REQUIRED', NULL, 'Le numéro de contrat est obligatoire.', 'REQUIRED', NULL, NULL, NULL, NULL),
-('situation_credit', 'REQUIRED', NULL, 'La situation du crédit est obligatoire.', 'REQUIRED', NULL, NULL, NULL, NULL);
-
--- === Type Checks ===
-INSERT INTO regles_validation (
-    nom_colonne, type_regle, valeur_regle, message_erreur, categorie_regle,
-    colonne_dependante, valeur_dependante, colonne_cible, valeur_cible_attendue
-) VALUES
-('montant_credit', 'TYPE', 'decimal', 'Le montant doit être un nombre décimal.', 'TYPE', NULL, NULL, NULL, NULL);
-
--- === Lookup Checks ===
-INSERT INTO regles_validation (
-    nom_colonne, type_regle, valeur_regle, message_erreur, categorie_regle,
-    colonne_dependante, valeur_dependante, colonne_cible, valeur_cible_attendue
-) VALUES
-('classe_retard', 'DOMAINES', 'classes_retard', 'La classe de retard est invalide.', 'SIMPLE', NULL, NULL, NULL, NULL),
-('monnaie', 'DOMAINES', 'monnaies', 'La monnaie est invalide.', 'SIMPLE', NULL, NULL, NULL, NULL),
-('type_garantie', 'DOMAINES', 'types_garantie', 'Le type de garantie est invalide.', 'SIMPLE', NULL, NULL, NULL, NULL),
-('type_credit', 'DOMAINES', 'types_credit', 'Le type de crédit est invalide.', 'SIMPLE', NULL, NULL, NULL, NULL),
-('situation_credit', 'DOMAINES', 'situations_credit', 'La situation du crédit est invalide.', 'SIMPLE', NULL, NULL, NULL, NULL),
-('activite_credit', 'DOMAINES', 'activites_credit', 'L''activité crédit est invalide.', 'SIMPLE', NULL, NULL, NULL, NULL),
-('code_wilaya', 'DOMAINES', 'wilayas', 'Le code wilaya n''existe pas.', 'SIMPLE', NULL, NULL, NULL, NULL);
-
--- === Dependency: type_garantie/montant_garantie must be null if not guarantor ===
-INSERT INTO regles_validation (
-    nom_colonne, type_regle, valeur_regle, message_erreur, categorie_regle,
-    colonne_dependante, valeur_dependante, colonne_cible, valeur_cible_attendue
-) VALUES
-('type_garantie', 'NULL_IF_NOT', NULL, 'Type de garantie doit être vide si le participant n\''est pas garant.', 'DEPENDENCY', 'niveau_respons', '005', NULL, NULL),
-('montant_garantie', 'NULL_IF_NOT', NULL, 'Montant de garantie doit être vide si le participant n\''est pas garant.', 'DEPENDENCY', 'niveau_respons', '005', NULL, NULL);
-
--- === Dependency (Conditional Required) ===
-INSERT INTO regles_validation (
-    nom_colonne, type_regle, valeur_regle, message_erreur, categorie_regle,
-    colonne_dependante, valeur_dependante, colonne_cible, valeur_cible_attendue
-) VALUES
-('montant_garantie', 'REQUIRED_IF', NULL, 'Le montant de garantie est obligatoire pour les garants.', 'GUARANTOR', 'role_niveau_responsabilite', 5, NULL, NULL),
-('code_wilaya', 'REQUIRED_IF', NULL, 'La wilaya est obligatoire si le pays est l''Algérie.', 'DEPENDENCY', 'code_pays', 12, NULL, NULL);
+('numero_contrat', 'OBLIGATOIRE', NULL, 'Le numéro de contrat est obligatoire.', NULL, NULL, NULL, NULL),
+('situation_credit', 'OBLIGATOIRE', NULL, 'La situation du crédit est obligatoire.', NULL, NULL, NULL, NULL),
+('role_niveau_responsabilite', 'OBLIGATOIRE', NULL, 'Le niveau de responsabilité est obligatoire.', NULL, NULL, NULL, NULL),
+('code_agence', 'OBLIGATOIRE', NULL, 'Le code agence est obligatoire.', NULL, NULL, NULL, NULL),
+('monnaie', 'OBLIGATOIRE', NULL, 'La monnaie est obligatoire.', NULL, NULL, NULL, NULL),
+('type_credit', 'OBLIGATOIRE', NULL, 'Le type de crédit est obligatoire.', NULL, NULL, NULL, NULL),
+('duree_initiale', 'OBLIGATOIRE', NULL, 'La durée initiale est obligatoire.', NULL, NULL, NULL, NULL),
+('duree_restante', 'OBLIGATOIRE', NULL, 'La durée restante est obligatoire.', NULL, NULL, NULL, NULL),
+('credit_accorde', 'OBLIGATOIRE', NULL, 'Le crédit accordé est obligatoire.', NULL, NULL, NULL, NULL),
+('solde_restant', 'OBLIGATOIRE', NULL, 'Le solde restant est obligatoire.', NULL, NULL, NULL, NULL),
+('montant_interets_courus', 'OBLIGATOIRE', NULL, 'Le montant des intérêts courus est obligatoire.', NULL, NULL, NULL, NULL),
+('montant_credit', 'TYPE_DECIMAL', 'decimal', 'Le montant doit être un nombre décimal.', NULL, NULL, NULL, NULL),
+('participant_cli', 'TYPE_TEXTE', 'string', 'Le champ participant_cli doit être du texte.', NULL, NULL, NULL, NULL),
+('date_declaration', 'TYPE_DATE', 'dateonly', 'Le champ date_declaration doit être une date.', NULL, NULL, NULL, NULL),
+('participant_type_cle', 'TYPE_TEXTE', 'string', 'Le champ participant_type_cle doit être du texte.', NULL, NULL, NULL, NULL),
+('participant_cle', 'TYPE_TEXTE', 'string', 'Le champ participant_cle doit être du texte.', NULL, NULL, NULL, NULL),
+('participant_nif', 'TYPE_TEXTE', 'string', 'Le champ participant_nif doit être du texte.', NULL, NULL, NULL, NULL),
+('niveau_respons', 'TYPE_TEXTE', 'string', 'Le champ niveau_respons doit être du texte.', NULL, NULL, NULL, NULL),
+('numero_contrat', 'TYPE_TEXTE', 'string', 'Le champ numero_contrat doit être du texte.', NULL, NULL, NULL, NULL),
+('monnaie', 'TYPE_TEXTE', 'string', 'Le champ monnaie doit être du texte.', NULL, NULL, NULL, NULL),
+('participant_rib', 'TYPE_TEXTE', 'string', 'Le champ participant_rib doit être du texte.', NULL, NULL, NULL, NULL),
+('code_pays', 'TYPE_TEXTE', 'string', 'Le champ code_pays doit être du texte.', NULL, NULL, NULL, NULL),
+('code_agence', 'TYPE_TEXTE', 'string', 'Le champ code_agence doit être du texte.', NULL, NULL, NULL, NULL),
+('code_wilaya', 'TYPE_TEXTE', 'string', 'Le champ code_wilaya doit être du texte.', NULL, NULL, NULL, NULL),
+('activite_credit', 'TYPE_TEXTE', 'string', 'Le champ activite_credit doit être du texte.', NULL, NULL, NULL, NULL),
+('type_credit', 'TYPE_TEXTE', 'string', 'Le champ type_credit doit être du texte.', NULL, NULL, NULL, NULL),
+('situation_credit', 'TYPE_TEXTE', 'string', 'Le champ situation_credit doit être du texte.', NULL, NULL, NULL, NULL),
+('classe_retard', 'TYPE_TEXTE', 'string', 'Le champ classe_retard doit être du texte.', NULL, NULL, NULL, NULL),
+('duree_initiale', 'TYPE_TEXTE', 'string', 'Le champ duree_initiale doit être du texte.', NULL, NULL, NULL, NULL),
+('duree_restante', 'TYPE_TEXTE', 'string', 'Le champ duree_restante doit être du texte.', NULL, NULL, NULL, NULL),
+('credit_accorde', 'TYPE_DECIMAL', 'decimal', 'Le champ credit_accorde doit être un nombre décimal.', NULL, NULL, NULL, NULL),
+('solde_restant', 'TYPE_DECIMAL', 'decimal', 'Le champ solde_restant doit être un nombre décimal.', NULL, NULL, NULL, NULL),
+('cout_total_credit', 'TYPE_DECIMAL', 'decimal', 'Le champ cout_total_credit doit être un nombre décimal.', NULL, NULL, NULL, NULL),
+('mensualite', 'TYPE_DECIMAL', 'decimal', 'Le champ mensualite doit être un nombre décimal.', NULL, NULL, NULL, NULL),
+('taux', 'TYPE_DECIMAL', 'decimal', 'Le champ taux doit être un nombre décimal.', NULL, NULL, NULL, NULL),
+('date_constatation', 'TYPE_DATE', 'date', 'Le champ date_constatation doit être une date.', NULL, NULL, NULL, NULL),
+('nombre_echeances_impayes', 'TYPE_ENTIER', 'int', 'Le champ nombre_echeances_impayes doit être un entier.', NULL, NULL, NULL, NULL),
+('montant_interets_courus', 'TYPE_DECIMAL', 'decimal', 'Le champ montant_interets_courus doit être un nombre décimal.', NULL, NULL, NULL, NULL),
+('montant_capital_retard', 'TYPE_DECIMAL', 'decimal', 'Le champ montant_capital_retard doit être un nombre décimal.', NULL, NULL, NULL, NULL),
+('montant_interets_retard', 'TYPE_DECIMAL', 'decimal', 'Le champ montant_interets_retard doit être un nombre décimal.', NULL, NULL, NULL, NULL),
+('date_rejet', 'TYPE_DATE', 'date', 'Le champ date_rejet doit être une date.', NULL, NULL, NULL, NULL),
+('date_octroi', 'TYPE_DATE', 'date', 'Le champ date_octroi doit être une date.', NULL, NULL, NULL, NULL),
+('date_expiration', 'TYPE_DATE', 'date', 'Le champ date_expiration doit être une date.', NULL, NULL, NULL, NULL),
+('type_garantie', 'TYPE_TEXTE', 'string', 'Le champ type_garantie doit être du texte.', NULL, NULL, NULL, NULL),
+('montant_garantie', 'TYPE_DECIMAL', 'decimal', 'Le champ montant_garantie doit être un nombre décimal.', NULL, NULL, NULL, NULL),
+('type_credit_declare', 'TYPE_TEXTE', 'string', 'Le champ type_credit_declare doit être du texte.', NULL, NULL, NULL, NULL),
+('id_plafond', 'TYPE_TEXTE', 'string', 'Le champ id_plafond doit être du texte.', NULL, NULL, NULL, NULL),
+('motif', 'TYPE_TEXTE', 'string', 'Le champ motif doit être du texte.', NULL, NULL, NULL, NULL),
+('niv_resp', 'DOMAINE', 'niveaux_responsabilite', 'La valeur de niveau de responsabilité est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+('id_plafond', 'OBLIGATOIRE_SI', NULL, 'Le champ id_plafond est obligatoire si type_credit est 900.', 'type_credit', '900', NULL, NULL),
+('num_contrat_credit', 'UNIQUE', NULL, 'Le numéro de contrat de crédit doit être unique.', NULL, NULL, NULL, NULL),
+('num_contrat_credit', 'FORMAT', 'CR+[code_banque]+[date.HHMMSS]', 'Le format du numéro de contrat de crédit est invalide.', NULL, NULL, NULL, NULL),
+('num_contrat_credit', 'NON_MODIFIABLE', NULL, 'Le numéro de contrat de crédit ne doit pas être modifié.', NULL, NULL, NULL, NULL),
+('code_monnaie', 'DOMAINE', 'monnaies', 'La valeur de code monnaie est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+('participant_rib', 'LONGUEUR', '20', 'Le RIB a une taille differente de 20 positions.', NULL, NULL, NULL, NULL),
+('code_pays', 'DOMAINE', 'pays', 'La valeur de code pays est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+('code_pays', 'VALEUR_PAR_DEFAUT_SI_VIDE', '012', 'Le code pays est renseigné à 012 (Algérie) si vide.', NULL, NULL, NULL, NULL),
+('code_agence', 'DOMAINE', 'agences', 'La valeur de code agence est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+('code_wilaya', 'OBLIGATOIRE_SI', NULL, 'Le code wilaya est obligatoire si le pays est l’Algérie.', 'code_pays', '012', NULL, NULL),
+('code_wilaya', 'DOMAINE', 'wilayas', 'La valeur de code wilaya est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+('code_wilaya', 'DOIT_ETRE_NULL_SI', NULL, 'Le code wilaya ne doit pas être renseigné si le pays n’est pas l’Algérie.', 'code_pays', '!=012', NULL, NULL),
+('code_activite', 'DOMAINE', 'activites_credit', 'La valeur de code activité est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+('type_credit', 'DOMAINE', 'types_credit', 'La valeur de type crédit est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+('type_credit', 'VALEURS_INTERDITES_SI', '050,051,052,080', 'Type crédit interdit pour débiteur entreprise.', 'debiteur_type', 'entreprise', NULL, NULL),
+('situation_credit', 'DOMAINE', 'situations_credit', 'La valeur de situation crédit est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+('situation_credit', 'EGAL_A_SI', '900', 'La situation crédit doit être 900 si type_credit est 900.', 'type_credit', '900', 'situation_credit', '900'),
+('classe_retard', 'DOMAINE', 'classes_retard', 'La valeur de classe retard est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+('classe_retard', 'OBLIGATOIRE_SI', NULL, 'Classe retard doit être renseignée si situation_credit est dans [010,011,012,013,015].', 'situation_credit', '010,011,012,013,015', NULL, NULL),
+('classe_retard', 'DOIT_ETRE_NULL_SI', NULL, 'Classe retard ne doit pas être renseignée si situation_credit est dans [001,002,020,900,014,018,005].', 'situation_credit', '001,002,020,900,014,018,005', NULL, NULL),
+('classe_retard', 'DOIT_ETRE_NULL_SI', NULL, 'Classe retard ne doit pas être renseignée si id_plafond est 900.', 'id_plafond', '900', NULL, NULL),
+('duree_initial', 'DOMAINE', 'durees_credit', 'La valeur de durée initiale est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+('duree_initial', 'VALEUR_INTERDITE', '000', 'La durée initiale ne doit pas être 000.', NULL, NULL, NULL, NULL),
+('duree_initial', 'EGAL_A_SI', '999', 'La durée initiale doit être 999 si situation_credit est 001.', 'situation_credit', '001', 'duree_initial', '999'),
+('duree_initial', 'VALEUR_INTERDITE_SI', '999', 'La durée initiale ne doit pas être 999 si situation_credit n’est pas 001.', 'situation_credit', '!=001', NULL, NULL),
+('duree_initial', 'EGAL_A_SI', '900', 'La durée initiale doit être 900 si type_credit est 900.', 'type_credit', '900', 'duree_initial', '900'),
+('duree_initial', 'VALEUR_INTERDITE_SI', '900', 'La durée initiale ne doit pas être 900 si type_credit n’est pas 900.', 'type_credit', '!=900', NULL, NULL),
+('duree_rest', 'DOMAINE', 'durees_credit', 'La valeur de durée restante est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+('duree_rest', 'OBLIGATOIRE_SI', NULL, 'La durée restante doit être renseignée si credit_accorde est renseigné.', 'credit_accorde', 'NOT_NULL', NULL, NULL),
+('duree_rest', 'EGAL_A_SI', '999', 'La durée restante doit être 999 si situation_credit est 001.', 'situation_credit', '001', 'duree_rest', '999'),
+('duree_rest', 'EGAL_A_SI', '900', 'La durée restante doit être 900 si type_credit est 900.', 'type_credit', '900', 'duree_rest', '900'),
+('credit_accorde', 'EGAL_A_SI', '0', 'Le crédit accordé doit être 0 si type_credit est 900.', 'type_credit', '900', 'credit_accorde', '0'),
+('credit_accorde', 'EGAL_A_SI', '0', 'Le crédit accordé doit être 0 si type_credit est 001.', 'type_credit', '001', 'credit_accorde', '0'),
+('credit_accorde', 'SUP_A_SI', '0', 'Le crédit accordé doit être > 0 pour les autres types de crédit.', 'type_credit', 'AUTRES', NULL, NULL),
+('solde_restant', 'OBLIGATOIRE', NULL, 'Le solde restant est obligatoire.', NULL, NULL, NULL, NULL),
+('solde_restant', 'EGAL_A_SI', '0', 'Le solde restant doit être 0 si type_credit n’est pas 900 et situation_credit est 900.', 'type_credit', '!=900', 'situation_credit', '900'),
+('solde_restant', 'EGAL_A_SI', '0', 'Le solde restant doit être 0 si situation_credit est dans [001,020].', 'situation_credit', '001,020', 'solde_restant', '0'),
+('cout_total', 'OBLIGATOIRE_SI', NULL, 'Le coût total est obligatoire pour type_credit dans [050,051,052] et débiteur i1 ou i2.', 'type_credit', '050,051,052', 'debiteur_type', 'i1,i2'),
+('cout_total', 'DOIT_ETRE_NULL_OU_ZERO_SI', NULL, 'Le coût total ne doit pas être renseigné ou doit être 0 si type_credit dans [050,051,052] et situation_credit dans [001,005,020,018].', 'type_credit', '050,051,052', 'situation_credit', '001,005,020,018'),
+('mensualite', 'OBLIGATOIRE_SI', NULL, 'La mensualité est obligatoire pour type_credit dans [050,051,052].', 'type_credit', '050,051,052', NULL, NULL),
+('mensualite', 'DOIT_ETRE_NULL_SI', NULL, 'La mensualité ne doit pas être renseignée si type_credit n’est pas dans [050,051,052].', 'type_credit', '!=050,051,052', NULL, NULL),
+('mensualite', 'DOIT_ETRE_NULL_OU_ZERO_SI', NULL, 'La mensualité ne doit pas être renseignée ou doit être 0 si type_credit dans [050,051,052] et situation_credit dans [001,005,020,018].', 'type_credit', '050,051,052', 'situation_credit', '001,005,020,018'),
+('garantie', 'OBLIGATOIRE', NULL, 'La garantie est obligatoire.', NULL, NULL, NULL, NULL),
+('garantie_montant', 'SUP', '0', 'Le montant de la garantie doit être supérieur à 0.', NULL, NULL, NULL, NULL),
+('garantie_montant', 'EGAL_A_SI', '0', 'Le montant de la garantie doit être 0 si type_garantie est 999.', 'type_garantie', '999', 'garantie_montant', '0');
 
 -- === Consistency (Coherence) ===
-INSERT INTO regles_validation (
-    nom_colonne, type_regle, valeur_regle, message_erreur, categorie_regle,
-    colonne_dependante, valeur_dependante, colonne_cible, valeur_cible_attendue
-) VALUES
-('montant_credit', 'CONSISTENT_ACROSS_GROUP', NULL, 'Montant du crédit incohérent entre les lignes du même prêt.', 'CONSISTENCY', NULL, NULL, NULL, NULL),
-('code_wilaya', 'CONSISTENT_ACROSS_GROUP', NULL, 'Incohérence détectée entre les lignes du même crédit (code_wilaya).', 'CONSISTENCY', NULL, NULL, NULL, NULL);
+-- INSERT INTO regles_validation (
+--     nom_colonne, type_regle, valeur_regle, message_erreur,
+--     colonne_dependante, valeur_dependante, colonne_cible, valeur_cible_attendue
+-- ) VALUES
+-- ('montant_credit', 'CONSISTENT_ACROSS_GROUP', NULL, 'Montant du crédit incohérent entre les lignes du même prêt.', NULL, NULL, NULL, NULL),
+-- ('code_wilaya', 'CONSISTENT_ACROSS_GROUP', NULL, 'Incohérence détectée entre les lignes du même crédit (code_wilaya).', NULL, NULL, NULL, NULL);
 
--- === Equality/Dependency Rules ===
-INSERT INTO regles_validation (
-    nom_colonne, type_regle, colonne_dependante, valeur_dependante, colonne_cible, valeur_cible_attendue, categorie_regle, message_erreur
-) VALUES
-('duree_restante', 'EQUALS', 'type_credit', '900', 'duree_restante', '900', 'DEPENDENCY', 'Si type_credit = 900, duree_restante doit être 900.'),
-('duree_restante', 'EQUALS', 'situation_credit', '1', 'duree_restante', '999', 'DEPENDENCY', 'Si situation_credit = 1, duree_restante doit être 999.'),
-('solde_restant', 'EQUALS', 'type_credit', '1', 'solde_restant', '0', 'DEPENDENCY', 'Si type_credit = 1, solde_restant doit être 0.');
+-- -- === Equality/Dependency Rules ===
+-- INSERT INTO regles_validation (
+--     nom_colonne, type_regle, colonne_dependante, valeur_dependante, colonne_cible, valeur_cible_attendue, message_erreur
+-- ) VALUES
+-- ('duree_restante', 'EQUALS', 'type_credit', '900', 'duree_restante', '900', 'Si type_credit = 900, duree_restante doit être 900.'),
+-- ('duree_restante', 'EQUALS', 'situation_credit', '1', 'duree_restante', '999', 'Si situation_credit = 1, duree_restante doit être 999.'),
+-- ('solde_restant', 'EQUALS', 'type_credit', '1', 'solde_restant', '0', 'Si type_credit = 1, solde_restant doit être 0.');
 
--- === Not Null (Conditional) ===
-INSERT INTO regles_validation (
-    nom_colonne, type_regle, colonne_dependante, valeur_dependante, colonne_cible, categorie_regle, message_erreur
-) VALUES
-('cout_total_credit', 'NOT_NULL', 'type_credit', '50', 'cout_total_credit', 'DEPENDENCY', 'Si type_credit = 50, cout_total_credit ne doit pas être nul.'),
-('cout_total_credit', 'NOT_NULL', 'type_credit', '51', 'cout_total_credit', 'DEPENDENCY', 'Si type_credit = 51, cout_total_credit ne doit pas être nul.'),
-('cout_total_credit', 'NOT_NULL', 'type_credit', '52', 'cout_total_credit', 'DEPENDENCY', 'Si type_credit = 52, cout_total_credit ne doit pas être nul.');
+-- -- === Not Null (Conditional) ===
+-- INSERT INTO regles_validation (
+--     nom_colonne, type_regle, colonne_dependante, valeur_dependante, colonne_cible, message_erreur
+-- ) VALUES
+-- ('cout_total_credit', 'NOT_NULL', 'type_credit', '50', 'cout_total_credit', 'Si type_credit = 50, cout_total_credit ne doit pas être nul.'),
+-- ('cout_total_credit', 'NOT_NULL', 'type_credit', '51', 'cout_total_credit', 'Si type_credit = 51, cout_total_credit ne doit pas être nul.'),
+-- ('cout_total_credit', 'NOT_NULL', 'type_credit', '52', 'cout_total_credit', 'Si type_credit = 52, cout_total_credit ne doit pas être nul.');
 
 -- #endregion
 

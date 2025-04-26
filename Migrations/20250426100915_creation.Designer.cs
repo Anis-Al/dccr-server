@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DCCR_SERVER.Migrations
 {
     [DbContext(typeof(BddContext))]
-    [Migration("20250423140858_insertions")]
-    partial class insertions
+    [Migration("20250426100915_creation")]
+    partial class creation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -429,12 +429,6 @@ namespace DCCR_SERVER.Migrations
                     b.Property<bool>("est_valide")
                         .HasColumnType("bit");
 
-                    b.Property<string>("garantie_montant_garantie")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("garantie_type_garantie")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("id_import_excel")
                         .HasColumnType("int");
 
@@ -458,6 +452,9 @@ namespace DCCR_SERVER.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("montant_capital_retard")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("montant_garantie")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("montant_interets_courus")
@@ -503,6 +500,9 @@ namespace DCCR_SERVER.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("type_credit")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("type_garantie")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("id");
@@ -859,10 +859,6 @@ namespace DCCR_SERVER.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id_regle"));
-
-                    b.Property<string>("categorie_regle")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("colonne_cible")
                         .HasColumnType("nvarchar(max)");

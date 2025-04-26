@@ -5,9 +5,38 @@ namespace DCCR_SERVER.DTOs
 {
     public class LoanPreviewDto
     {
+        
         public string NumeroContrat { get; set; }
         public string DateDeclaration { get; set; }
-        // Add other loan-level fields as needed
+        // Additional loan-level fields from donnees_brutes
+        public string SituationCredit { get; set; }
+        public string DateOctroi { get; set; }
+        public string DateRejet { get; set; }
+        public string DateExpiration { get; set; }
+        public string DateExecution { get; set; }
+        public string DureeInitiale { get; set; }
+        public string DureeRestante { get; set; }
+        public string TypeCredit { get; set; }
+        public string ActiviteCredit { get; set; }
+        public string Monnaie { get; set; }
+        public string CreditAccorde { get; set; }
+        public string IdPlafond { get; set; }
+        public string Taux { get; set; }
+        public string Mensualite { get; set; }
+        public string CoutTotalCredit { get; set; }
+        public string SoldeRestant { get; set; }
+        public string ClasseRetard { get; set; }
+        public string DateConstatation { get; set; }
+        public string NombreEcheancesImpayes { get; set; }
+        public string MontantInteretsCourus { get; set; }
+        public string MontantInteretsRetard { get; set; }
+        public string MontantCapitalRetard { get; set; }
+        public string Motif { get; set; }
+        public string CodeAgence { get; set; }
+        public string CodeWilaya { get; set; }
+        public string CodePays { get; set; }
+        public bool EstValide { get; set; }
+        public string MessagesValidation { get; set; }
         public List<ParticipantPreviewDto> Participants { get; set; }
         public List<GarantiePreviewDto> Garanties { get; set; }
     }
@@ -19,13 +48,14 @@ namespace DCCR_SERVER.DTOs
         public string ParticipantNif { get; set; }
         public string? ParticipantCli { get; set; }
         public string ParticipantRib { get; set; }
-        // Add other participant fields as needed
+        // Additional participant fields from donnees_brutes
+        public string RoleNiveauResponsabilite { get; set; }
     }
 
     public class GarantiePreviewDto
     {
         public string? TypeGarantie { get; set; }
         public string? MontantGarantie { get; set; }
-        // Add other garantie fields as needed
+        // You can add more fields here if needed
     }
 }

@@ -1,16 +1,6 @@
 [
   {
     "ContainingType": "DCCR_SERVER.Controllers.ExcelController",
-    "Method": "Get",
-    "RelativePath": "api/Excel",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "DCCR_SERVER.Controllers.ExcelController",
     "Method": "ImporterExcel",
     "RelativePath": "api/Excel/importer",
     "HttpMethod": "POST",
@@ -28,16 +18,6 @@
         "IsRequired": false
       }
     ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "DCCR_SERVER.Controllers.AuditController",
-    "Method": "Get",
-    "RelativePath": "Audit/test",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
     "ReturnTypes": []
   }
 ]

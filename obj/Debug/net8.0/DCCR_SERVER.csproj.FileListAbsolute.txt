@@ -194,7 +194,5 @@ C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\bin\Debug\net8.0\System.IO.Packa
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\bin\Debug\net8.0\System.Security.Cryptography.Pkcs.dll
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\bin\Debug\net8.0\runtimes\win\lib\net8.0\Microsoft.Win32.SystemEvents.dll
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll
+C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\DCCR_SERVER.sourcelink.json
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
-C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\bin\Debug\net8.0\xunit.abstractions.dll
-C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\bin\Debug\net8.0\xunit.assert.dll
-C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\bin\Debug\net8.0\xunit.core.dll

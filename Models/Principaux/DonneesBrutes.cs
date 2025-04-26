@@ -85,8 +85,8 @@ namespace DCCR_SERVER.Models.Principaux
         public string? role_niveau_responsabilite { get; set; }
 
 
-        public string? garantie_type_garantie { get; set; }
-        public string? garantie_montant_garantie { get; set; }
+        public string? type_garantie { get; set; }
+        public string? montant_garantie { get; set; }
 
         [ChampCoherence]
         public string? code_agence { get; set; }   

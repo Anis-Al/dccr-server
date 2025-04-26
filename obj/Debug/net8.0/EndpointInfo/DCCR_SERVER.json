@@ -5,18 +5,6 @@
     "version": "1.0"
   },
   "paths": {
-    "/Audit/test": {
-      "get": {
-        "tags": [
-          "Audit"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/api/Excel/importer": {
       "post": {
         "tags": [
@@ -48,18 +36,6 @@
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/Excel": {
-      "get": {
-        "tags": [
-          "Excel"
-        ],
         "responses": {
           "200": {
             "description": "OK"

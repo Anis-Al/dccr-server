@@ -10,7 +10,7 @@ namespace DCCR_SERVER.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql(File.ReadAllText("donnees.sql"));
+            migrationBuilder.Sql(File.ReadAllText("donnees.sql")); 
         }
 
         /// <inheritdoc />

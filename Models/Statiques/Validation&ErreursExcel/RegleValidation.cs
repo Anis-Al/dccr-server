@@ -7,7 +7,6 @@ namespace DCCR_SERVER.Models.ValidationFichiers
         public string type_regle { get; set; }
         public string? valeur_regle { get; set; } // Pour les règles de type/lookup
         public string message_erreur { get; set; }
-        public string categorie_regle { get; set; } // TYPE, LOOKUP, DEPENDENCY, CONSISTENCY, GUARANTOR, REQUIRED
 
         public string? colonne_dependante { get; set; } // Colonne déclencheur
         public string? valeur_dependante { get; set; } // Valeur déclencheur
