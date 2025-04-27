@@ -6,10 +6,10 @@ namespace DCCR_SERVER.Models.Principaux
     {
         public int id_garantie { get; set; }
 
-        public required string cle_interventant { get; set; }
+        public  string cle_interventant { get; set; }
         public Intervenant guarant {  get; set; }
 
-        public required string numero_contrat_credit { get; set; }
+        public  string numero_contrat_credit { get; set; }
 
         public DateOnly date_declaration { get; set; }
 

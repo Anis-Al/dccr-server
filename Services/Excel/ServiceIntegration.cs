@@ -109,9 +109,9 @@ namespace DCCR_SERVER.Services.Excel
             var erreurs = new List<ErreurExcel>();
             List<MappingColonnes> mappings;
             try { mappings = await _contexte.mapping_colonnes.AsNoTracking().ToListAsync(); }
-            catch (Exception ex) { erreurs.Add(new ErreurExcel { message_erreur = "Error loading config: Mappings unavailable." }); return (new List<donnees_brutes>(), erreurs); }
+            catch (Exception ex) { erreurs.Add(new ErreurExcel { message_erreur = "mappings non chargés." }); return (new List<donnees_brutes>(), erreurs); }
 
-            if (!mappings.Any()) { erreurs.Add(new ErreurExcel { message_erreur = "Config error: No mappings." }); return (new List<donnees_brutes>(), erreurs); }
+            if (!mappings.Any()) { erreurs.Add(new ErreurExcel { message_erreur = "mappings non trouvés." }); return (new List<donnees_brutes>(), erreurs); }
 
             var lignes = new List<Dictionary<string, string>>();
             var header = new List<string>();
@@ -124,7 +124,7 @@ namespace DCCR_SERVER.Services.Excel
                             header.Add(reader.GetValue(i)?.ToString()?.Trim() ?? $"Column_{i + 1}");
                     }
                     else {
-                        erreurs.Add(new ErreurExcel { message_erreur = "File empty/no header." });
+                        erreurs.Add(new ErreurExcel { message_erreur = "Fichier vide!" });
                         return (new List<donnees_brutes>(), erreurs);
                     }
                     while (reader.Read())
@@ -305,10 +305,23 @@ namespace DCCR_SERVER.Services.Excel
                                 {
                                     var erreurCoherence = new ErreurExcel { ligne_excel = ligneDuGroupe.ligne_original, nom_colonne = champName, message_erreur = $"Incohérence participant {groupe.Key} sur '{champName}'. Valeurs: {string.Join(", ", valeurs)}.", valeur_erronee = string.Join(", ", valeurs), id_regle = null };
                                     erreursCoherence.Add(erreurCoherence);
-                                    if (ligneDuGroupe.est_valide) { ligneDuGroupe.est_valide = false; changesMadeCoherence = true; }
+                                    if (ligneDuGroupe.est_valide)
+                                    {
+                                        ligneDuGroupe.est_valide = false;
+                                        changesMadeCoherence = true;
+                                    }
                                     List<string> messages = new List<string>();
-                                    if (!string.IsNullOrEmpty(ligneDuGroupe.messages_validation) && ligneDuGroupe.messages_validation != "[]") { try { messages = JsonSerializer.Deserialize<List<string>>(ligneDuGroupe.messages_validation) ?? new List<string>(); } catch { messages = new List<string> { ligneDuGroupe.messages_validation }; } }
-                                    if (!messages.Contains(erreurCoherence.message_erreur)) { messages.Add(erreurCoherence.message_erreur); ligneDuGroupe.messages_validation = JsonSerializer.Serialize(messages); changesMadeCoherence = true; }
+                                    if (!string.IsNullOrEmpty(ligneDuGroupe.messages_validation) && ligneDuGroupe.messages_validation != "[]")
+                                    {
+                                        try { messages = JsonSerializer.Deserialize<List<string>>(ligneDuGroupe.messages_validation) ?? new List<string>(); }
+                                        catch { messages = new List<string> { ligneDuGroupe.messages_validation }; }
+                                    }
+                                    if (!messages.Contains(erreurCoherence.message_erreur))
+                                    {
+                                        messages.Add(erreurCoherence.message_erreur);
+                                        ligneDuGroupe.messages_validation = JsonSerializer.Serialize(messages);
+                                        changesMadeCoherence = true;
+                                    }
                                     if (changesMadeCoherence && _contexte.Entry(ligneDuGroupe).State == EntityState.Unchanged)
                                     {
                                         _contexte.Entry(ligneDuGroupe).State = EntityState.Modified;
@@ -826,6 +839,188 @@ namespace DCCR_SERVER.Services.Excel
             }
         }
 
+        
+        public async Task MigrerDonneesStagingVersProdAsync(int idExcel)
+        {
+            var hasInvalid = await _contexte.table_intermediaire_traitement.AnyAsync(x => x.id_import_excel == idExcel && !x.est_valide);
+            if (hasInvalid)
+            {
+                throw new InvalidOperationException("La migration ne peut être effectuée .");
+                return;
+            }
+
+            using var transaction = await _contexte.Database.BeginTransactionAsync();
+            try
+            {
+                var mappings = await _contexte.mapping_colonnes.AsNoTracking().ToListAsync();
+
+                var lignesValides = await _contexte.table_intermediaire_traitement
+                    .Where(x => x.id_import_excel == idExcel )
+                    .ToListAsync();
+
+                var mappingsParTable = mappings
+                    .Where(m => !string.IsNullOrEmpty(m.table_bdd))
+                    .GroupBy(m => m.table_bdd)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                var lieuxDict = new Dictionary<string, Models.Principaux.Lieu>();
+                foreach (var ligne in lignesValides)
+                {
+                    var key = $"{ligne.code_pays}|{ligne.code_wilaya}|{ligne.code_agence}";
+                    if (!lieuxDict.ContainsKey(key))
+                    {
+                        var lieu = await _contexte.lieux.FirstOrDefaultAsync(l => l.code_pays == ligne.code_pays && l.code_wilaya == ligne.code_wilaya && l.code_agence == ligne.code_agence);
+                        if (lieu == null)
+                        {
+                            lieu = new Models.Principaux.Lieu
+                            {
+                                code_pays = ligne.code_pays,
+                                code_wilaya = ligne.code_wilaya,
+                                code_agence = ligne.code_agence
+                            };
+                            _contexte.lieux.Add(lieu);
+                            await _contexte.SaveChangesAsync();
+                        }
+                        lieuxDict[key] = lieu;
+                    }
+                }
+
+                var creditsDict = new Dictionary<string, Models.Principaux.Crédit>();
+                if (mappingsParTable.ContainsKey("credits"))
+                {
+                    foreach (var ligne in lignesValides)
+
+                        
+                    {
+                        var credit = new Crédit();
+                        foreach (var mapping in mappingsParTable["credits"])
+                        {
+                            var propSource = typeof(Models.Principaux.donnees_brutes).GetProperty(mapping.colonne_bdd);
+                            var propTarget = typeof(Models.Principaux.Crédit).GetProperty(mapping.colonne_bdd);
+                            if (propSource != null && propTarget != null)
+                            {
+                                var value = propSource.GetValue(ligne);
+                                if (value != null && propTarget.PropertyType.IsAssignableFrom(value.GetType()))
+                                    propTarget.SetValue(credit, value);
+                                else if (value != null)
+                                    propTarget.SetValue(credit, Convert.ChangeType(value, propTarget.PropertyType));
+                            }
+                        }
+                        var lieuKey = $"{ligne.code_pays}|{ligne.code_wilaya}|{ligne.code_agence}";
+                        credit.lieu = lieuxDict[lieuKey];
+                        credit.id_excel = idExcel;
+                        _contexte.Set<Models.Principaux.Crédit>().Add(credit);
+                        var creditKey = $"{ligne.numero_contrat}|{ligne.date_declaration}";
+                        creditsDict[creditKey] = credit;
+                    }
+                }
+
+                var intervenantsDict = new Dictionary<string, Models.Principaux.Intervenant>();
+                if (mappingsParTable.ContainsKey("intervenants"))
+                {
+                    foreach (var ligne in lignesValides)
+                    {
+                        var intervenant = new Intervenant();
+                        foreach (var mapping in mappingsParTable["intervenants"])
+                        {
+                            var propSource = typeof(Models.Principaux.donnees_brutes).GetProperty(mapping.colonne_bdd);
+                            var propTarget = typeof(Models.Principaux.Intervenant).GetProperty(mapping.colonne_bdd);
+                            if (propSource != null && propTarget != null)
+                            {
+                                var value = propSource.GetValue(ligne);
+                                if (value != null && propTarget.PropertyType.IsAssignableFrom(value.GetType()))
+                                    propTarget.SetValue(intervenant, value);
+                                else if (value != null)
+                                    propTarget.SetValue(intervenant, Convert.ChangeType(value, propTarget.PropertyType));
+                            }
+                        }
+                        // Check if intervenant exists by 'cle' (unique key)
+                        var cle = intervenant.cle;
+                        var existingIntervenant = await _contexte.intervenants.FirstOrDefaultAsync(i => i.cle == cle);
+                        if (existingIntervenant == null)
+                        {
+                            _contexte.intervenants.Add(intervenant);
+                            intervenantsDict[cle] = intervenant;
+                        }
+                        else
+                        {
+                            intervenantsDict[cle] = existingIntervenant;
+                        }
+                    }
+                }
+
+                if (mappingsParTable.ContainsKey("intervenants_credits"))
+                {
+                    foreach (var ligne in lignesValides)
+                    {
+                        var intervenantCredit = new Models.Principaux.IntervenantCrédit();
+                        foreach (var mapping in mappingsParTable["intervenants_credits"])
+                        {
+                            var propSource = typeof(Models.Principaux.donnees_brutes).GetProperty(mapping.colonne_bdd);
+                            var propTarget = typeof(Models.Principaux.IntervenantCrédit).GetProperty(mapping.colonne_bdd);
+                            if (propSource != null && propTarget != null)
+                            {
+                                var value = propSource.GetValue(ligne);
+                                if (value != null && propTarget.PropertyType.IsAssignableFrom(value.GetType()))
+                                    propTarget.SetValue(intervenantCredit, value);
+                                else if (value != null)
+                                    propTarget.SetValue(intervenantCredit, Convert.ChangeType(value, propTarget.PropertyType));
+                            }
+                        }
+                        var cle = ligne.participant_cle;
+                        if (intervenantsDict.ContainsKey(cle))
+                            intervenantCredit.intervenant = intervenantsDict[cle];
+                        var creditKey = $"{ligne.numero_contrat}|{ligne.date_declaration}";
+                        if (creditsDict.ContainsKey(creditKey))
+                            intervenantCredit.credit = creditsDict[creditKey];
+                        _contexte.Set<Models.Principaux.IntervenantCrédit>().Add(intervenantCredit);
+                    }
+                }
+
+                if (mappingsParTable.ContainsKey("garantie"))
+                {
+                    foreach (var ligne in lignesValides)
+                    {
+                        var garantie = new Garantie();
+                        foreach (var mapping in mappingsParTable["garantie"])
+                        {
+                            var propSource = typeof(Models.Principaux.donnees_brutes).GetProperty(mapping.colonne_bdd);
+                            var propTarget = typeof(Models.Principaux.Garantie).GetProperty(mapping.colonne_bdd);
+                            if (propSource != null && propTarget != null)
+                            {
+                                var value = propSource.GetValue(ligne);
+                                if (value != null && propTarget.PropertyType.IsAssignableFrom(value.GetType()))
+                                    propTarget.SetValue(garantie, value);
+                                else if (value != null)
+                                    propTarget.SetValue(garantie, Convert.ChangeType(value, propTarget.PropertyType));
+                            }
+                        }
+                        // Link to intervenant (by cle_interventant)
+                        var cle = ligne.participant_cle;
+                        if (intervenantsDict.ContainsKey(cle))
+                            garantie.guarant = intervenantsDict[cle];
+                        var creditKey = $"{ligne.numero_contrat}|{ligne.date_declaration}";
+                        if (creditsDict.ContainsKey(creditKey))
+                            garantie.credit = creditsDict[creditKey];
+                        garantie.id_excel = idExcel;
+                        _contexte.Set<Models.Principaux.Garantie>().Add(garantie);
+                    }
+                }
+                await _contexte.SaveChangesAsync();
+
+                _contexte.table_intermediaire_traitement.RemoveRange(lignesValides);
+                await _contexte.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw new Exception("Erreur lors de la migration des données staging vers production : " + ex.Message, ex);
+            }
+        } 
+
+  
     } 
 
   

@@ -6,7 +6,7 @@ namespace DCCR_SERVER.Models.Principaux
 {
     public class Crédit
     {
-        public required string numero_contrat_credit { get; set; }
+        public  string numero_contrat_credit { get; set; }
         public DateOnly date_declaration { get; set; }
         public int? id_excel { get; set; }
         public bool est_plafond_accorde { get; set; } = false;

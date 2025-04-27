@@ -42,6 +42,28 @@
           }
         }
       }
+    },
+    "/api/Excel/confirmer": {
+      "post": {
+        "tags": [
+          "Excel"
+        ],
+        "parameters": [
+          {
+            "name": "idExcel",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": { }

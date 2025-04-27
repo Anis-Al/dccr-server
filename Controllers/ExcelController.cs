@@ -82,6 +82,24 @@ namespace DCCR_SERVER.Controllers
         //     }
         // }
 
-       
+        [HttpPost("confirmer")]
+        public async Task<IActionResult> MigrerStagingVersProd([FromQuery] int idExcel)
+        {
+            try
+            {
+                await _integration.MigrerDonneesStagingVersProdAsync(idExcel);
+                return Ok(new { success = true, message = "Migration effectuée avec succès." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Migration impossible : lignes invalides.");
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la migration staging -> production");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }
