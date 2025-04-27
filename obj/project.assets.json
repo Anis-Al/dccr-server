@@ -112,6 +112,9 @@
           }
         }
       },
+      "EFCore.BulkExtensions/9.0.1": {
+        "type": "package"
+      },
       "EntityFramework/6.5.1": {
         "type": "package",
         "dependencies": {
@@ -2298,6 +2301,20 @@
         "lib/net8.0/DocumentFormat.OpenXml.Framework.xml",
         "lib/netstandard2.0/DocumentFormat.OpenXml.Framework.dll",
         "lib/netstandard2.0/DocumentFormat.OpenXml.Framework.xml"
+      ]
+    },
+    "EFCore.BulkExtensions/9.0.1": {
+      "sha512": "exOdMFHAFTzE19ux2Kyhqv+vWsyUYrdYC5euxaLOzQ3Mukm3sRdXiXyYuLoJknTxJoM86rVHYvXZD9HFPcZTBQ==",
+      "type": "package",
+      "path": "efcore.bulkextensions/9.0.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "EFCoreBulk.png",
+        "LICENSE.txt",
+        "README.md",
+        "efcore.bulkextensions.9.0.1.nupkg.sha512",
+        "efcore.bulkextensions.nuspec"
       ]
     },
     "EntityFramework/6.5.1": {
@@ -6556,6 +6573,7 @@
   "projectFileDependencyGroups": {
     "net8.0": [
       "ClosedXML >= 0.104.2",
+      "EFCore.BulkExtensions >= 9.0.1",
       "EPPlus >= 7.7.0",
       "EntityFramework >= 6.5.1",
       "ExcelDataReader >= 3.7.0",
@@ -6623,6 +6641,10 @@
           "ClosedXML": {
             "target": "Package",
             "version": "[0.104.2, )"
+          },
+          "EFCore.BulkExtensions": {
+            "target": "Package",
+            "version": "[9.0.1, )"
           },
           "EPPlus": {
             "target": "Package",

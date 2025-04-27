@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "hHGPM1y3bRc=",
+  "dgSpecHash": "b0PY3YM5je8=",
   "success": true,
   "projectFilePath": "C:\\Users\\j\\source\\repos\\DCCR_SERVER\\DCCR_SERVER\\DCCR_SERVER.csproj",
   "expectedPackageFiles": [
@@ -10,6 +10,7 @@
     "C:\\Users\\j\\.nuget\\packages\\closedxml.parser\\1.2.0\\closedxml.parser.1.2.0.nupkg.sha512",
     "C:\\Users\\j\\.nuget\\packages\\documentformat.openxml\\3.1.1\\documentformat.openxml.3.1.1.nupkg.sha512",
     "C:\\Users\\j\\.nuget\\packages\\documentformat.openxml.framework\\3.1.1\\documentformat.openxml.framework.3.1.1.nupkg.sha512",
+    "C:\\Users\\j\\.nuget\\packages\\efcore.bulkextensions\\9.0.1\\efcore.bulkextensions.9.0.1.nupkg.sha512",
     "C:\\Users\\j\\.nuget\\packages\\entityframework\\6.5.1\\entityframework.6.5.1.nupkg.sha512",
     "C:\\Users\\j\\.nuget\\packages\\epplus\\7.7.0\\epplus.7.7.0.nupkg.sha512",
     "C:\\Users\\j\\.nuget\\packages\\epplus.interfaces\\7.7.0\\epplus.interfaces.7.7.0.nupkg.sha512",

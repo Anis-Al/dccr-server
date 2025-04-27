@@ -8,6 +8,6 @@ namespace DCCR_SERVER.DTOs
         public bool contientErreurs { get; set; }
         public List<Object> Erreurs { get; set; }
         public List<LoanPreviewDto> ApercuDonnees { get; set; }
-        public int IdExcel { get; set; } // to track the import session/file
+        public string IdExcel { get; set; } // to track the import session/file
     }
 }

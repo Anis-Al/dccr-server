@@ -98,7 +98,7 @@ namespace DCCR_SERVER.Services.Excel
                 ApercuDonnees = (lignesMiseEnAttente != null && lignesMiseEnAttente.Any() && !erreursDb.Any())
                        ? BuildLoanPreview(lignesMiseEnAttente)
                        : new List<LoanPreviewDto>(),
-                IdExcel=fichier.id_fichier_excel
+                IdExcel=fichier.nom_fichier_excel
             };
             return result;
         }
@@ -208,12 +208,12 @@ namespace DCCR_SERVER.Services.Excel
             }
             catch (DbUpdateException dbEx)
             {
-                erreurs.Add(new ErreurExcel { message_erreur = $"Database constraint violation saving data: {dbEx.InnerException?.Message ?? dbEx.Message}" });
+                erreurs.Add(new ErreurExcel { message_erreur = $" {dbEx.InnerException?.Message ?? dbEx.Message}" });
                 return (lignesMiseEnAttente, erreurs);
             }
             catch (Exception ex)
             {
-                erreurs.Add(new ErreurExcel { message_erreur = $"Database error saving initial data: {ex.Message}" });
+                erreurs.Add(new ErreurExcel { message_erreur = $" {ex.Message}" });
                 return (lignesMiseEnAttente, erreurs);
             }
             List<ErreurExcel> erreursValidation = new List<ErreurExcel>();
@@ -465,6 +465,12 @@ namespace DCCR_SERVER.Services.Excel
                                 {
                                     switch (tableName)
                                     {
+                                        case "durees_credit":
+                                            exists = _contexte.durees_credit.Any(m => m.code == valeurDomaineStr);
+                                            break;
+                                        case "niveaux_responsabilite":
+                                            exists = _contexte.niveaux_responsabilite.Any(m => m.code == valeurDomaineStr);
+                                            break;
                                         case "monnaies":
                                             exists = _contexte.monnaies.Any(m => m.code == valeurDomaineStr);
                                             break;
@@ -496,6 +502,24 @@ namespace DCCR_SERVER.Services.Excel
                                 {
                                     erreurs.Add(GenererErreur(ligne, regle, valeurDomaineStr));
                                 }
+                            }
+                            break;
+                        case "FORMAT":
+                            if (string.IsNullOrEmpty(regle.nom_colonne) || string.IsNullOrEmpty(regle.valeur_regle)) continue;
+                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
+                            object valeurFormat = null;
+                            try { valeurFormat = prop.GetValue(ligne); } catch { }
+                            string valeurFormatStr = valeurFormat?.ToString();
+                            if (!string.IsNullOrEmpty(valeurFormatStr))
+                            {
+                                try
+                                {
+                                    if (!System.Text.RegularExpressions.Regex.IsMatch(valeurFormatStr, regle.valeur_regle))
+                                    {
+                                        erreurs.Add(GenererErreur(ligne, regle, valeurFormatStr));
+                                    }
+                                }
+                                catch { erreurs.Add(GenererErreur(ligne, regle, valeurFormatStr)); }
                             }
                             break;
                         case "LONGUEUR":
@@ -585,9 +609,24 @@ namespace DCCR_SERVER.Services.Excel
                                 var dependances = regle.valeur_dependante.Split(',');
                                 if (valeurDep != null && dependances.Contains(valeurDep.ToString()))
                                 {
-                                    if (valeurEgalASi != null && valeurEgalASiStr != regle.valeur_regle)
+                                    if (!string.IsNullOrEmpty(regle.colonne_cible) && !string.IsNullOrEmpty(regle.valeur_cible_attendue))
                                     {
-                                        erreurs.Add(GenererErreur(ligne, regle, valeurEgalASiStr));
+                                        if (!propertyCache.TryGetValue(regle.colonne_cible, out var propCible)) continue;
+                                        var valeurCible = propCible.GetValue(ligne)?.ToString();
+                                        if (valeurCible == regle.valeur_cible_attendue)
+                                        {
+                                            if (valeurEgalASi == null || valeurEgalASiStr != regle.valeur_regle)
+                                            {
+                                                erreurs.Add(GenererErreur(ligne, regle, valeurEgalASiStr));
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (valeurEgalASi == null || valeurEgalASiStr != regle.valeur_regle)
+                                        {
+                                            erreurs.Add(GenererErreur(ligne, regle, valeurEgalASiStr));
+                                        }
                                     }
                                 }
                             }
