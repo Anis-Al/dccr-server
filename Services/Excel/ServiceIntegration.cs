@@ -40,7 +40,7 @@ namespace DCCR_SERVER.Services.Excel
                 try { Directory.CreateDirectory(dossierStockage); } catch (Exception) { throw; }
             }
             var nomFichier = Path.GetFileName(fichierExcel.FileName);
-            var cheminStockage = Path.Combine(dossierStockage, $"{guidSession}_{nomFichier}");
+            var cheminStockage = Path.Combine(dossierStockage, nomFichier);
 
             try { using (var flux = new FileStream(cheminStockage, FileMode.Create)) { await fichierExcel.CopyToAsync(flux); } }
             catch (Exception ex) { throw new IOException($"Failed save file: {ex.Message}", ex); }
@@ -117,7 +117,7 @@ namespace DCCR_SERVER.Services.Excel
             var header = new List<string>();
             try
             {
-                using (var reader = ExcelReaderFactory.CreateReader(fluxExcel))
+                using (var reader = ExcelReaderFactory.CreateReader(fluxExcel)) 
                 {
                     if (reader.Read()) {
                         for (int i = 0; i < reader.FieldCount; i++)
@@ -164,7 +164,6 @@ namespace DCCR_SERVER.Services.Excel
                     id_session_import = fichier.id_session_import,
                     ligne_original = numeroLigneExcelSource,
                     est_valide = true,
-                    messages_validation = "[]"
                 };
                 var messagesValidationLigne = new List<string>();
                 bool ligneValideActuellement = true;
@@ -197,7 +196,6 @@ namespace DCCR_SERVER.Services.Excel
                     else continue;
                 }
                 miseEnAttente.est_valide = ligneValideActuellement;
-                miseEnAttente.messages_validation = messagesValidationLigne.Any() ? JsonSerializer.Serialize(messagesValidationLigne) : "[]";
                 lignesMiseEnAttente.Add(miseEnAttente);
                 numeroLigneExcelSource++;
             }
@@ -230,9 +228,7 @@ namespace DCCR_SERVER.Services.Excel
                             id_excel = fichier.id_fichier_excel,
                             id_regle = err.id_regle,
                             ligne_excel = err.ligne_excel,
-                            nom_colonne = err.nom_colonne,
                             message_erreur = err.message_erreur,
-                            valeur_erronee = err.valeur_erronee,
                             id_staging_raw_data = err.id_staging_raw_data
                         });
                     }
@@ -249,18 +245,7 @@ namespace DCCR_SERVER.Services.Excel
                         ligneAffectee.est_valide = false;
                         changesMade = true;
                     }
-                    List<string> messages = new List<string>();
-                    if (!string.IsNullOrEmpty(ligneAffectee.messages_validation) && ligneAffectee.messages_validation != "[]")
-                    {
-                        try { messages = JsonSerializer.Deserialize<List<string>>(ligneAffectee.messages_validation) ?? new List<string>(); }
-                        catch { messages = new List<string> { ligneAffectee.messages_validation }; }
-                    }
-                    if (!messages.Contains(erreur.message_erreur))
-                    {
-                        messages.Add(erreur.message_erreur);
-                        ligneAffectee.messages_validation = JsonSerializer.Serialize(messages);
-                        changesMade = true;
-                    }
+                    
                     if (changesMade && _contexte.Entry(ligneAffectee).State == EntityState.Unchanged)
                     {
                         _contexte.Entry(ligneAffectee).State = EntityState.Modified;
@@ -303,25 +288,14 @@ namespace DCCR_SERVER.Services.Excel
                                 bool changesMadeCoherence = false;
                                 foreach (var ligneDuGroupe in groupe)
                                 {
-                                    var erreurCoherence = new ErreurExcel { ligne_excel = ligneDuGroupe.ligne_original, nom_colonne = champName, message_erreur = $"Incohérence participant {groupe.Key} sur '{champName}'. Valeurs: {string.Join(", ", valeurs)}.", valeur_erronee = string.Join(", ", valeurs), id_regle = null };
-                                    erreursCoherence.Add(erreurCoherence);
+                                    var erreurCoherence = new ErreurExcel { ligne_excel = ligneDuGroupe.ligne_original, message_erreur = $"Incohérence participant {groupe.Key} sur '{champName}'. Valeurs: {string.Join(", ", valeurs)}.", id_regle = null };
+                                    erreursCoherence.Add(erreurCoherence);  
                                     if (ligneDuGroupe.est_valide)
                                     {
                                         ligneDuGroupe.est_valide = false;
                                         changesMadeCoherence = true;
                                     }
-                                    List<string> messages = new List<string>();
-                                    if (!string.IsNullOrEmpty(ligneDuGroupe.messages_validation) && ligneDuGroupe.messages_validation != "[]")
-                                    {
-                                        try { messages = JsonSerializer.Deserialize<List<string>>(ligneDuGroupe.messages_validation) ?? new List<string>(); }
-                                        catch { messages = new List<string> { ligneDuGroupe.messages_validation }; }
-                                    }
-                                    if (!messages.Contains(erreurCoherence.message_erreur))
-                                    {
-                                        messages.Add(erreurCoherence.message_erreur);
-                                        ligneDuGroupe.messages_validation = JsonSerializer.Serialize(messages);
-                                        changesMadeCoherence = true;
-                                    }
+                                    
                                     if (changesMadeCoherence && _contexte.Entry(ligneDuGroupe).State == EntityState.Unchanged)
                                     {
                                         _contexte.Entry(ligneDuGroupe).State = EntityState.Modified;
@@ -353,8 +327,9 @@ namespace DCCR_SERVER.Services.Excel
             var erreurs = new List<ErreurExcel>();
             List<RegleValidation> regles;
             try { regles = await _contexte.regles_validation.AsNoTracking().ToListAsync(); }
-            catch (Exception ex) { return new List<ErreurExcel>(); } 
-            if (regles == null || !regles.Any() || lignes == null || !lignes.Any()) return new List<ErreurExcel>();
+            catch { return new List<ErreurExcel>(); }
+            if (regles == null || !regles.Any() || lignes == null || !lignes.Any()) 
+            return new List<ErreurExcel>();
             var propertyCache = new Dictionary<string, PropertyInfo>(StringComparer.OrdinalIgnoreCase);
             foreach (var r in regles)
             {
@@ -374,6 +349,16 @@ namespace DCCR_SERVER.Services.Excel
                     if (prop != null) propertyCache[r.colonne_cible] = prop;
                 }
             }
+            var hashDureesCredit = _contexte.durees_credit.AsNoTracking().Select(x => x.code).ToHashSet();
+            var hashNiveauxResponsabilite = _contexte.niveaux_responsabilite.AsNoTracking().Select(x => x.code).ToHashSet();
+            var hashMonnaies = _contexte.monnaies.AsNoTracking().Select(x => x.code).ToHashSet();
+            var hashClassesRetard = _contexte.classes_retard.AsNoTracking().Select(x => x.code).ToHashSet();
+            var hashTypesGarantie = _contexte.types_garantie.AsNoTracking().Select(x => x.code).ToHashSet();
+            var hashTypesCredit = _contexte.types_credit.AsNoTracking().Select(x => x.code).ToHashSet();
+            var hashSituationsCredit = _contexte.situations_credit.AsNoTracking().Select(x => x.code).ToHashSet();
+            var hashActivitesCredit = _contexte.activites_credit.AsNoTracking().Select(x => x.code).ToHashSet();
+            var hashWilayas = _contexte.wilayas.AsNoTracking().Select(x => x.code).ToHashSet();
+            var hashPays = _contexte.pays.AsNoTracking().Select(x => x.code).ToHashSet();
             foreach (var ligne in lignes)
             {
                 foreach (var regle in regles)
@@ -382,344 +367,58 @@ namespace DCCR_SERVER.Services.Excel
                     switch (typeRegle)
                     {
                         case "OBLIGATOIRE":
-                            if (string.IsNullOrEmpty(regle.nom_colonne)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) continue;
-                            object valeur = null;
-                            try { valeur = prop.GetValue(ligne); } catch { }
-                            string valeurStr = valeur?.ToString();
-                            if (valeur == null || (valeur is string chaine1 && string.IsNullOrWhiteSpace(chaine1))) {
-                                erreurs.Add(GenererErreur(ligne, regle, null));
-                            }
+                            TraiterObligatoire(erreurs, ligne, regle, propertyCache);
                             break;
                         case "OBLIGATOIRE_SI":
-                            if (string.IsNullOrEmpty(regle.nom_colonne)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
-                            object valeurObligatoireSi = null;
-                            try { valeurObligatoireSi = prop.GetValue(ligne); } catch { }
-                            string valeurObligatoireSiStr = valeurObligatoireSi?.ToString();
-                            if (!string.IsNullOrEmpty(regle.colonne_dependante) && !string.IsNullOrEmpty(regle.valeur_dependante))
-                            {
-                                if (!propertyCache.TryGetValue(regle.colonne_dependante, out var propDep)) continue;
-                                var valeurDep = propDep.GetValue(ligne);
-                                var dependances = regle.valeur_dependante.Split(',');
-                                if (valeurDep != null && dependances.Contains(valeurDep.ToString()))
-                                {
-                                    if (valeurObligatoireSi == null || (valeurObligatoireSi is string chaine2 && string.IsNullOrWhiteSpace(chaine2)))
-                                    {
-                                        erreurs.Add(GenererErreur(ligne, regle, valeurObligatoireSiStr));
-                                    }
-                                }
-                            }
+                            TraiterObligatoireSi(erreurs, ligne, regle, propertyCache);
                             break;
                         case "TYPE_TEXTE":
-                            if (string.IsNullOrEmpty(regle.nom_colonne)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
-                            object valeurTypeTexte = null;
-                            try { valeurTypeTexte = prop.GetValue(ligne); } catch { }
-                            string valeurTypeTexteStr = valeurTypeTexte?.ToString();
-                            if (valeurTypeTexte != null && !(valeurTypeTexte is string))
-                            {
-                                erreurs.Add(GenererErreur(ligne, regle, valeurTypeTexteStr));
-                            }
+                            TraiterTypeTexte(erreurs, ligne, regle, propertyCache);
                             break;
                         case "TYPE_DECIMAL":
-                            if (string.IsNullOrEmpty(regle.nom_colonne)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
-                            object valeurTypeDecimal = null;
-                            try { valeurTypeDecimal = prop.GetValue(ligne); } catch { }
-                            string valeurTypeDecimalStr = valeurTypeDecimal?.ToString();
-                            if (!string.IsNullOrWhiteSpace(valeurTypeDecimalStr))
-                            {
-                                if (!decimal.TryParse(valeurTypeDecimalStr, out _))
-                                {
-                                    erreurs.Add(GenererErreur(ligne, regle, valeurTypeDecimalStr));
-                                }
-                            }
+                            TraiterTypeDecimal(erreurs, ligne, regle, propertyCache);
                             break;
                         case "TYPE_DATE":
-                            if (string.IsNullOrEmpty(regle.nom_colonne)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
-                            object valeurTypeDate = null;
-                            try { valeurTypeDate = prop.GetValue(ligne); } catch { }
-                            string valeurTypeDateStr = valeurTypeDate?.ToString();
-                            if (!string.IsNullOrWhiteSpace(valeurTypeDateStr))
-                            {
-                                if (!DateOnly.TryParse(valeurTypeDateStr, out _))
-                                {
-                                    erreurs.Add(GenererErreur(ligne, regle, valeurTypeDateStr));
-                                }
-                            }
+                            TraiterTypeDate(erreurs, ligne, regle, propertyCache);
                             break;
                         case "TYPE_ENTIER":
-                            if (string.IsNullOrEmpty(regle.nom_colonne)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
-                            object valeurTypeEntier = null;
-                            try { valeurTypeEntier = prop.GetValue(ligne); } catch { }
-                            string valeurTypeEntierStr = valeurTypeEntier?.ToString();
-                            if (!string.IsNullOrWhiteSpace(valeurTypeEntierStr))
-                            {
-                                if (!int.TryParse(valeurTypeEntierStr, out _))
-                                {
-                                    erreurs.Add(GenererErreur(ligne, regle, valeurTypeEntierStr));
-                                }
-                            }
+                            TraiterTypeEntier(erreurs, ligne, regle, propertyCache);
                             break;
                         case "DOMAINE":
-                            if (string.IsNullOrEmpty(regle.nom_colonne)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
-                            object valeurDomaine = null;
-                            try { valeurDomaine = prop.GetValue(ligne); } catch { }
-                            string valeurDomaineStr = valeurDomaine?.ToString();
-                            if (!string.IsNullOrWhiteSpace(valeurDomaineStr))
-                            {
-                                bool exists = false;
-                                string tableName = regle.valeur_regle;
-                                try
-                                {
-                                    switch (tableName)
-                                    {
-                                        case "durees_credit":
-                                            exists = _contexte.durees_credit.Any(m => m.code == valeurDomaineStr);
-                                            break;
-                                        case "niveaux_responsabilite":
-                                            exists = _contexte.niveaux_responsabilite.Any(m => m.code == valeurDomaineStr);
-                                            break;
-                                        case "monnaies":
-                                            exists = _contexte.monnaies.Any(m => m.code == valeurDomaineStr);
-                                            break;
-                                        case "classes_retard":
-                                            exists = _contexte.classes_retard.Any(x => x.code == valeurDomaineStr);
-                                            break;
-                                        case "types_garantie":
-                                            exists = _contexte.types_garantie.Any(x => x.code == valeurDomaineStr);
-                                            break;
-                                        case "types_credit":
-                                            exists = _contexte.types_credit.Any(x => x.code == valeurDomaineStr);
-                                            break;
-                                        case "situations_credit":
-                                            exists = _contexte.situations_credit.Any(x => x.code == valeurDomaineStr);
-                                            break;
-                                        case "activites_credit":
-                                            exists = _contexte.activites_credit.Any(x => x.code == valeurDomaineStr);
-                                            break;
-                                        case "wilayas":
-                                            exists = _contexte.wilayas.Any(x => x.code == valeurDomaineStr);
-                                            break;
-                                        case "pays":
-                                            exists = _contexte.pays.Any(x => x.code == valeurDomaineStr);
-                                            break;
-                                    }
-                                }
-                                catch { }
-                                if (!exists)
-                                {
-                                    erreurs.Add(GenererErreur(ligne, regle, valeurDomaineStr));
-                                }
-                            }
+                            TraiterDomaine(erreurs, ligne, regle, propertyCache, hashDureesCredit, hashNiveauxResponsabilite, hashMonnaies, hashClassesRetard, hashTypesGarantie, hashTypesCredit, hashSituationsCredit, hashActivitesCredit, hashWilayas, hashPays);
                             break;
                         case "FORMAT":
-                            if (string.IsNullOrEmpty(regle.nom_colonne) || string.IsNullOrEmpty(regle.valeur_regle)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
-                            object valeurFormat = null;
-                            try { valeurFormat = prop.GetValue(ligne); } catch { }
-                            string valeurFormatStr = valeurFormat?.ToString();
-                            if (!string.IsNullOrEmpty(valeurFormatStr))
-                            {
-                                try
-                                {
-                                    if (!System.Text.RegularExpressions.Regex.IsMatch(valeurFormatStr, regle.valeur_regle))
-                                    {
-                                        erreurs.Add(GenererErreur(ligne, regle, valeurFormatStr));
-                                    }
-                                }
-                                catch { erreurs.Add(GenererErreur(ligne, regle, valeurFormatStr)); }
-                            }
+                            TraiterFormat(erreurs, ligne, regle, propertyCache);
                             break;
                         case "LONGUEUR":
-                            if (string.IsNullOrEmpty(regle.nom_colonne)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
-                            object valeurLongueur = null;
-                            try { valeurLongueur = prop.GetValue(ligne); } catch { }
-                            string valeurLongueurStr = valeurLongueur?.ToString();
-                            if (valeurLongueurStr != null && valeurLongueurStr.Length != int.Parse(regle.valeur_regle))
-                            {
-                                erreurs.Add(GenererErreur(ligne, regle, valeurLongueurStr));
-                            }
+                            TraiterLongueur(erreurs, ligne, regle, propertyCache);
                             break;
                         case "VALEUR_PAR_DEFAUT_SI_VIDE":
-                            if (string.IsNullOrEmpty(regle.nom_colonne)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
-                            object valeurParDefaut = null;
-                            try { valeurParDefaut = prop.GetValue(ligne); } catch { }
-                            string valeurParDefautStr = valeurParDefaut?.ToString();
-                            if (string.IsNullOrWhiteSpace(valeurParDefautStr))
-                            {
-                                var propDefaut = typeof(donnees_brutes).GetProperty(regle.nom_colonne);
-                                if (propDefaut != null) propDefaut.SetValue(ligne, regle.valeur_regle);
-                            }
+                            TraiterValeurParDefautSiVide(ligne, regle, propertyCache);
                             break;
                         case "VALEUR_INTERDITE":
-                            if (string.IsNullOrEmpty(regle.nom_colonne)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
-                            object valeurInterdite = null;
-                            try { valeurInterdite = prop.GetValue(ligne); } catch { }
-                            string valeurInterditeStr = valeurInterdite?.ToString();
-                            if (valeurInterdite != null && regle.valeur_regle.Split(',').Contains(valeurInterdite.ToString()))
-                            {
-                                erreurs.Add(GenererErreur(ligne, regle, valeurInterditeStr));
-                            }
+                            TraiterValeurInterdite(erreurs, ligne, regle, propertyCache);
                             break;
                         case "VALEUR_INTERDITE_SI":
-                            if (string.IsNullOrEmpty(regle.nom_colonne)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
-                            object valeurInterditeSi = null;
-                            try { valeurInterditeSi = prop.GetValue(ligne); } catch { }
-                            string valeurInterditeSiStr = valeurInterditeSi?.ToString();
-                            if (!string.IsNullOrEmpty(regle.colonne_dependante) && !string.IsNullOrEmpty(regle.valeur_dependante))
-                            {
-                                if (!propertyCache.TryGetValue(regle.colonne_dependante, out var propDep)) continue;
-                                var valeurDep = propDep.GetValue(ligne);
-                                var dependances = regle.valeur_dependante.Split(',');
-                                if (valeurDep != null && dependances.Contains(valeurDep.ToString()))
-                                {
-                                    if (valeurInterditeSi != null && regle.valeur_regle.Split(',').Contains(valeurInterditeSi.ToString()))
-                                    {
-                                        erreurs.Add(GenererErreur(ligne, regle, valeurInterditeSiStr));
-                                    }
-                                }
-                            }
+                            TraiterValeurInterditeSi(erreurs, ligne, regle, propertyCache);
                             break;
                         case "VALEURS_INTERDITES_SI":
-                            if (string.IsNullOrEmpty(regle.nom_colonne)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
-                            object valeursInterditesSi = null;
-                            try { valeursInterditesSi = prop.GetValue(ligne); } catch { }
-                            string valeursInterditesSiStr = valeursInterditesSi?.ToString();
-                            if (!string.IsNullOrEmpty(regle.colonne_dependante) && !string.IsNullOrEmpty(regle.valeur_dependante))
-                            {
-                                if (!propertyCache.TryGetValue(regle.colonne_dependante, out var propDep)) continue;
-                                var valeurDep = propDep.GetValue(ligne);
-                                var dependances = regle.valeur_dependante.Split(',');
-                                if (valeurDep != null && dependances.Contains(valeurDep.ToString()))
-                                {
-                                    if (valeursInterditesSi != null && regle.valeur_regle.Split(',').Contains(valeursInterditesSi.ToString()))
-                                    {
-                                        erreurs.Add(GenererErreur(ligne, regle, valeursInterditesSiStr));
-                                    }
-                                }
-                            }
+                            TraiterValeursInterditesSi(erreurs, ligne, regle, propertyCache);
                             break;
                         case "EGAL_A_SI":
-                            if (string.IsNullOrEmpty(regle.nom_colonne)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
-                            object valeurEgalASi = null;
-                            try { valeurEgalASi = prop.GetValue(ligne); } catch { }
-                            string valeurEgalASiStr = valeurEgalASi?.ToString();
-                            if (!string.IsNullOrEmpty(regle.colonne_dependante) && !string.IsNullOrEmpty(regle.valeur_dependante))
-                            {
-                                if (!propertyCache.TryGetValue(regle.colonne_dependante, out var propDep)) continue;
-                                var valeurDep = propDep.GetValue(ligne);
-                                var dependances = regle.valeur_dependante.Split(',');
-                                if (valeurDep != null && dependances.Contains(valeurDep.ToString()))
-                                {
-                                    if (!string.IsNullOrEmpty(regle.colonne_cible) && !string.IsNullOrEmpty(regle.valeur_cible_attendue))
-                                    {
-                                        if (!propertyCache.TryGetValue(regle.colonne_cible, out var propCible)) continue;
-                                        var valeurCible = propCible.GetValue(ligne)?.ToString();
-                                        if (valeurCible == regle.valeur_cible_attendue)
-                                        {
-                                            if (valeurEgalASi == null || valeurEgalASiStr != regle.valeur_regle)
-                                            {
-                                                erreurs.Add(GenererErreur(ligne, regle, valeurEgalASiStr));
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (valeurEgalASi == null || valeurEgalASiStr != regle.valeur_regle)
-                                        {
-                                            erreurs.Add(GenererErreur(ligne, regle, valeurEgalASiStr));
-                                        }
-                                    }
-                                }
-                            }
+                            TraiterEgalASi(erreurs, ligne, regle, propertyCache);
                             break;
                         case "SUP_A_SI":
-                            if (string.IsNullOrEmpty(regle.nom_colonne)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
-                            object valeurSupASi = null;
-                            try { valeurSupASi = prop.GetValue(ligne); } catch { }
-                            string valeurSupASiStr = valeurSupASi?.ToString();
-                            if (!string.IsNullOrEmpty(regle.colonne_dependante) && !string.IsNullOrEmpty(regle.valeur_dependante))
-                            {
-                                if (!propertyCache.TryGetValue(regle.colonne_dependante, out var propDep)) continue;
-                                var valeurDep = propDep.GetValue(ligne);
-                                var dependances = regle.valeur_dependante.Split(',');
-                                if (valeurDep != null && dependances.Contains(valeurDep.ToString()))
-                                {
-                                    if (decimal.TryParse(valeurSupASiStr, out var valeurDecimale1) && decimal.TryParse(regle.valeur_regle, out var minimum1))
-                                    {
-                                        if (valeurDecimale1 <= minimum1)
-                                        {
-                                            erreurs.Add(GenererErreur(ligne, regle, valeurSupASiStr));
-                                        }
-                                    }
-                                }
-                            }
+                            TraiterSupASi(erreurs, ligne, regle, propertyCache);
                             break;
                         case "SUP":
-                            if (string.IsNullOrEmpty(regle.nom_colonne)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
-                            object valeurSup = null;
-                            try { valeurSup = prop.GetValue(ligne); } catch { }
-                            string valeurSupStr = valeurSup?.ToString();
-                            if (decimal.TryParse(valeurSupStr, out var valeurDecimale2) && decimal.TryParse(regle.valeur_regle, out var minimum2))
-                            {
-                                if (valeurDecimale2 <= minimum2)
-                                {
-                                    erreurs.Add(GenererErreur(ligne, regle, valeurSupStr));
-                                }
-                            }
+                            TraiterSup(erreurs, ligne, regle, propertyCache);
                             break;
                         case "DOIT_ETRE_NULL_SI":
-                            if (string.IsNullOrEmpty(regle.nom_colonne)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
-                            object valeurDoitEtreNullSi = null;
-                            try { valeurDoitEtreNullSi = prop.GetValue(ligne); } catch { }
-                            string valeurDoitEtreNullSiStr = valeurDoitEtreNullSi?.ToString();
-                            if (!string.IsNullOrEmpty(regle.colonne_dependante) && !string.IsNullOrEmpty(regle.valeur_dependante))
-                            {
-                                if (!propertyCache.TryGetValue(regle.colonne_dependante, out var propDep)) continue;
-                                var valeurDep = propDep.GetValue(ligne);
-                                var dependances = regle.valeur_dependante.Split(',');
-                                if (valeurDep != null && dependances.Contains(valeurDep.ToString()))
-                                {
-                                    if (valeurDoitEtreNullSi != null && !(valeurDoitEtreNullSi is string chaine3 && string.IsNullOrWhiteSpace(chaine3)))
-                                    {
-                                        erreurs.Add(GenererErreur(ligne, regle, valeurDoitEtreNullSiStr));
-                                    }
-                                }
-                            }
+                            TraiterDoitEtreNullSi(erreurs, ligne, regle, propertyCache);
                             break;
                         case "DOIT_ETRE_NULL_OU_ZERO_SI":
-                            if (string.IsNullOrEmpty(regle.nom_colonne)) continue;
-                            if (!propertyCache.TryGetValue(regle.nom_colonne, out prop)) continue;
-                            object valeurDoitEtreNullOuZeroSi = null;
-                            try { valeurDoitEtreNullOuZeroSi = prop.GetValue(ligne); } catch { }
-                            string valeurDoitEtreNullOuZeroSiStr = valeurDoitEtreNullOuZeroSi?.ToString();
-                            if (!string.IsNullOrEmpty(regle.colonne_dependante) && !string.IsNullOrEmpty(regle.valeur_dependante))
-                            {
-                                if (!propertyCache.TryGetValue(regle.colonne_dependante, out var propDep)) continue;
-                                var valeurDep = propDep.GetValue(ligne);
-                                var dependances = regle.valeur_dependante.Split(',');
-                                if (valeurDep != null && dependances.Contains(valeurDep.ToString()))
-                                {
-                                    if (!string.IsNullOrWhiteSpace(valeurDoitEtreNullOuZeroSiStr) && valeurDoitEtreNullOuZeroSiStr != "0")
-                                    {
-                                        erreurs.Add(GenererErreur(ligne, regle, valeurDoitEtreNullOuZeroSiStr));
-                                    }
-                                }
-                            }
+                            TraiterDoitEtreNullOuZeroSi(erreurs, ligne, regle, propertyCache);
                             break;
                         default:
                             break;
@@ -731,16 +430,14 @@ namespace DCCR_SERVER.Services.Excel
 
         private ErreurExcel GenererErreur(donnees_brutes ligne, RegleValidation regle, string valeurErronee)
         {
-            string nomColonne = regle?.nom_colonne ?? "Inconnu"; 
             string messageRegle = regle?.message_erreur; 
             int? idRegle = regle?.id_regle;
 
             return new ErreurExcel { 
                 ligne_excel = ligne.ligne_original, 
-                nom_colonne = nomColonne, 
                 message_erreur =  messageRegle, 
                 id_regle = idRegle, 
-                valeur_erronee = valeurErronee 
+                id_staging_raw_data = ligne.id
             };
         }
 
@@ -1020,8 +717,361 @@ namespace DCCR_SERVER.Services.Excel
             }
         } 
 
-  
-    } 
+        #region methodes_controle
+        void TraiterObligatoire(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeur = null;
+            try { valeur = prop.GetValue(ligne); } catch { }
+            if (valeur == null || (valeur is string chaine1 && string.IsNullOrWhiteSpace(chaine1))) {
+                erreurs.Add(GenererErreur(ligne, regle, null));
+            }
+        }
+
+        void TraiterObligatoireSi(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeurObligatoireSi = null;
+            try { valeurObligatoireSi = prop.GetValue(ligne); } catch { }
+            if (!string.IsNullOrEmpty(regle.colonne_dependante) && !string.IsNullOrEmpty(regle.valeur_dependante))
+            {
+                if (!propertyCache.TryGetValue(regle.colonne_dependante, out var propDep)) return;
+                var valeurDep = propDep.GetValue(ligne);
+                var dependances = regle.valeur_dependante.Split(',');
+                if (valeurDep != null && dependances.Contains(valeurDep.ToString()))
+                {
+                    if (valeurObligatoireSi == null || (valeurObligatoireSi is string chaine2 && string.IsNullOrWhiteSpace(chaine2)))
+                    {
+                        erreurs.Add(GenererErreur(ligne, regle, valeurObligatoireSi?.ToString()));
+                    }
+                }
+            }
+        }
+
+        void TraiterTypeTexte(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeurTypeTexte = null;
+            try { valeurTypeTexte = prop.GetValue(ligne); } catch { }
+            if (valeurTypeTexte != null && !(valeurTypeTexte is string))
+            {
+                erreurs.Add(GenererErreur(ligne, regle, valeurTypeTexte?.ToString()));
+            }
+        }
+
+        void TraiterTypeDecimal(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeurTypeDecimal = null;
+            try { valeurTypeDecimal = prop.GetValue(ligne); } catch { }
+            var valeurTypeDecimalStr = valeurTypeDecimal?.ToString();
+            if (!string.IsNullOrWhiteSpace(valeurTypeDecimalStr))
+            {
+                if (!decimal.TryParse(valeurTypeDecimalStr, out _))
+                {
+                    erreurs.Add(GenererErreur(ligne, regle, valeurTypeDecimalStr));
+                }
+            }
+        }
+
+        void TraiterTypeDate(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeurTypeDate = null;
+            try { valeurTypeDate = prop.GetValue(ligne); } catch { }
+            var valeurTypeDateStr = valeurTypeDate?.ToString();
+            if (!string.IsNullOrWhiteSpace(valeurTypeDateStr))
+            {
+                if (!DateOnly.TryParse(valeurTypeDateStr, out _))
+                {
+                    erreurs.Add(GenererErreur(ligne, regle, valeurTypeDateStr));
+                }
+            }
+        }
+
+        void TraiterTypeEntier(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeurTypeEntier = null;
+            try { valeurTypeEntier = prop.GetValue(ligne); } catch { }
+            var valeurTypeEntierStr = valeurTypeEntier?.ToString();
+            if (!string.IsNullOrWhiteSpace(valeurTypeEntierStr))
+            {
+                if (!int.TryParse(valeurTypeEntierStr, out _))
+                {
+                    erreurs.Add(GenererErreur(ligne, regle, valeurTypeEntierStr));
+                }
+            }
+        }
+
+        void TraiterDomaine(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache,
+            HashSet<string> hashDureesCredit, HashSet<string> hashNiveauxResponsabilite, HashSet<string> hashMonnaies, HashSet<string> hashClassesRetard,
+            HashSet<string> hashTypesGarantie, HashSet<string> hashTypesCredit, HashSet<string> hashSituationsCredit, HashSet<string> hashActivitesCredit,
+            HashSet<string> hashWilayas, HashSet<string> hashPays)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeurDomaine = null;
+            try { valeurDomaine = prop.GetValue(ligne); } catch { }
+            var valeurDomaineStr = valeurDomaine?.ToString();
+            if (!string.IsNullOrWhiteSpace(valeurDomaineStr))
+            {
+                bool exists = false;
+                string tableName = regle.valeur_regle;
+                switch (tableName)
+                {
+                    case "durees_credit": exists = hashDureesCredit.Contains(valeurDomaineStr); break;
+                    case "niveaux_responsabilite": exists = hashNiveauxResponsabilite.Contains(valeurDomaineStr); break;
+                    case "monnaies": exists = hashMonnaies.Contains(valeurDomaineStr); break;
+                    case "classes_retard": exists = hashClassesRetard.Contains(valeurDomaineStr); break;
+                    case "types_garantie": exists = hashTypesGarantie.Contains(valeurDomaineStr); break;
+                    case "types_credit": exists = hashTypesCredit.Contains(valeurDomaineStr); break;
+                    case "situations_credit": exists = hashSituationsCredit.Contains(valeurDomaineStr); break;
+                    case "activites_credit": exists = hashActivitesCredit.Contains(valeurDomaineStr); break;
+                    case "wilayas": exists = hashWilayas.Contains(valeurDomaineStr); break;
+                    case "pays": exists = hashPays.Contains(valeurDomaineStr); break;
+                }
+                if (!exists)
+                {
+                    erreurs.Add(GenererErreur(ligne, regle, valeurDomaineStr));
+                }
+            }
+        }
+        void TraiterFormat(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne) || string.IsNullOrEmpty(regle.valeur_regle)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeurFormat = null;
+            try { valeurFormat = prop.GetValue(ligne); } catch { }
+            var valeurFormatStr = valeurFormat?.ToString();
+            if (!string.IsNullOrEmpty(valeurFormatStr))
+            {
+                try
+                {
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(valeurFormatStr, regle.valeur_regle))
+                    {
+                        erreurs.Add(GenererErreur(ligne, regle, valeurFormatStr));
+                    }
+                }
+                catch { erreurs.Add(GenererErreur(ligne, regle, valeurFormatStr)); }
+            }
+        }
+
+        void TraiterLongueur(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeurLongueur = null;
+            try { valeurLongueur = prop.GetValue(ligne); } catch { }
+            var valeurLongueurStr = valeurLongueur?.ToString();
+            if (valeurLongueurStr != null && valeurLongueurStr.Length != int.Parse(regle.valeur_regle))
+            {
+                erreurs.Add(GenererErreur(ligne, regle, valeurLongueurStr));
+            }
+        }
+
+        void TraiterValeurParDefautSiVide(donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeurParDefaut = null;
+            try { valeurParDefaut = prop.GetValue(ligne); } catch { }
+            var valeurParDefautStr = valeurParDefaut?.ToString();
+            if (string.IsNullOrWhiteSpace(valeurParDefautStr))
+            {
+                var propDefaut = typeof(donnees_brutes).GetProperty(regle.nom_colonne);
+                if (propDefaut != null) propDefaut.SetValue(ligne, regle.valeur_regle);
+            }
+        }
+
+        void TraiterValeurInterdite(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeurInterdite = null;
+            try { valeurInterdite = prop.GetValue(ligne); } catch { }
+            if (valeurInterdite != null && regle.valeur_regle.Split(',').Contains(valeurInterdite.ToString()))
+            {
+                erreurs.Add(GenererErreur(ligne, regle, valeurInterdite?.ToString()));
+            }
+        }
+
+        void TraiterValeurInterditeSi(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeurInterditeSi = null;
+            try { valeurInterditeSi = prop.GetValue(ligne); } catch { }
+            if (!string.IsNullOrEmpty(regle.colonne_dependante) && !string.IsNullOrEmpty(regle.valeur_dependante))
+            {
+                if (!propertyCache.TryGetValue(regle.colonne_dependante, out var propDep)) return;
+                var valeurDep = propDep.GetValue(ligne);
+                var dependances = regle.valeur_dependante.Split(',');
+                if (valeurDep != null && dependances.Contains(valeurDep.ToString()))
+                {
+                    if (valeurInterditeSi != null && regle.valeur_regle.Split(',').Contains(valeurInterditeSi.ToString()))
+                    {
+                        erreurs.Add(GenererErreur(ligne, regle, valeurInterditeSi?.ToString()));
+                    }
+                }
+            }
+        }
+
+        void TraiterValeursInterditesSi(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeursInterditesSi = null;
+            try { valeursInterditesSi = prop.GetValue(ligne); } catch { }
+            if (!string.IsNullOrEmpty(regle.colonne_dependante) && !string.IsNullOrEmpty(regle.valeur_dependante))
+            {
+                if (!propertyCache.TryGetValue(regle.colonne_dependante, out var propDep)) return;
+                var valeurDep = propDep.GetValue(ligne);
+                var dependances = regle.valeur_dependante.Split(',');
+                if (valeurDep != null && dependances.Contains(valeurDep.ToString()))
+                {
+                    if (valeursInterditesSi != null && regle.valeur_regle.Split(',').Contains(valeursInterditesSi.ToString()))
+                    {
+                        erreurs.Add(GenererErreur(ligne, regle, valeursInterditesSi?.ToString()));
+                    }
+                }
+            }
+        }
+
+        void TraiterEgalASi(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeurEgalASi = null;
+            try { valeurEgalASi = prop.GetValue(ligne); } catch { }
+            var valeurEgalASiStr = valeurEgalASi?.ToString();
+            if (!string.IsNullOrEmpty(regle.colonne_dependante) && !string.IsNullOrEmpty(regle.valeur_dependante))
+            {
+                if (!propertyCache.TryGetValue(regle.colonne_dependante, out var propDep)) return;
+                var valeurDep = propDep.GetValue(ligne);
+                var dependances = regle.valeur_dependante.Split(',');
+                if (valeurDep != null && dependances.Contains(valeurDep.ToString()))
+                {
+                    if (!string.IsNullOrEmpty(regle.colonne_cible) && !string.IsNullOrEmpty(regle.valeur_cible_attendue))
+                    {
+                        if (!propertyCache.TryGetValue(regle.colonne_cible, out var propCible)) return;
+                        var valeurCible = propCible.GetValue(ligne)?.ToString();
+                        if (valeurCible == regle.valeur_cible_attendue)
+                        {
+                            if (valeurEgalASi == null || valeurEgalASiStr != regle.valeur_regle)
+                            {
+                                erreurs.Add(GenererErreur(ligne, regle, valeurEgalASiStr));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (valeurEgalASi == null || valeurEgalASiStr != regle.valeur_regle)
+                        {
+                            erreurs.Add(GenererErreur(ligne, regle, valeurEgalASiStr));
+                        }
+                    }
+                }
+            }
+        }
+
+        void TraiterSupASi(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeurSupASi = null;
+            try { valeurSupASi = prop.GetValue(ligne); } catch { }
+            var valeurSupASiStr = valeurSupASi?.ToString();
+            if (!string.IsNullOrEmpty(regle.colonne_dependante) && !string.IsNullOrEmpty(regle.valeur_dependante))
+            {
+                if (!propertyCache.TryGetValue(regle.colonne_dependante, out var propDep)) return;
+                var valeurDep = propDep.GetValue(ligne);
+                var dependances = regle.valeur_dependante.Split(',');
+                if (valeurDep != null && dependances.Contains(valeurDep.ToString()))
+                {
+                    if (decimal.TryParse(valeurSupASiStr, out var valeurDecimale1) && decimal.TryParse(regle.valeur_regle, out var minimum1))
+                    {
+                        if (valeurDecimale1 <= minimum1)
+                        {
+                            erreurs.Add(GenererErreur(ligne, regle, valeurSupASiStr));
+                        }
+                    }
+                }
+            }
+        }
+
+        void TraiterSup(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeurSup = null;
+            try { valeurSup = prop.GetValue(ligne); } catch { }
+            var valeurSupStr = valeurSup?.ToString();
+            if (decimal.TryParse(valeurSupStr, out var valeurDecimale2) && decimal.TryParse(regle.valeur_regle, out var minimum2))
+            {
+                if (valeurDecimale2 <= minimum2)
+                {
+                    erreurs.Add(GenererErreur(ligne, regle, valeurSupStr));
+                }
+            }
+        }
+
+        void TraiterDoitEtreNullSi(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeurDoitEtreNullSi = null;
+            try { valeurDoitEtreNullSi = prop.GetValue(ligne); } catch { }
+            var valeurDoitEtreNullSiStr = valeurDoitEtreNullSi?.ToString();
+            if (!string.IsNullOrEmpty(regle.colonne_dependante) && !string.IsNullOrEmpty(regle.valeur_dependante))
+            {
+                if (!propertyCache.TryGetValue(regle.colonne_dependante, out var propDep)) return;
+                var valeurDep = propDep.GetValue(ligne);
+                var dependances = regle.valeur_dependante.Split(',');
+                if (valeurDep != null && dependances.Contains(valeurDep.ToString()))
+                {
+                    if (valeurDoitEtreNullSi != null && !(valeurDoitEtreNullSi is string chaine3 && string.IsNullOrWhiteSpace(chaine3)))
+                    {
+                        erreurs.Add(GenererErreur(ligne, regle, valeurDoitEtreNullSiStr));
+                    }
+                }
+            }
+        }
+
+        void TraiterDoitEtreNullOuZeroSi(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        {
+            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
+            object valeurDoitEtreNullOuZeroSi = null;
+            try { valeurDoitEtreNullOuZeroSi = prop.GetValue(ligne); } catch { }
+            var valeurDoitEtreNullOuZeroSiStr = valeurDoitEtreNullOuZeroSi?.ToString();
+            if (!string.IsNullOrEmpty(regle.colonne_dependante) && !string.IsNullOrEmpty(regle.valeur_dependante))
+            {
+                if (!propertyCache.TryGetValue(regle.colonne_dependante, out var propDep)) return;
+                var valeurDep = propDep.GetValue(ligne);
+                var dependances = regle.valeur_dependante.Split(',');
+                if (valeurDep != null && dependances.Contains(valeurDep.ToString()))
+                {
+                    if (!string.IsNullOrWhiteSpace(valeurDoitEtreNullOuZeroSiStr) && valeurDoitEtreNullOuZeroSiStr != "0")
+                    {
+                        erreurs.Add(GenererErreur(ligne, regle, valeurDoitEtreNullOuZeroSiStr));
+                    }
+                }
+            }
+        }
+        #endregion
 
   
+    } 
+    
+  
 } 
+
+    
+ 

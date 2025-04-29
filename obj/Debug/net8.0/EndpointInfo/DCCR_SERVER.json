@@ -43,7 +43,7 @@
         }
       }
     },
-    "/api/Excel/confirmer": {
+    "/api/Excel/migrer-staging-vers-prod": {
       "post": {
         "tags": [
           "Excel"

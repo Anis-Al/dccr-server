@@ -36,7 +36,6 @@ namespace DCCR_SERVER.DTOs
         public string CodeWilaya { get; set; }
         public string CodePays { get; set; }
         public bool EstValide { get; set; }
-        public string MessagesValidation { get; set; }
         public List<ParticipantPreviewDto> Participants { get; set; }
         public List<GarantiePreviewDto> Garanties { get; set; }
     }

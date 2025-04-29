@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DCCR_SERVER.Migrations
 {
     [DbContext(typeof(BddContext))]
-    [Migration("20250427085136_creation")]
+    [Migration("20250429221901_creation")]
     partial class creation
     {
         /// <inheritdoc />
@@ -444,10 +444,6 @@ namespace DCCR_SERVER.Migrations
                     b.Property<string>("mensualite")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("messages_validation")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("monnaie")
                         .HasColumnType("nvarchar(max)");
 
@@ -835,12 +831,6 @@ namespace DCCR_SERVER.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("message_erreur")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("nom_colonne")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("valeur_erronee")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("id_erreur");

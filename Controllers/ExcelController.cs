@@ -37,52 +37,8 @@ namespace DCCR_SERVER.Controllers
             }
         }
 
-        //[HttpPost("confirmer")]
-        //public async Task<IActionResult> ConfirmerImport([FromForm] string idExcel, [FromForm] string idUtilisateur)
-        //{
-        //    try
-        //    {
-        //        var result = await _integration.ConfirmerImportAsync(idExcel, idUtilisateur);
-        //        return Ok(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Erreur lors de la confirmation d'import");
-        //        return StatusCode(500, $"Erreur lors de la confirmation : {ex.Message}");
-        //    }
-        //}
-
-        // [HttpGet("erreurs")]
-        // public async Task<IActionResult> GetErreurs([FromQuery] string idExcel)
-        // {
-        //     try
-        //     {
-        //         var erreurs = await _integration.GetErreursPourFichierAsync(idExcel);
-        //         return Ok(erreurs);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         _logger.LogError(ex, "Erreur lors de la récupération des erreurs");
-        //         return StatusCode(500, $"Erreur lors de la récupération des erreurs : {ex.Message}");
-        //     }
-        // }
-
-        // [HttpGet("preview")]
-        // public async Task<IActionResult> GetPreview([FromQuery] string idExcel)
-        // {
-        //     try
-        //     {
-        //         var preview = await _integration.GetPreviewPourFichierAsync(idExcel);
-        //         return Ok(preview);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         _logger.LogError(ex, "Erreur lors de la récupération du preview");
-        //         return StatusCode(500, $"Erreur lors de la récupération du preview : {ex.Message}");
-        //     }
-        // }
-
-        [HttpPost("confirmer")]
+     
+        [HttpPost("migrer-staging-vers-prod")]
         public async Task<IActionResult> MigrerStagingVersProd([FromQuery] int idExcel)
         {
             try

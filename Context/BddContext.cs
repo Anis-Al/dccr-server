@@ -258,7 +258,6 @@ namespace DCCR_SERVER.Context
             modelBuilder.Entity<Crédit>().Property(l => l.numero_contrat_credit).HasMaxLength(20);
             modelBuilder.Entity<Garantie>().Property(g => g.montant_garantie).HasColumnType("decimal(18,0)");
             modelBuilder.Entity<Crédit>().Property(l => l.solde_restant).HasColumnType("decimal(18,0)");
-            modelBuilder.Entity<donnees_brutes>().Property(db => db.messages_validation).HasColumnType("nvarchar(max)");
 
             modelBuilder.Entity<Crédit>().HasIndex(c => c.numero_contrat_credit);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.date_declaration);

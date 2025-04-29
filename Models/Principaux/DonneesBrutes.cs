@@ -97,7 +97,6 @@ namespace DCCR_SERVER.Models.Principaux
 
         public bool est_valide { get; set; } = true;
         
-        public string messages_validation { get; set; } 
 
         // Navigation
         public FichierExcel import_excel { get; set; }

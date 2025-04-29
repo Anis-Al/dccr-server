@@ -317,9 +317,7 @@ namespace DCCR_SERVER.Migrations
                     id_excel = table.Column<int>(type: "int", nullable: false),
                     id_regle = table.Column<int>(type: "int", nullable: true),
                     ligne_excel = table.Column<int>(type: "int", nullable: false),
-                    nom_colonne = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     message_erreur = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    valeur_erronee = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     id_staging_raw_data = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -414,8 +412,7 @@ namespace DCCR_SERVER.Migrations
                     code_agence = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     code_wilaya = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     code_pays = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    est_valide = table.Column<bool>(type: "bit", nullable: false),
-                    messages_validation = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    est_valide = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
