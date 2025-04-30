@@ -275,7 +275,7 @@ namespace DCCR_SERVER.Context
             modelBuilder.Entity<ErreurExcel>().HasIndex(ee => ee.id_excel);
             modelBuilder.Entity<ErreurExcel>().HasIndex(ee => ee.id_regle);
             modelBuilder.Entity<MappingColonnes>().HasIndex(mc => mc.id_mapping);
-            modelBuilder.Entity<RegleValidation>().HasIndex(rv => rv.id_regle);
+            modelBuilder.Entity<RegleValidation>().HasIndex(rv => rv.nom_colonne);
             modelBuilder.Entity<donnees_brutes>().HasIndex(db => db.id_import_excel);
             modelBuilder.Entity<donnees_brutes>().HasIndex(db => db.numero_contrat);
             modelBuilder.Entity<donnees_brutes>().HasIndex(db => db.date_declaration);

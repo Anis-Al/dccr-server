@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DCCR_SERVER.Migrations
 {
     [DbContext(typeof(BddContext))]
-    [Migration("20250429221940_insertions")]
-    partial class insertions
+    [Migration("20250430100414_creation")]
+    partial class creation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -862,7 +862,7 @@ namespace DCCR_SERVER.Migrations
 
                     b.Property<string>("nom_colonne")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("type_regle")
                         .IsRequired()
@@ -879,7 +879,7 @@ namespace DCCR_SERVER.Migrations
 
                     b.HasKey("id_regle");
 
-                    b.HasIndex("id_regle");
+                    b.HasIndex("nom_colonne");
 
                     b.ToTable("regles_validation");
                 });

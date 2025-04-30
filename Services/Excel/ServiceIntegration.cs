@@ -214,16 +214,17 @@ namespace DCCR_SERVER.Services.Excel
                 erreurs.Add(new ErreurExcel { message_erreur = $" {ex.Message}" });
                 return (lignesMiseEnAttente, erreurs);
             }
+            // ou on verifie les erreurs de validation (selon notice technique et xsd crem)
             List<ErreurExcel> erreursValidation = new List<ErreurExcel>();
             try
             {
                 erreursValidation = await ValiderAvecReglesAsync(lignesMiseEnAttente);
                 if (erreursValidation.Any())
                 {
-                    var erreursToStore = new List<DCCR_SERVER.Models.ValidationFichiers.ErreurExcel>(erreursValidation.Count);
+                    var erreursToStore = new List<ErreurExcel>(erreursValidation.Count);
                     foreach (var err in erreursValidation)
                     {
-                        erreursToStore.Add(new DCCR_SERVER.Models.ValidationFichiers.ErreurExcel
+                        erreursToStore.Add(new ErreurExcel
                         {
                             id_excel = fichier.id_fichier_excel,
                             id_regle = err.id_regle,
@@ -257,6 +258,7 @@ namespace DCCR_SERVER.Services.Excel
                 }
             }
             catch (Exception) { }
+            // verifier la coherence des inter-lignes
             List<ErreurExcel> erreursCoherence = new List<ErreurExcel>();
             try
             {

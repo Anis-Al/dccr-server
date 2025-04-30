@@ -150,7 +150,7 @@ namespace DCCR_SERVER.Migrations
                 {
                     id_regle = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    nom_colonne = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    nom_colonne = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     type_regle = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     valeur_regle = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     message_erreur = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -800,9 +800,9 @@ namespace DCCR_SERVER.Migrations
                 column: "matricule_utilisateur");
 
             migrationBuilder.CreateIndex(
-                name: "IX_regles_validation_id_regle",
+                name: "IX_regles_validation_nom_colonne",
                 table: "regles_validation",
-                column: "id_regle");
+                column: "nom_colonne");
 
             migrationBuilder.CreateIndex(
                 name: "IX_situations_credit_code",
