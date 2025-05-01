@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DCCR_SERVER.Migrations
 {
     [DbContext(typeof(BddContext))]
-    [Migration("20250430100442_insertions")]
-    partial class insertions
+    [Migration("20250501163651_creation")]
+    partial class creation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
