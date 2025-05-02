@@ -366,18 +366,18 @@ INSERT INTO regles_validation (
 
 ('credit_accorde', 'EGAL_A_SI', '0', 'Le crédit accordé doit être 0 si type_credit est 900.', 'type_credit', '900', 'credit_accorde', '0'),
 ('credit_accorde', 'EGAL_A_SI', '0', 'Le crédit accordé doit être 0 si type_credit est 001.', 'type_credit', '001', 'credit_accorde', '0'),
-('credit_accorde', 'SUP_A_SI', '0', 'Le crédit accordé doit être > 0 pour les autres types de crédit.', 'type_credit', 'AUTRES', NULL, NULL),
+('credit_accorde', 'SUP_A_SI', '0', 'Le crédit accordé doit être > 0 pour les autres types de crédit.', 'type_credit', '!=900,001', NULL, NULL),
 
 ('solde_restant', 'OBLIGATOIRE', NULL, 'Le solde restant est obligatoire.', NULL, NULL, NULL, NULL),
 ('solde_restant', 'EGAL_A_SI', '0', 'Le solde restant doit être 0 si type_credit n’est pas 900 et situation_credit est 900.', 'type_credit,situation_credit', '!=900,900', 'solde_restant', '0'),
 ('solde_restant', 'EGAL_A_SI', '0', 'Le solde restant doit être 0 si situation_credit est egal à l''un de ces 4 : [001,020,005,018].', 'situation_credit', '001,020,018', 'solde_restant', '0'),
 
-('cout_total_credit', 'OBLIGATOIRE_SI', NULL, 'Le coût total est obligatoire pour type_credit dans [050,051,052] et débiteur i1 ou i2.', 'type_credit', '050,051,052', 'participant_type_cle', 'i1,i2'),
+('cout_total_credit', 'OBLIGATOIRE_SI', NULL, 'Le coût total est obligatoire pour type_credit dans [050,051,052] et débiteur i1 ou i2.', 'type_credit|participant_type_cle', '050,051,052|i1,i2', NULL, NULL),
 ('cout_total_credit', 'DOIT_ETRE_NULL_OU_ZERO_SI', NULL, 'Le coût total ne doit pas être renseigné ou doit être 0 si type_credit dans [050,051,052] et situation_credit dans [001,005,020,018].', 'type_credit', '050,051,052', 'situation_credit', '001,005,020,018'),
 ('mensualite', 'OBLIGATOIRE_SI', NULL, 'La mensualité est obligatoire pour type_credit dans [050,051,052].', 'type_credit', '050,051,052', NULL, NULL),
 ('mensualite', 'DOIT_ETRE_NULL_SI', NULL, 'La mensualité ne doit pas être renseignée si type_credit n’est pas dans [050,051,052].', 'type_credit', '!=050,051,052', NULL, NULL),
 ('mensualite', 'DOIT_ETRE_NULL_OU_ZERO_SI', NULL, 'La mensualité ne doit pas être renseignée ou doit être 0 si type_credit dans [050,051,052] et situation_credit dans [001,005,020,018].', 'type_credit', '050,051,052', 'situation_credit', '001,005,020,018'),
-('montant_garantie', 'SUP', '0', 'Le montant de la garantie doit être supérieur à 0.', NULL, NULL, NULL, NULL),
+('montant_garantie', 'SUP_A_SI', '0', 'Le montant de la garantie doit être supérieur à 0 pour type_garantie != 999.', 'type_garantie', '!=999', NULL, NULL),
 ('montant_garantie', 'EGAL_A_SI', '0', 'Le montant de la garantie doit être 0 si type_garantie est 999.', 'type_garantie', '999', 'montant_garantie', '0');
 
 

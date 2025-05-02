@@ -34,7 +34,7 @@ namespace DCCR_SERVER.Services.Excel
         public async Task<ImportResultDto> TraiterEtMettreEnAttenteFichierAsync(IFormFile fichierExcel, string idIntegrateur)
         {
             var guidSession = Guid.NewGuid();
-            var dossierStockage = _configuration["StorageSettings:sous_repertoire_fichiers_entree"] ?? Path.Combine(Path.GetTempPath(), "DCCR_Uploads"); 
+            var dossierStockage = _configuration["StorageSettings:sous_repertoire_fichiers_entree"] ?? Path.Combine(Path.GetTempPath(), "fichiers .xslx du dccr"); 
             if (!Directory.Exists(dossierStockage))
             {
                 try { Directory.CreateDirectory(dossierStockage); } catch (Exception) { throw; }
@@ -73,7 +73,6 @@ namespace DCCR_SERVER.Services.Excel
                 fichier.statut_import = StatutImport.EchecValidation;
                 await _contexte.SaveChangesAsync();
             }
-
             if (erreurs.Any() && fichier.statut_import == StatutImport.Telechargement)
             {
                 fichier.statut_import = StatutImport.EchecValidation;
@@ -121,7 +120,7 @@ namespace DCCR_SERVER.Services.Excel
                 {
                     if (reader.Read()) {
                         for (int i = 0; i < reader.FieldCount; i++)
-                            header.Add(reader.GetValue(i)?.ToString()?.Trim() ?? $"Column_{i + 1}");
+                            header.Add(reader.GetValue(i)?.ToString()?.Trim());
                     }
                     else {
                         erreurs.Add(new ErreurExcel { message_erreur = "Fichier vide!" });
@@ -214,7 +213,7 @@ namespace DCCR_SERVER.Services.Excel
                 erreurs.Add(new ErreurExcel { message_erreur = $" {ex.Message}" });
                 return (lignesMiseEnAttente, erreurs);
             }
-            // ou on verifie les erreurs de validation (selon notice technique et xsd crem)
+            // where on verifie les erreurs de validation (selon notice technique et xsd crem)
             List<ErreurExcel> erreursValidation = new List<ErreurExcel>();
             try
             {
@@ -737,17 +736,32 @@ namespace DCCR_SERVER.Services.Excel
             if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
             object valeurObligatoireSi = null;
             try { valeurObligatoireSi = prop.GetValue(ligne); } catch { }
+            bool allDepsOk = true;
             if (!string.IsNullOrEmpty(regle.colonne_dependante) && !string.IsNullOrEmpty(regle.valeur_dependante))
             {
-                if (!propertyCache.TryGetValue(regle.colonne_dependante, out var propDep)) return;
-                var valeurDep = propDep.GetValue(ligne);
-                var dependances = regle.valeur_dependante.Split(',');
-                if (valeurDep != null && dependances.Contains(valeurDep.ToString()))
+                var colonnes = regle.colonne_dependante.Split('|');
+                var valeurs = regle.valeur_dependante.Split('|');
+                if (colonnes.Length != valeurs.Length)
                 {
-                    if (valeurObligatoireSi == null || (valeurObligatoireSi is string chaine2 && string.IsNullOrWhiteSpace(chaine2)))
+                    allDepsOk = false;
+                }
+                else
+                {
+                    for (int i = 0; i < colonnes.Length; i++)
                     {
-                        erreurs.Add(GenererErreur(ligne, regle, valeurObligatoireSi?.ToString()));
+                        var col = colonnes[i].Trim();
+                        var vals = valeurs[i].Split(',').Select(v => v.Trim()).ToList();
+                        if (!propertyCache.TryGetValue(col, out var propDep)) { allDepsOk = false; break; }
+                        var valeurDep = propDep.GetValue(ligne);
+                        if (valeurDep == null || !vals.Contains(valeurDep.ToString())) { allDepsOk = false; break; }
                     }
+                }
+            }
+            if (allDepsOk)
+            {
+                if (valeurObligatoireSi == null || (valeurObligatoireSi is string chaine2 && string.IsNullOrWhiteSpace(chaine2)))
+                {
+                    erreurs.Add(GenererErreur(ligne, regle, valeurObligatoireSi?.ToString()));
                 }
             }
         }
@@ -979,43 +993,40 @@ namespace DCCR_SERVER.Services.Excel
             string valeurEgalASiStr = valeurEgalASi?.ToString();
 
             // Extended: Multi-condition dependency check
+            bool allDepsOk = true;
             if (!string.IsNullOrEmpty(regle.colonne_dependante) && !string.IsNullOrEmpty(regle.valeur_dependante))
             {
-                // Support multi-condition: colonne_dependante="col1,col2", valeur_dependante="!=900,900" or "val1,val2"
-                var colonnes = regle.colonne_dependante.Split(',').Select(c => c.Trim()).ToArray();
-                var valeurs = regle.valeur_dependante.Split(',').Select(v => v.Trim()).ToArray();
-                bool allConditionsMet = true;
-                for (int i = 0; i < colonnes.Length && i < valeurs.Length; i++)
+                var colonnes = regle.colonne_dependante.Split('|');
+                var valeurs = regle.valeur_dependante.Split('|');
+                for (int i = 0; i < colonnes.Length; i++)
                 {
-                    var col = colonnes[i];
-                    var val = valeurs[i];
-                    if (!propertyCache.TryGetValue(col, out var propDep)) { allConditionsMet = false; break; }
-                    string valeurDepStr = propDep.GetValue(ligne)?.ToString()?.Trim();
-                    bool conditionMet;
+                    var col = colonnes[i].Trim();
+                    var val = valeurs.Length > i ? valeurs[i].Trim() : "";
+                    if (!propertyCache.TryGetValue(col, out var propDep)) { allDepsOk = false; break; }
+                    var valeurDep = propDep.GetValue(ligne)?.ToString();
+
+                    // Handle != and = logic, and multiple values
                     if (val.StartsWith("!="))
-                        conditionMet = valeurDepStr != val.Substring(2).Trim();
-                    else
-                        conditionMet = valeurDepStr == val;
-                    if (!conditionMet) { allConditionsMet = false; break; }
-                }
-                if (!allConditionsMet) return;
-
-                if (!string.IsNullOrEmpty(regle.colonne_cible) && !string.IsNullOrEmpty(regle.valeur_cible_attendue))
-                {
-                    if (!propertyCache.TryGetValue(regle.colonne_cible, out var propCible))
-                        return;
-
-                    string valeurCible = propCible.GetValue(ligne)?.ToString();
-                    if (valeurCible != regle.valeur_cible_attendue)
                     {
-                        erreurs.Add(GenererErreur(ligne, regle, valeurCible));
-                        return;
+                        var notVals = val.Substring(2).Split(',').Select(v => v.Trim()).ToList();
+                        if (valeurDep == null || notVals.Contains(valeurDep)) { allDepsOk = false; break; }
+                    }
+                    else if (val.Contains(','))
+                    {
+                        var inVals = val.Split(',').Select(v => v.Trim()).ToList();
+                        if (valeurDep == null || !inVals.Contains(valeurDep)) { allDepsOk = false; break; }
+                    }
+                    else
+                    {
+                        if (valeurDep == null || valeurDep != val) { allDepsOk = false; break; }
                     }
                 }
             }
-
-            if (valeurEgalASi == null || valeurEgalASiStr != regle.valeur_regle)
-                erreurs.Add(GenererErreur(ligne, regle, valeurEgalASiStr));
+            if (allDepsOk)
+            {
+                if (valeurEgalASi == null || valeurEgalASiStr != regle.valeur_regle)
+                    erreurs.Add(GenererErreur(ligne, regle, valeurEgalASiStr));
+            }
         }
 
         void TraiterSupASi(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
@@ -1025,19 +1036,43 @@ namespace DCCR_SERVER.Services.Excel
             object valeurSupASi = null;
             try { valeurSupASi = prop.GetValue(ligne); } catch { }
             var valeurSupASiStr = valeurSupASi?.ToString();
+
+            bool allDepsOk = true;
             if (!string.IsNullOrEmpty(regle.colonne_dependante) && !string.IsNullOrEmpty(regle.valeur_dependante))
             {
-                if (!propertyCache.TryGetValue(regle.colonne_dependante, out var propDep)) return;
-                var valeurDep = propDep.GetValue(ligne);
-                var dependances = regle.valeur_dependante.Split(',');
-                if (valeurDep != null && dependances.Contains(valeurDep.ToString()))
+                var colonnes = regle.colonne_dependante.Split('|');
+                var valeurs = regle.valeur_dependante.Split('|');
+                for (int i = 0; i < colonnes.Length; i++)
                 {
-                    if (decimal.TryParse(valeurSupASiStr, out var valeurDecimale1) && decimal.TryParse(regle.valeur_regle, out var minimum1))
+                    var col = colonnes[i].Trim();
+                    var val = valeurs.Length > i ? valeurs[i].Trim() : "";
+                    if (!propertyCache.TryGetValue(col, out var propDep)) { allDepsOk = false; break; }
+                    var valeurDep = propDep.GetValue(ligne)?.ToString();
+
+                    // Handle != and = logic, and multiple values
+                    if (val.StartsWith("!="))
                     {
-                        if (valeurDecimale1 <= minimum1)
-                        {
-                            erreurs.Add(GenererErreur(ligne, regle, valeurSupASiStr));
-                        }
+                        var notVals = val.Substring(2).Split(',').Select(v => v.Trim()).ToList();
+                        if (valeurDep == null || notVals.Contains(valeurDep)) { allDepsOk = false; break; }
+                    }
+                    else if (val.Contains(','))
+                    {
+                        var inVals = val.Split(',').Select(v => v.Trim()).ToList();
+                        if (valeurDep == null || !inVals.Contains(valeurDep)) { allDepsOk = false; break; }
+                    }
+                    else
+                    {
+                        if (valeurDep == null || valeurDep != val) { allDepsOk = false; break; }
+                    }
+                }
+            }
+            if (allDepsOk)
+            {
+                if (decimal.TryParse(valeurSupASiStr, out var valeurDecimale1) && decimal.TryParse(regle.valeur_regle, out var minimum1))
+                {
+                    if (valeurDecimale1 <= minimum1)
+                    {
+                        erreurs.Add(GenererErreur(ligne, regle, valeurSupASiStr));
                     }
                 }
             }
