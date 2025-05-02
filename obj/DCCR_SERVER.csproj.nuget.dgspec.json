@@ -65,10 +65,6 @@
               "target": "Package",
               "version": "[7.7.0, )"
             },
-            "EntityFramework": {
-              "target": "Package",
-              "version": "[6.5.1, )"
-            },
             "ExcelDataReader": {
               "target": "Package",
               "version": "[3.7.0, )"

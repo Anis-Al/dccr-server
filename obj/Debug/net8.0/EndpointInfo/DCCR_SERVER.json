@@ -43,7 +43,7 @@
         }
       }
     },
-    "/api/Excel/migrer-staging-vers-prod": {
+    "/api/Excel/confirmer-integration": {
       "post": {
         "tags": [
           "Excel"
@@ -52,6 +52,29 @@
           {
             "name": "idExcel",
             "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Excel/exporter-erreurs-excel/{idExcel}": {
+      "get": {
+        "tags": [
+          "Excel"
+        ],
+        "parameters": [
+          {
+            "name": "idExcel",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"

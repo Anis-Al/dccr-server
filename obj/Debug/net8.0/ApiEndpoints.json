@@ -1,6 +1,38 @@
 [
   {
     "ContainingType": "DCCR_SERVER.Controllers.ExcelController",
+    "Method": "MigrerStagingVersProd",
+    "RelativePath": "api/Excel/confirmer-integration",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idExcel",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.ExcelController",
+    "Method": "ExporterErreurs",
+    "RelativePath": "api/Excel/exporter-erreurs-excel/{idExcel}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idExcel",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.ExcelController",
     "Method": "ImporterExcel",
     "RelativePath": "api/Excel/importer",
     "HttpMethod": "POST",
@@ -15,22 +47,6 @@
       {
         "Name": "matricule_utilisateur",
         "Type": "System.String",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "DCCR_SERVER.Controllers.ExcelController",
-    "Method": "MigrerStagingVersProd",
-    "RelativePath": "api/Excel/migrer-staging-vers-prod",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "idExcel",
-        "Type": "System.Int32",
         "IsRequired": false
       }
     ],

@@ -97,7 +97,8 @@ namespace DCCR_SERVER.Services.Excel
                 ApercuDonnees = (lignesMiseEnAttente != null && lignesMiseEnAttente.Any() && !erreursDb.Any())
                        ? BuildLoanPreview(lignesMiseEnAttente)
                        : new List<LoanPreviewDto>(),
-                IdExcel=fichier.nom_fichier_excel
+                IdExcel=fichier.id_fichier_excel,
+                NomFichierExcel=fichier.nom_fichier_excel
             };
             return result;
         }

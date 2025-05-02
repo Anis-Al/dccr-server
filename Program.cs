@@ -2,7 +2,9 @@ using DCCR_SERVER.Context;
 using DCCR_SERVER.Services.Excel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using OfficeOpenXml;
 using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +18,15 @@ builder.Services.AddCors(options =>
     options.AddPolicy("CorsPolicy",
         builder => builder.AllowAnyOrigin()
                           .AllowAnyMethod()
-                          .AllowAnyHeader());
+                          .AllowAnyHeader()
+                          .WithExposedHeaders("Content-Disposition"));
+
 });
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 builder.Services.AddScoped<ServiceIntegration>();
+builder.Services.AddScoped<ErreurExcelExportService>();
+
 
 //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //    .AddJwtBearer(options =>
@@ -40,7 +47,6 @@ builder.Services.AddScoped<ServiceIntegration>();
 var app = builder.Build();
 app.UseCors("CorsPolicy");
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
