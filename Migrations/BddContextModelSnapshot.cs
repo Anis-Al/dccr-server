@@ -520,26 +520,14 @@ namespace DCCR_SERVER.Migrations
                     b.Property<string>("colonne_bdd")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("colonne_cle_lookup")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("colonne_excel")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("nom_table_lookup")
+                    b.Property<string>("table_prod")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("obligatoire")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("ordre")
-                        .HasColumnType("int");
-
-                    b.Property<string>("table_bdd")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("type_donnee")
+                    b.Property<string>("type_donnee_prod")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

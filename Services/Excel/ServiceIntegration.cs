@@ -374,18 +374,10 @@ namespace DCCR_SERVER.Services.Excel
                         case "OBLIGATOIRE_SI":
                             TraiterObligatoireSi(erreurs, ligne, regle, propertyCache);
                             break;
-                        case "TYPE_TEXTE":
-                            TraiterTypeTexte(erreurs, ligne, regle, propertyCache);
+                        case "TYPE":
+                            TraiterType(erreurs, ligne, regle, propertyCache);
                             break;
-                        case "TYPE_DECIMAL":
-                            TraiterTypeDecimal(erreurs, ligne, regle, propertyCache);
-                            break;
-                        case "TYPE_DATE":
-                            TraiterTypeDate(erreurs, ligne, regle, propertyCache);
-                            break;
-                        case "TYPE_ENTIER":
-                            TraiterTypeEntier(erreurs, ligne, regle, propertyCache);
-                            break;
+                        
                         case "DOMAINE":
                             TraiterDomaine(erreurs, ligne, regle, propertyCache, hashDureesCredit, hashNiveauxResponsabilite, hashMonnaies, hashClassesRetard, hashTypesGarantie, hashTypesCredit, hashSituationsCredit, hashActivitesCredit, hashWilayas, hashPays);
                             break;
@@ -558,8 +550,8 @@ namespace DCCR_SERVER.Services.Excel
                     .ToListAsync();
 
                 var mappingsParTable = mappings
-                    .Where(m => !string.IsNullOrEmpty(m.table_bdd))
-                    .GroupBy(m => m.table_bdd)
+                    .Where(m => !string.IsNullOrEmpty(m.table_prod))
+                    .GroupBy(m => m.table_prod)
                     .ToDictionary(g => g.Key, g => g.ToList());
 
                 var lieuxDict = new Dictionary<string, Models.Principaux.Lieu>();
@@ -767,62 +759,36 @@ namespace DCCR_SERVER.Services.Excel
             }
         }
 
-        void TraiterTypeTexte(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
+        void TraiterType(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
         {
-            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
+            if (string.IsNullOrEmpty(regle.nom_colonne) || string.IsNullOrEmpty(regle.valeur_regle)) return;
             if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
-            object valeurTypeTexte = null;
-            try { valeurTypeTexte = prop.GetValue(ligne); } catch { }
-            if (valeurTypeTexte != null && !(valeurTypeTexte is string))
+            object valeur = null;
+            try { valeur = prop.GetValue(ligne); } catch { }
+            var valeurStr = valeur?.ToString();
+            if (!string.IsNullOrWhiteSpace(valeurStr))
             {
-                erreurs.Add(GenererErreur(ligne, regle, valeurTypeTexte?.ToString()));
-            }
-        }
-
-        void TraiterTypeDecimal(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
-        {
-            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
-            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
-            object valeurTypeDecimal = null;
-            try { valeurTypeDecimal = prop.GetValue(ligne); } catch { }
-            var valeurTypeDecimalStr = valeurTypeDecimal?.ToString();
-            if (!string.IsNullOrWhiteSpace(valeurTypeDecimalStr))
-            {
-                if (!decimal.TryParse(valeurTypeDecimalStr, out _))
+                var type = regle.valeur_regle.ToLower();
+                if (!string.IsNullOrWhiteSpace(valeurStr))
                 {
-                    erreurs.Add(GenererErreur(ligne, regle, valeurTypeDecimalStr));
-                }
-            }
-        }
-
-        void TraiterTypeDate(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
-        {
-            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
-            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
-            object valeurTypeDate = null;
-            try { valeurTypeDate = prop.GetValue(ligne); } catch { }
-            var valeurTypeDateStr = valeurTypeDate?.ToString();
-            if (!string.IsNullOrWhiteSpace(valeurTypeDateStr))
-            {
-                if (!DateOnly.TryParse(valeurTypeDateStr, out _))
-                {
-                    erreurs.Add(GenererErreur(ligne, regle, valeurTypeDateStr));
-                }
-            }
-        }
-
-        void TraiterTypeEntier(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
-        {
-            if (string.IsNullOrEmpty(regle.nom_colonne)) return;
-            if (!propertyCache.TryGetValue(regle.nom_colonne, out var prop)) return;
-            object valeurTypeEntier = null;
-            try { valeurTypeEntier = prop.GetValue(ligne); } catch { }
-            var valeurTypeEntierStr = valeurTypeEntier?.ToString();
-            if (!string.IsNullOrWhiteSpace(valeurTypeEntierStr))
-            {
-                if (!int.TryParse(valeurTypeEntierStr, out _))
-                {
-                    erreurs.Add(GenererErreur(ligne, regle, valeurTypeEntierStr));
+                    switch (type)
+                    {
+                        case "entier":
+                            if (!int.TryParse(valeurStr, out _))
+                                erreurs.Add(GenererErreur(ligne, regle, valeurStr));
+                            break;
+                        case "decimal":
+                            if (!decimal.TryParse(valeurStr, out _))
+                                erreurs.Add(GenererErreur(ligne, regle, valeurStr));
+                            break;
+                        case "dateonly":
+                            if (!DateOnly.TryParse(valeurStr, out _))
+                                erreurs.Add(GenererErreur(ligne, regle, valeurStr));
+                            break;
+                        
+                        default:
+                            break;
+                    }
                 }
             }
         }

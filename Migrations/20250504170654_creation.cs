@@ -82,12 +82,8 @@ namespace DCCR_SERVER.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     colonne_excel = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     colonne_bdd = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    table_bdd = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ordre = table.Column<int>(type: "int", nullable: false),
-                    nom_table_lookup = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    colonne_cle_lookup = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    obligatoire = table.Column<bool>(type: "bit", nullable: false),
-                    type_donnee = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    table_prod = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    type_donnee_prod = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
