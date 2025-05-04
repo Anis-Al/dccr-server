@@ -259,67 +259,7 @@ namespace DCCR_SERVER.Services.Excel
             }
             catch (Exception) { }
             // verifier la coherence des inter-lignes
-            List<ErreurExcel> erreursCoherence = new List<ErreurExcel>();
-            try
-            {
-                var props = typeof(donnees_brutes).GetProperties();
-                var participantFields = props.Where(p => Attribute.IsDefined(p, typeof(DCCR_SERVER.Models.Principaux.ChampCoherenceParticipantAttribute))).Select(p => p.Name).ToList();
-                var participantKeyProp = props.FirstOrDefault(p => p.Name == "participant_cle");
-                if (participantKeyProp == null) { return (lignesMiseEnAttente, erreurs); }
-                else if (participantFields.Any())
-                {
-                    var groupes = lignesMiseEnAttente.GroupBy(l => participantKeyProp.GetValue(l, null)?.ToString());
-                    var champPropCache = new Dictionary<string, PropertyInfo>(StringComparer.OrdinalIgnoreCase);
-                    foreach (var champName in participantFields)
-                    {
-                        if (!champPropCache.ContainsKey(champName))
-                        {
-                            var prop = props.FirstOrDefault(p => p.Name == champName);
-                            if (prop != null) champPropCache[champName] = prop;
-                        }
-                    }
-                    foreach (var groupe in groupes)
-                    {
-                        if (string.IsNullOrWhiteSpace(groupe.Key)) continue;
-                        foreach (var champName in participantFields)
-                        {
-                            if (!champPropCache.TryGetValue(champName, out var champProp) || champProp == null) { continue; }
-                            var valeurs = groupe.Select(l => champProp.GetValue(l, null)?.ToString()).Where(v => !string.IsNullOrWhiteSpace(v)).Distinct().ToList();
-                            if (valeurs.Count > 1)
-                            {
-                                bool changesMadeCoherence = false;
-                                foreach (var ligneDuGroupe in groupe)
-                                {
-                                    var erreurCoherence = new ErreurExcel { ligne_excel = ligneDuGroupe.ligne_original, message_erreur = $"Incohérence participant {groupe.Key} sur '{champName}'. Valeurs: {string.Join(", ", valeurs)}.", id_regle = null };
-                                    erreursCoherence.Add(erreurCoherence);  
-                                    if (ligneDuGroupe.est_valide)
-                                    {
-                                        ligneDuGroupe.est_valide = false;
-                                        changesMadeCoherence = true;
-                                    }
-                                    
-                                    if (changesMadeCoherence && _contexte.Entry(ligneDuGroupe).State == EntityState.Unchanged)
-                                    {
-                                        _contexte.Entry(ligneDuGroupe).State = EntityState.Modified;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (erreursCoherence.Any())
-                    {
-                        if (_contexte.ChangeTracker.HasChanges())
-                        {
-                            await _contexte.SaveChangesAsync();
-                        }
-                        erreurs.AddRange(erreursCoherence);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                erreurs.Add(new ErreurExcel { message_erreur = $"Error coherence check: {ex.Message}" });
-            }
+           
             return (lignesMiseEnAttente, erreurs);
         }
 
@@ -419,6 +359,14 @@ namespace DCCR_SERVER.Services.Excel
                     }
                 }
             }
+            var erreurs_coherence_participants = verifierCoherenceParticipantCredit(lignes);
+            if (erreurs_coherence_participants.Any())
+            erreurs.AddRange(erreurs_coherence_participants);
+
+            var erreurs_coherence_credits = verifierCoherenceCredit(lignes);
+            if (erreurs_coherence_credits.Any())
+            erreurs.AddRange(erreurs_coherence_credits);
+
             return erreurs;
         }
 
@@ -712,6 +660,82 @@ namespace DCCR_SERVER.Services.Excel
         } 
 
         #region methodes_controle
+
+
+        public List<ErreurExcel> verifierCoherenceParticipantCredit(List<donnees_brutes> lignes)
+        {
+            var erreursCoherence = new List<ErreurExcel>();
+            var props = typeof(donnees_brutes).GetProperties();
+            var participantFields = props
+                .Where(p => Attribute.IsDefined(p, typeof(DCCR_SERVER.Models.Principaux.ChampCoherenceParticipantAttribute)))
+                .ToList();
+            var participantKeyProp = props.FirstOrDefault(p => p.Name == "participant_cle");
+            if (participantKeyProp == null || !participantFields.Any()) return erreursCoherence;
+
+            var groupes = lignes.GroupBy(l => participantKeyProp.GetValue(l, null)?.ToString());
+            foreach (var groupe in groupes)
+            {
+                if (string.IsNullOrWhiteSpace(groupe.Key)) continue;
+                foreach (var champProp in participantFields)
+                {
+                    var valeurs = groupe.Select(l => champProp.GetValue(l, null)?.ToString()).Where(v => !string.IsNullOrWhiteSpace(v)).Distinct().ToList();
+                    if (valeurs.Count > 1)
+                    {
+                        foreach (var ligneDuGroupe in groupe)
+                        {
+                            erreursCoherence.Add(new ErreurExcel
+                            {
+                                ligne_excel = ligneDuGroupe.ligne_original,
+                                message_erreur = $"Incohérence participant {groupe.Key} sur '{champProp.Name}'. Valeurs: {string.Join(", ", valeurs)}.",
+                                id_regle = null
+                            });
+                            ligneDuGroupe.est_valide = false;
+                        }
+                    }
+                }
+            }
+            return erreursCoherence;
+        }
+
+
+        public List<ErreurExcel> verifierCoherenceCredit(List<donnees_brutes> lignes)
+        {
+            var erreursCoherence = new List<ErreurExcel>();
+            var props = typeof(donnees_brutes).GetProperties();
+            var creditFields = props
+                .Where(p => Attribute.IsDefined(p, typeof(ChampCoherenceAttribute)))
+                .ToList();
+            var numeroContratProp = props.FirstOrDefault(p => p.Name == "numero_contrat");
+            if (numeroContratProp == null || !creditFields.Any()) return erreursCoherence;
+
+            // Group only by numero_contrat
+            var groupes = lignes.GroupBy(l =>
+                numeroContratProp.GetValue(l, null)?.ToString());
+            foreach (var groupe in groupes)
+            {
+                if (string.IsNullOrWhiteSpace(groupe.Key)) continue;
+                foreach (var champProp in creditFields)
+                {
+                    var valeurs = groupe.Select(l => champProp.GetValue(l, null)?.ToString()).Where(v => !string.IsNullOrWhiteSpace(v)).Distinct().ToList();
+                    if (valeurs.Count > 1)
+                    {
+                        foreach (var ligneDuGroupe in groupe)
+                        {
+                            erreursCoherence.Add(new ErreurExcel
+                            {
+                                ligne_excel = ligneDuGroupe.ligne_original,
+                                message_erreur = $"Incohérence crédit {groupe.Key} sur '{champProp.Name}'. Valeurs: {string.Join(", ", valeurs)}.",
+                                id_regle = null
+                            });
+                            ligneDuGroupe.est_valide = false;
+                        }
+                    }
+                }
+            }
+            return erreursCoherence;
+        }
+
+// ... existing code ...
         void TraiterObligatoire(List<ErreurExcel> erreurs, donnees_brutes ligne, RegleValidation regle, Dictionary<string, PropertyInfo> propertyCache)
         {
             if (string.IsNullOrEmpty(regle.nom_colonne)) return;

@@ -16,6 +16,8 @@ namespace DCCR_SERVER.Models.Principaux
         public int ligne_original { get; set; }
 
         public string? numero_contrat { get; set; }
+
+        [ChampCoherence]
         public string? date_declaration { get; set; }
 
         [ChampCoherence]
