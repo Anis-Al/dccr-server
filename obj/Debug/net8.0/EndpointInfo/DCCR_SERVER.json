@@ -5,6 +5,44 @@
     "version": "1.0"
   },
   "paths": {
+    "/api/credits/get-tous-credits": {
+      "get": {
+        "tags": [
+          "credits"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CreditDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CreditDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CreditDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Excel/importer": {
       "post": {
         "tags": [
@@ -89,5 +127,255 @@
       }
     }
   },
-  "components": { }
+  "components": {
+    "schemas": {
+      "CreditDto": {
+        "type": "object",
+        "properties": {
+          "num_contrat_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_declaration": {
+            "type": "string",
+            "nullable": true
+          },
+          "type_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "libelle_type_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "est_plafond_accorde": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "id_plafond": {
+            "type": "string",
+            "nullable": true
+          },
+          "code_activite": {
+            "type": "string",
+            "nullable": true
+          },
+          "libelle_activite": {
+            "type": "string",
+            "nullable": true
+          },
+          "situation": {
+            "type": "string",
+            "nullable": true
+          },
+          "libelle_situation": {
+            "type": "string",
+            "nullable": true
+          },
+          "motif": {
+            "type": "string",
+            "nullable": true
+          },
+          "code_agence": {
+            "type": "string",
+            "nullable": true
+          },
+          "libelle_agence": {
+            "type": "string",
+            "nullable": true
+          },
+          "code_wilaya": {
+            "type": "string",
+            "nullable": true
+          },
+          "libelle_wilaya": {
+            "type": "string",
+            "nullable": true
+          },
+          "code_pays": {
+            "type": "string",
+            "nullable": true
+          },
+          "libelle_pays": {
+            "type": "string",
+            "nullable": true
+          },
+          "credit_accorde": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "monnaie": {
+            "type": "string",
+            "nullable": true
+          },
+          "libelle_monnaie": {
+            "type": "string",
+            "nullable": true
+          },
+          "taux_interets": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "cout_total_credit": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "solde_restant": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "mensualite": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "duree_initiale": {
+            "type": "string",
+            "nullable": true
+          },
+          "libelle_duree_initiale": {
+            "type": "string",
+            "nullable": true
+          },
+          "duree_restante": {
+            "type": "string",
+            "nullable": true
+          },
+          "libelle_duree_restante": {
+            "type": "string",
+            "nullable": true
+          },
+          "classe_retard": {
+            "type": "string",
+            "nullable": true
+          },
+          "libelle_classe_retard": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombre_echeances_impayes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "date_constatation_echeances_impayes": {
+            "type": "string",
+            "nullable": true
+          },
+          "montant_capital_retard": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "montant_interets_retard": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "montant_interets_courus": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "date_octroi": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_expiration": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_execution": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_rejet": {
+            "type": "string",
+            "nullable": true
+          },
+          "id_excel": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "intervenants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IntervenantDto"
+            },
+            "nullable": true
+          },
+          "garanties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GarantieDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "GarantieDto": {
+        "type": "object",
+        "properties": {
+          "cle_intervenant": {
+            "type": "string",
+            "nullable": true
+          },
+          "type_garantie": {
+            "type": "string",
+            "nullable": true
+          },
+          "libelle_type_garantie": {
+            "type": "string",
+            "nullable": true
+          },
+          "montant_garantie": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "IntervenantDto": {
+        "type": "object",
+        "properties": {
+          "cle": {
+            "type": "string",
+            "nullable": true
+          },
+          "type_cle": {
+            "type": "string",
+            "nullable": true
+          },
+          "niveau_responsabilite": {
+            "type": "string",
+            "nullable": true
+          },
+          "libelle_niveau_responsabilite": {
+            "type": "string",
+            "nullable": true
+          },
+          "nif": {
+            "type": "string",
+            "nullable": true
+          },
+          "rib": {
+            "type": "string",
+            "nullable": true
+          },
+          "cli": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
 }

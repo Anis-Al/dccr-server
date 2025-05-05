@@ -1,4 +1,5 @@
 using DCCR_SERVER.Context;
+using DCCR_SERVER.Services.Credits;
 using DCCR_SERVER.Services.Excel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -26,7 +27,7 @@ ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 builder.Services.AddScoped<ServiceIntegration>();
 builder.Services.AddScoped<ErreurExcelExportService>();
-
+builder.Services.AddScoped<ServiceCreditsCRUD>();
 
 //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //    .AddJwtBearer(options =>

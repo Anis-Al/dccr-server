@@ -1,5 +1,25 @@
 [
   {
+    "ContainingType": "DCCR_SERVER.Controllers.creditsController",
+    "Method": "GetAllCredits",
+    "RelativePath": "api/credits/get-tous-credits",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[DCCR_SERVER.DTOs.CreditsDto\u002BCreditDto, DCCR_SERVER, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "DCCR_SERVER.Controllers.ExcelController",
     "Method": "MigrerStagingVersProd",
     "RelativePath": "api/Excel/confirmer-integration",

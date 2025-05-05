@@ -47,7 +47,6 @@ namespace DCCR_SERVER.DTOs
         public string ParticipantNif { get; set; }
         public string? ParticipantCli { get; set; }
         public string ParticipantRib { get; set; }
-        // Additional participant fields from donnees_brutes
         public string RoleNiveauResponsabilite { get; set; }
     }
 
@@ -55,6 +54,5 @@ namespace DCCR_SERVER.DTOs
     {
         public string? TypeGarantie { get; set; }
         public string? MontantGarantie { get; set; }
-        // You can add more fields here if needed
     }
 }
