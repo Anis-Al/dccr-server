@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DCCR_SERVER.Migrations
 {
     [DbContext(typeof(BddContext))]
-    [Migration("20250504170654_creation")]
+    [Migration("20250505151249_creation")]
     partial class creation
     {
         /// <inheritdoc />
@@ -42,7 +42,6 @@ namespace DCCR_SERVER.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("classe_retard")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<decimal>("cout_total_credit")
@@ -51,7 +50,7 @@ namespace DCCR_SERVER.Migrations
                     b.Property<decimal>("credit_accorde")
                         .HasColumnType("decimal(18,0)");
 
-                    b.Property<DateOnly>("date_constatation")
+                    b.Property<DateOnly?>("date_constatation")
                         .HasColumnType("date");
 
                     b.Property<DateOnly?>("date_execution")
@@ -63,7 +62,7 @@ namespace DCCR_SERVER.Migrations
                     b.Property<DateOnly>("date_octroi")
                         .HasColumnType("date");
 
-                    b.Property<DateOnly>("date_rejet")
+                    b.Property<DateOnly?>("date_rejet")
                         .HasColumnType("date");
 
                     b.Property<string>("duree_initiale")
@@ -74,14 +73,13 @@ namespace DCCR_SERVER.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<bool>("est_plafond_accorde")
+                    b.Property<bool?>("est_plafond_accorde")
                         .HasColumnType("bit");
 
                     b.Property<int>("id_lieu")
                         .HasColumnType("int");
 
                     b.Property<string>("id_plafond")
-                        .IsRequired()
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
 
@@ -92,19 +90,19 @@ namespace DCCR_SERVER.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<decimal>("montant_capital_retard")
+                    b.Property<decimal?>("montant_capital_retard")
                         .HasColumnType("decimal(18,0)");
 
-                    b.Property<decimal>("montant_interets_courus")
+                    b.Property<decimal?>("montant_interets_courus")
                         .HasColumnType("decimal(18,0)");
 
-                    b.Property<decimal>("montant_interets_retard")
+                    b.Property<decimal?>("montant_interets_retard")
                         .HasColumnType("decimal(18,0)");
 
                     b.Property<string>("motif")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("nombre_echeances_impayes")
+                    b.Property<int?>("nombre_echeances_impayes")
                         .HasColumnType("int");
 
                     b.Property<string>("situation_credit")
@@ -280,8 +278,9 @@ namespace DCCR_SERVER.Migrations
                     b.Property<string>("cle")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("cli")
-                        .HasColumnType("int");
+                    b.Property<string>("cli")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("nif")
                         .HasColumnType("nvarchar(max)");
@@ -349,7 +348,6 @@ namespace DCCR_SERVER.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id_lieu"));
 
                     b.Property<string>("code_agence")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("code_pays")
@@ -525,6 +523,9 @@ namespace DCCR_SERVER.Migrations
 
                     b.Property<string>("colonne_excel")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("colonne_prod")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("table_prod")
@@ -883,8 +884,7 @@ namespace DCCR_SERVER.Migrations
                     b.HasOne("DCCR_SERVER.Models.Statiques.TablesDomaines.ClasseRetard", "classeretard")
                         .WithMany("credits_classe_retard")
                         .HasForeignKey("classe_retard")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("DCCR_SERVER.Models.Statiques.TablesDomaines.DuréeCrédit", "dureeinitiale")
                         .WithMany("credits_duree_initiale")
@@ -1036,8 +1036,7 @@ namespace DCCR_SERVER.Migrations
                     b.HasOne("DCCR_SERVER.Models.Statiques.TablesDomaines.Agence", "agence")
                         .WithMany("agences")
                         .HasForeignKey("code_agence")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("DCCR_SERVER.Models.Statiques.TablesDomaines.Pays", "pays")
                         .WithMany("pays")

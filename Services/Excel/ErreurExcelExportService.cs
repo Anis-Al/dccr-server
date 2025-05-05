@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DCCR_SERVER.Context;
 using DCCR_SERVER.DTOs;
+using DCCR_SERVER.DTOs.Export;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 

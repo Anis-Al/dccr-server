@@ -10,7 +10,7 @@ namespace DCCR_SERVER.Models.Principaux
 
         public  string type_cle { get; set; }
         public string? nif { get; set; }
-        public int cli { get; set; }
+        public string cli { get; set; }
         public string? rib { get; set; }
 
         public List<Garantie>? garanties_intervenant {  get; set; } 

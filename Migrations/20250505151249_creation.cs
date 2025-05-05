@@ -66,7 +66,7 @@ namespace DCCR_SERVER.Migrations
                     cle = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     type_cle = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     nif = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    cli = table.Column<int>(type: "int", nullable: false),
+                    cli = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     rib = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -82,6 +82,7 @@ namespace DCCR_SERVER.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     colonne_excel = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     colonne_bdd = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    colonne_prod = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     table_prod = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     type_donnee_prod = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -277,7 +278,7 @@ namespace DCCR_SERVER.Migrations
                 {
                     id_lieu = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    code_agence = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    code_agence = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     code_wilaya = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     code_pays = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
@@ -428,10 +429,10 @@ namespace DCCR_SERVER.Migrations
                     numero_contrat_credit = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     date_declaration = table.Column<DateOnly>(type: "date", nullable: false),
                     id_excel = table.Column<int>(type: "int", nullable: false),
-                    est_plafond_accorde = table.Column<bool>(type: "bit", nullable: false),
+                    est_plafond_accorde = table.Column<bool>(type: "bit", nullable: true),
                     situation_credit = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     date_octroi = table.Column<DateOnly>(type: "date", nullable: false),
-                    date_rejet = table.Column<DateOnly>(type: "date", nullable: false),
+                    date_rejet = table.Column<DateOnly>(type: "date", nullable: true),
                     date_expiration = table.Column<DateOnly>(type: "date", nullable: false),
                     date_execution = table.Column<DateOnly>(type: "date", nullable: true),
                     duree_initiale = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -441,17 +442,17 @@ namespace DCCR_SERVER.Migrations
                     activite_credit = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     monnaie = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     credit_accorde = table.Column<decimal>(type: "decimal(18,0)", nullable: false),
-                    id_plafond = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
+                    id_plafond = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
                     taux = table.Column<decimal>(type: "decimal(8,5)", nullable: false),
                     mensualite = table.Column<decimal>(type: "decimal(18,0)", nullable: false),
                     cout_total_credit = table.Column<decimal>(type: "decimal(18,0)", nullable: false),
                     solde_restant = table.Column<decimal>(type: "decimal(18,0)", nullable: false),
-                    classe_retard = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    date_constatation = table.Column<DateOnly>(type: "date", nullable: false),
-                    nombre_echeances_impayes = table.Column<int>(type: "int", nullable: false),
-                    montant_interets_courus = table.Column<decimal>(type: "decimal(18,0)", nullable: false),
-                    montant_interets_retard = table.Column<decimal>(type: "decimal(18,0)", nullable: false),
-                    montant_capital_retard = table.Column<decimal>(type: "decimal(18,0)", nullable: false),
+                    classe_retard = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    date_constatation = table.Column<DateOnly>(type: "date", nullable: true),
+                    nombre_echeances_impayes = table.Column<int>(type: "int", nullable: true),
+                    montant_interets_courus = table.Column<decimal>(type: "decimal(18,0)", nullable: true),
+                    montant_interets_retard = table.Column<decimal>(type: "decimal(18,0)", nullable: true),
+                    montant_capital_retard = table.Column<decimal>(type: "decimal(18,0)", nullable: true),
                     motif = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
