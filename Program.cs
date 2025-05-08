@@ -1,5 +1,6 @@
 using DCCR_SERVER.Context;
 using DCCR_SERVER.Services.Credits;
+using DCCR_SERVER.Services.Dashboard;
 using DCCR_SERVER.Services.Excel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -16,7 +17,7 @@ builder.Services.AddDbContext<DCCR_SERVER.Context.BddContext>(options => options
 sqlOptions => sqlOptions.CommandTimeout(1000)));
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("CorsPolicy",
+    options.AddPolicy("cors",
         builder => builder.AllowAnyOrigin()
                           .AllowAnyMethod()
                           .AllowAnyHeader()
@@ -28,6 +29,8 @@ ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 builder.Services.AddScoped<ServiceIntegration>();
 builder.Services.AddScoped<ErreurExcelExportService>();
 builder.Services.AddScoped<ServiceCreditsCRUD>();
+builder.Services.AddScoped<ServiceTBD>();
+
 
 //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //    .AddJwtBearer(options =>
@@ -46,7 +49,7 @@ builder.Services.AddScoped<ServiceCreditsCRUD>();
 //    });
 
 var app = builder.Build();
-app.UseCors("CorsPolicy");
+app.UseCors("cors");
 
 if (app.Environment.IsDevelopment())
 {

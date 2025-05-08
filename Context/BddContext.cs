@@ -24,6 +24,7 @@ namespace DCCR_SERVER.Context
         public DbSet<Lieu> lieux { get; set; }
         public DbSet<Audit> pistes_audit { get; set; }
         public DbSet<Utilisateur> utilisateurs { get; set; }
+        public DbSet<TableauDeBord> tableau_de_bord { get; set; }
 
         public DbSet<MappingColonnes> mapping_colonnes { get; set; }
         public DbSet<ErreurExcel> erreurs_fichiers_excel { get; set; }
@@ -62,6 +63,7 @@ namespace DCCR_SERVER.Context
             modelBuilder.Entity<Audit>().HasKey(a => a.id_action);
             modelBuilder.Entity<RegleValidation>().HasKey(rv => rv.id_regle);
             modelBuilder.Entity<donnees_brutes>().HasKey(db => db.id);
+            modelBuilder.Entity<TableauDeBord>().HasKey(tdb => tdb.id_kpi);
           
                  // Domaines
             modelBuilder.Entity<ActivitéCrédit>().HasKey(ac => ac.code);
@@ -262,20 +264,47 @@ namespace DCCR_SERVER.Context
             modelBuilder.Entity<Crédit>().HasIndex(c => c.numero_contrat_credit);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.date_declaration);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.id_excel);
+            modelBuilder.Entity<Crédit>().HasIndex(c => c.type_credit);
+            modelBuilder.Entity<Crédit>().HasIndex(c => c.monnaie);
+            modelBuilder.Entity<Crédit>().HasIndex(c => c.type_credit);
+            modelBuilder.Entity<Crédit>().HasIndex(c => c.activite_credit);
+            modelBuilder.Entity<Crédit>().HasIndex(c => c.classe_retard);
+            modelBuilder.Entity<Crédit>().HasIndex(c => c.id_lieu);
+            modelBuilder.Entity<Crédit>().HasIndex(c => c.duree_initiale);
+            modelBuilder.Entity<Crédit>().HasIndex(c => c.duree_restante);
+
+
             modelBuilder.Entity<Garantie>().HasIndex(g => g.id_garantie);
+            modelBuilder.Entity<Garantie>().HasIndex(g => g.cle_interventant);
+            modelBuilder.Entity<Garantie>().HasIndex(g => g.numero_contrat_credit);
+            modelBuilder.Entity<Garantie>().HasIndex(g => g.date_declaration);
+            modelBuilder.Entity<Garantie>().HasIndex(g => g.id_excel);
+
             modelBuilder.Entity<Intervenant>().HasIndex(i => i.cle);
+
             modelBuilder.Entity<IntervenantCrédit>().HasIndex(ic => ic.numero_contrat_credit);
+            modelBuilder.Entity<IntervenantCrédit>().HasIndex(ic => ic.date_declaration);
+            modelBuilder.Entity<IntervenantCrédit>().HasIndex(ic => ic.id_excel);
             modelBuilder.Entity<IntervenantCrédit>().HasIndex(ic => ic.cle_intervenant);
+            modelBuilder.Entity<IntervenantCrédit>().HasIndex(ic => ic.niveau_responsabilite);
+
+
             modelBuilder.Entity<Lieu>().HasIndex(l => l.id_lieu);
             modelBuilder.Entity<Lieu>().HasIndex(l => l.code_agence);
             modelBuilder.Entity<Lieu>().HasIndex(l => l.code_wilaya);
             modelBuilder.Entity<Lieu>().HasIndex(l => l.code_pays);
+
             modelBuilder.Entity<FichierExcel>().HasIndex(fex => fex.id_fichier_excel);
+
             modelBuilder.Entity<FichierXml>().HasIndex(fx => fx.id_fichier_xml);
+
             modelBuilder.Entity<ErreurExcel>().HasIndex(ee => ee.id_excel);
             modelBuilder.Entity<ErreurExcel>().HasIndex(ee => ee.id_regle);
+
             modelBuilder.Entity<MappingColonnes>().HasIndex(mc => mc.id_mapping);
+
             modelBuilder.Entity<RegleValidation>().HasIndex(rv => rv.nom_colonne);
+
             modelBuilder.Entity<donnees_brutes>().HasIndex(db => db.id_import_excel);
             modelBuilder.Entity<donnees_brutes>().HasIndex(db => db.numero_contrat);
             modelBuilder.Entity<donnees_brutes>().HasIndex(db => db.date_declaration);

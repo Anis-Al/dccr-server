@@ -125,6 +125,44 @@
           }
         }
       }
+    },
+    "/api/tbd/kpis": {
+      "get": {
+        "tags": [
+          "tbd"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ObjectResultatDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ObjectResultatDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ObjectResultatDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -371,6 +409,25 @@
           },
           "cli": {
             "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ObjectResultatDTO": {
+        "type": "object",
+        "properties": {
+          "id_kpi": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "description_kpi": {
+            "type": "string",
+            "nullable": true
+          },
+          "resultats": {
+            "type": "array",
+            "items": { },
             "nullable": true
           }
         },

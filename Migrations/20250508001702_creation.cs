@@ -174,6 +174,20 @@ namespace DCCR_SERVER.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "tableau_de_bord",
+                columns: table => new
+                {
+                    id_kpi = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    description_kpi = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    requete_sql = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_tableau_de_bord", x => x.id_kpi);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "types_credit",
                 columns: table => new
                 {
@@ -701,9 +715,24 @@ namespace DCCR_SERVER.Migrations
                 column: "cle_interventant");
 
             migrationBuilder.CreateIndex(
+                name: "IX_garanties_date_declaration",
+                table: "garanties",
+                column: "date_declaration");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_garanties_id_excel",
+                table: "garanties",
+                column: "id_excel");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_garanties_id_garantie",
                 table: "garanties",
                 column: "id_garantie");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_garanties_numero_contrat_credit",
+                table: "garanties",
+                column: "numero_contrat_credit");
 
             migrationBuilder.CreateIndex(
                 name: "IX_garanties_numero_contrat_credit_date_declaration_id_excel",
@@ -725,6 +754,16 @@ namespace DCCR_SERVER.Migrations
                 name: "IX_intervenants_credits_cle_intervenant",
                 table: "intervenants_credits",
                 column: "cle_intervenant");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_intervenants_credits_date_declaration",
+                table: "intervenants_credits",
+                column: "date_declaration");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_intervenants_credits_id_excel",
+                table: "intervenants_credits",
+                column: "id_excel");
 
             migrationBuilder.CreateIndex(
                 name: "IX_intervenants_credits_niveau_responsabilite",
@@ -869,6 +908,9 @@ namespace DCCR_SERVER.Migrations
 
             migrationBuilder.DropTable(
                 name: "table_intermediaire_traitement");
+
+            migrationBuilder.DropTable(
+                name: "tableau_de_bord");
 
             migrationBuilder.DropTable(
                 name: "regles_validation");

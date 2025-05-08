@@ -57,11 +57,10 @@ namespace DCCR_SERVER.Controllers
             try
             {
                 await _integration.MigrerDonneesStagingVersProdAsync(idExcel);
-                return Ok(new { success = true, message = "Migration effectuée avec succès." });
+                return Ok(new { success = true, message = "succès yipiiii." });
             }
             catch (InvalidOperationException ex)
             {
-                _logger.LogWarning(ex, "Migration impossible : lignes invalides.");
                 return BadRequest(new { success = false, message = ex.Message });
             }
             catch (Exception ex)

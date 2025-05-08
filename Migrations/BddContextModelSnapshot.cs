@@ -261,7 +261,13 @@ namespace DCCR_SERVER.Migrations
 
                     b.HasIndex("cle_interventant");
 
+                    b.HasIndex("date_declaration");
+
+                    b.HasIndex("id_excel");
+
                     b.HasIndex("id_garantie");
+
+                    b.HasIndex("numero_contrat_credit");
 
                     b.HasIndex("type_garantie");
 
@@ -327,6 +333,10 @@ namespace DCCR_SERVER.Migrations
 
                     b.HasIndex("cle_intervenant");
 
+                    b.HasIndex("date_declaration");
+
+                    b.HasIndex("id_excel");
+
                     b.HasIndex("niveau_responsabilite");
 
                     b.HasIndex("numero_contrat_credit");
@@ -366,6 +376,27 @@ namespace DCCR_SERVER.Migrations
                     b.HasIndex("id_lieu");
 
                     b.ToTable("lieux");
+                });
+
+            modelBuilder.Entity("DCCR_SERVER.Models.Principaux.TableauDeBord", b =>
+                {
+                    b.Property<int>("id_kpi")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id_kpi"));
+
+                    b.Property<string>("description_kpi")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("requete_sql")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("id_kpi");
+
+                    b.ToTable("tableau_de_bord");
                 });
 
             modelBuilder.Entity("DCCR_SERVER.Models.Principaux.donnees_brutes", b =>
