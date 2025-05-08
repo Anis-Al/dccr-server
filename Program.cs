@@ -30,7 +30,7 @@ builder.Services.AddScoped<ServiceIntegration>();
 builder.Services.AddScoped<ErreurExcelExportService>();
 builder.Services.AddScoped<ServiceCreditsCRUD>();
 builder.Services.AddScoped<ServiceTBD>();
-
+builder.Services.AddScoped<ServiceExcelCRUD>();
 
 //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //    .AddJwtBearer(options =>

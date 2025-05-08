@@ -147,13 +147,13 @@ namespace DCCR_SERVER.Context
                 .HasMany(c => c.garanties)
                 .WithOne(g => g.credit)
                 .HasForeignKey(g => g.numero_contrat_credit)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Crédit>()
                 .HasMany(c => c.intervenantsCredit)
                 .WithOne(ic => ic.credit)
                 .HasForeignKey(ic => new { ic.numero_contrat_credit, ic.date_declaration, ic.id_excel })
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
             
 
             modelBuilder.Entity<Garantie>()
@@ -215,7 +215,7 @@ namespace DCCR_SERVER.Context
                 .HasMany(i => i.intervenant_credits)
                 .WithOne(ic => ic.intervenant)
                 .HasForeignKey(ic => ic.cle_intervenant)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<IntervenantCrédit>()
                 .HasOne(ic => ic.niveau_resp)

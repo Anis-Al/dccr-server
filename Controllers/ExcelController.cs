@@ -1,6 +1,8 @@
 using DCCR_SERVER.Context;
 using DCCR_SERVER.DTOs;
+using DCCR_SERVER.DTOs.Excel;
 using DCCR_SERVER.Models.Principaux;
+using DCCR_SERVER.Services.Credits;
 using DCCR_SERVER.Services.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Mvc;
@@ -16,18 +18,21 @@ namespace DCCR_SERVER.Controllers
         private readonly ServiceIntegration _integration;
         private readonly ILogger<ExcelController> _logger;
         private readonly ErreurExcelExportService _exportService;
+        private readonly ServiceExcelCRUD _serviceExcelCRUD;
         private readonly BddContext _context;
 
 
         public ExcelController(ServiceIntegration integration, 
                                ILogger<ExcelController> logger, 
                                ErreurExcelExportService exportService,
+                               ServiceExcelCRUD serviceExcelCRUD,
                                 BddContext context
                                 )
         {
             _integration = integration;
             _logger = logger;
             _exportService = exportService;
+            _serviceExcelCRUD = serviceExcelCRUD;
             _context = context;
 
         }
@@ -88,5 +93,22 @@ namespace DCCR_SERVER.Controllers
                 return StatusCode(500, $"Erreur lors de l'export : {ex.Message}");
             }
         }
+
+        [HttpGet("get-tous-metadonnes-excel")]
+        public async Task<ActionResult<List<ExcelMetaDonneesDto>>> getTousLesMetaDonneesDuExcel()
+        {
+            try
+            {
+                var metadonnees_excel = await _serviceExcelCRUD.getTousLesMetaDonneesDuExcel();
+                return Ok(metadonnees_excel);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erreur interne wtf.");
+            }
+
+        }
+
+
     }
 }

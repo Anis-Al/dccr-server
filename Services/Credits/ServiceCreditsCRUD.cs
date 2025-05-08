@@ -1,8 +1,10 @@
 ﻿using DCCR_SERVER.Context;
 using DCCR_SERVER.DTOs;
 using DCCR_SERVER.Models.Principaux;
+using DCCR_SERVER.Models.Statiques.TablesDomaines;
 using DocumentFormat.OpenXml.InkML;
 using Microsoft.EntityFrameworkCore;
+using static DCCR_SERVER.DTOs.CreditsDto;
 
 namespace DCCR_SERVER.Services.Credits
 {
@@ -17,7 +19,7 @@ namespace DCCR_SERVER.Services.Credits
         }
         private const string DateFormat = "yyyy-MM-dd";
 
-        public async Task<List<CreditsDto.CreditDto>> getTousLesCredits()
+        public async Task<List<CreditDto>> getTousLesCredits()
         {
 
             try
@@ -27,7 +29,7 @@ namespace DCCR_SERVER.Services.Credits
 
                 var creditsData = await query
                     .OrderByDescending(c => c.date_declaration)
-                    .Select(credit => new CreditsDto.CreditDto
+                    .Select(credit => new CreditDto
                     {
                         num_contrat_credit = credit.numero_contrat_credit,
                         date_declaration = credit.date_declaration.ToString(DateFormat),
@@ -76,7 +78,7 @@ namespace DCCR_SERVER.Services.Credits
 
                         intervenants = credit.intervenantsCredit
                                          .Where(ic => ic.intervenant != null)
-                                         .Select(ic => new CreditsDto.IntervenantDto
+                                         .Select(ic => new IntervenantDto
                                          {
                                              cle = ic.intervenant.cle,
                                              type_cle = ic.intervenant.type_cle,
@@ -88,7 +90,7 @@ namespace DCCR_SERVER.Services.Credits
                                          }).ToList(),
 
                         garanties = credit.garanties
-                                          .Select(g => new CreditsDto.GarantieDto
+                                          .Select(g => new GarantieDto
                                           {
                                               type_garantie = g.type_garantie,
                                               libelle_type_garantie = g.typeGarantie.domaine,
@@ -105,6 +107,12 @@ namespace DCCR_SERVER.Services.Credits
                 throw;
             }
         }
+        public string? getTousDonneesTablesDomaines()
+        {
+            var nom=_contexte.Model.FindEntityType(typeof(ActivitéCrédit)).GetTableName();
+            Console.WriteLine(nom);
+            return nom;
 
+        }
     }
 }

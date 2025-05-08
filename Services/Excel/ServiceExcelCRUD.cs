@@ -1,0 +1,46 @@
+﻿using DCCR_SERVER.Context;
+using DCCR_SERVER.DTOs;
+using DCCR_SERVER.DTOs.Excel;
+using DocumentFormat.OpenXml.InkML;
+using Microsoft.EntityFrameworkCore;
+
+namespace DCCR_SERVER.Services.Excel
+{
+    public class ServiceExcelCRUD
+    {
+        private readonly BddContext _contexte;
+        public ServiceExcelCRUD(BddContext contexte)
+        {
+            _contexte = contexte;
+        }
+        private const string DateFormat = "dd-MM-yyyy HH:mm";
+
+        public async Task<List<ExcelMetaDonneesDto>> getTousLesMetaDonneesDuExcel()
+        {
+            try
+            {
+                var requete = _contexte.fichiers_excel
+                    .AsNoTracking();
+
+                var MetaDonnees = await requete
+                    .OrderByDescending(fe => fe.id_fichier_excel)
+                    .Select(emd => new ExcelMetaDonneesDto
+                    {
+                        id_fichier_excel=emd.id_fichier_excel,
+                        nom_fichier_excel=emd.nom_fichier_excel,
+                        chemin_fichier_excel=emd.chemin_fichier_excel,
+                        date_heure_integration_excel=emd.date_heure_integration_excel.ToString(DateFormat),
+                        integrateur = emd.integrateurExcel.nom_complet,
+                    })
+                    .ToListAsync();
+
+                return MetaDonnees;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+    }
+}

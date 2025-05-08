@@ -1037,7 +1037,7 @@ namespace DCCR_SERVER.Migrations
                     b.HasOne("DCCR_SERVER.Models.Principaux.Intervenant", "intervenant")
                         .WithMany("intervenant_credits")
                         .HasForeignKey("cle_intervenant")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DCCR_SERVER.Models.Statiques.TablesDomaines.NiveauResponsabilité", "niveau_resp")
@@ -1049,7 +1049,7 @@ namespace DCCR_SERVER.Migrations
                     b.HasOne("DCCR_SERVER.Models.Principaux.Crédit", "credit")
                         .WithMany("intervenantsCredit")
                         .HasForeignKey("numero_contrat_credit", "date_declaration", "id_excel")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("credit");

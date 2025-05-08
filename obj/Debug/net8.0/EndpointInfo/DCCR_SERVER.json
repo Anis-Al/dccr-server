@@ -126,6 +126,44 @@
         }
       }
     },
+    "/api/Excel/get-tous-metadonnes-excel": {
+      "get": {
+        "tags": [
+          "Excel"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExcelMetaDonneesDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExcelMetaDonneesDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExcelMetaDonneesDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tbd/kpis": {
       "get": {
         "tags": [
@@ -352,6 +390,32 @@
             "items": {
               "$ref": "#/components/schemas/GarantieDto"
             },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExcelMetaDonneesDto": {
+        "type": "object",
+        "properties": {
+          "id_fichier_excel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nom_fichier_excel": {
+            "type": "string",
+            "nullable": true
+          },
+          "chemin_fichier_excel": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_heure_integration_excel": {
+            "type": "string",
+            "nullable": true
+          },
+          "integrateur": {
+            "type": "string",
             "nullable": true
           }
         },

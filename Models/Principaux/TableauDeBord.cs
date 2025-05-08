@@ -9,6 +9,5 @@ namespace DCCR_SERVER.Models.Principaux
         public string requete_sql { get; set; }
     }
 
-    // dto te3 ouedkniss
    
 }

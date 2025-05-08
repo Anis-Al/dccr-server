@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 
-namespace DCCR_SERVER.DTOs
+namespace DCCR_SERVER.DTOs.Excel
 {
     public class LoanPreviewDto
     {
-        
+
         public string NumeroContrat { get; set; }
         public string DateDeclaration { get; set; }
         public string SituationCredit { get; set; }

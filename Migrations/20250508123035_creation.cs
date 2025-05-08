@@ -584,13 +584,13 @@ namespace DCCR_SERVER.Migrations
                         columns: x => new { x.numero_contrat_credit, x.date_declaration, x.id_excel },
                         principalTable: "credits",
                         principalColumns: new[] { "numero_contrat_credit", "date_declaration", "id_excel" },
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_intervenants_credits_intervenants_cle_intervenant",
                         column: x => x.cle_intervenant,
                         principalTable: "intervenants",
                         principalColumn: "cle",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_intervenants_credits_niveaux_responsabilite_niveau_responsabilite",
                         column: x => x.niveau_responsabilite,

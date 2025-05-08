@@ -14,8 +14,8 @@ using ExcelDataReader;
 using System.Text.Json;
 using DCCR_SERVER.Models.ValidationFichiers;
 using static DCCR_SERVER.Models.enums.Enums;
-using DCCR_SERVER.DTOs;
-using Microsoft.AspNetCore.Http; 
+using Microsoft.AspNetCore.Http;
+using DCCR_SERVER.DTOs.Excel;
 
 namespace DCCR_SERVER.Services.Excel
 {
