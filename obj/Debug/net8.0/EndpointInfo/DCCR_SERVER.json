@@ -43,6 +43,44 @@
         }
       }
     },
+    "/api/credits/get-tables-domaines": {
+      "get": {
+        "tags": [
+          "credits"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TablesDomainesDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TablesDomainesDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TablesDomainesDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Excel/importer": {
       "post": {
         "tags": [
@@ -492,6 +530,37 @@
           "resultats": {
             "type": "array",
             "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TablesDomainesDto": {
+        "type": "object",
+        "properties": {
+          "nom_table": {
+            "type": "string",
+            "nullable": true
+          },
+          "valeurs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValeursTableDomaines"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValeursTableDomaines": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "domaine": {
+            "type": "string",
             "nullable": true
           }
         },

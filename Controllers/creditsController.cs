@@ -1,4 +1,4 @@
-﻿using DCCR_SERVER.DTOs;
+using DCCR_SERVER.DTOs;
 using DCCR_SERVER.Services.Credits;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,10 +29,23 @@ namespace DCCR_SERVER.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Erreur interne wtf.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erreur lors de la récupération des crédits.");
             }
-
         }
-    
+
+        [HttpGet("get-tables-domaines")]
+        public async Task<ActionResult<List<DTOs.Credits.TablesDomainesDto>>> GetTablesDomaines()
+        {
+            try
+            {
+                var tablesDomaines = await _serviceCreditsCRUD.GetToutesLesTablesDomaines();
+                return Ok(tablesDomaines);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting domain tables");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erreur lors de la récupération des tables de domaines.");
+            }
+        }
     }
 }

@@ -38,11 +38,7 @@ namespace DCCR_SERVER.Services.Dashboard
 
                     try
                     {
-                        if (!IsValidSqlQuery(kpi.requete_sql))
-                        {
-                            _logger.LogError($"Invalid SQL query for KPI {kpi.id_kpi}");
-                            continue;
-                        }
+                       
 
                         var resultats_requete = await _contexte.Database
                             .SqlQuery<dynamic>($"{kpi.requete_sql}").ToListAsync();
@@ -78,19 +74,7 @@ namespace DCCR_SERVER.Services.Dashboard
                 _logger.LogError(ex, "Error in ExecuterToutesRequetes");
                 throw;
             }
-        }
-
-        private bool IsValidSqlQuery(string query)
-        {
-            if (string.IsNullOrWhiteSpace(query)) return false;
-
-            // Basic SQL injection prevention
-            var invalidKeywords = new[] { "DROP", "DELETE", "TRUNCATE", "ALTER", "CREATE", "EXEC", "EXECUTE" };
-            return !invalidKeywords.Any(keyword => 
-                query.ToUpperInvariant().Contains($" {keyword} ") || 
-                query.ToUpperInvariant().StartsWith($"{keyword} "));
-        }
-
+        } 
         public async Task<IEnumerable<TableauDeBord>> GetAllKpisAsync()
         {
             try
@@ -101,7 +85,6 @@ namespace DCCR_SERVER.Services.Dashboard
 
                 if (kpis == null || !kpis.Any())
                 {
-                    _logger.LogWarning("No KPIs found in the database");
                     return Enumerable.Empty<TableauDeBord>();
                 }
 
@@ -109,12 +92,10 @@ namespace DCCR_SERVER.Services.Dashboard
             }
             catch (InvalidOperationException ex)
             {
-                _logger.LogError(ex, "Database operation error in GetAllKpisAsync");
                 throw;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error in GetAllKpisAsync");
                 throw;
             }
         }

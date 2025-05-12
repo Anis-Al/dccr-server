@@ -1,10 +1,13 @@
-﻿using DCCR_SERVER.Context;
+using DCCR_SERVER.Context;
 using DCCR_SERVER.DTOs;
+using DCCR_SERVER.DTOs.Credits;
 using DCCR_SERVER.Models.Principaux;
 using DCCR_SERVER.Models.Statiques.TablesDomaines;
 using DocumentFormat.OpenXml.InkML;
 using Microsoft.EntityFrameworkCore;
 using static DCCR_SERVER.DTOs.CreditsDto;
+using DCCR_SERVER.DTOs.Credits;
+using DCCR_SERVER.Models.Statiques.TablesDomaines;
 
 namespace DCCR_SERVER.Services.Credits
 {
@@ -18,6 +21,8 @@ namespace DCCR_SERVER.Services.Credits
             _contexte = contexte;
         }
         private const string DateFormat = "yyyy-MM-dd";
+
+        
 
         public async Task<List<CreditDto>> getTousLesCredits()
         {
@@ -107,12 +112,42 @@ namespace DCCR_SERVER.Services.Credits
                 throw;
             }
         }
-        public string? getTousDonneesTablesDomaines()
-        {
-            var nom=_contexte.Model.FindEntityType(typeof(ActivitéCrédit)).GetTableName();
-            Console.WriteLine(nom);
-            return nom;
 
+
+
+        public async Task<List<TablesDomainesDto>> GetToutesLesTablesDomaines()
+        {
+            var result = new List<TablesDomainesDto>();
+
+            result.Add(await GetTableDomaineAsync<Agence>("agences"));
+            result.Add(await GetTableDomaineAsync<Wilaya>("wilayas"));
+            result.Add(await GetTableDomaineAsync<Pays>("pays"));
+            result.Add(await GetTableDomaineAsync<TypeCrédit>("types_credit"));
+            result.Add(await GetTableDomaineAsync<ActivitéCrédit>("activites_credit"));
+            result.Add(await GetTableDomaineAsync<SituationCrédit>("situations_credit"));
+            result.Add(await GetTableDomaineAsync<Monnaie>("monnaies"));
+            result.Add(await GetTableDomaineAsync<DuréeCrédit>("durees_credit"));
+            result.Add(await GetTableDomaineAsync<ClasseRetard>("classes_retard"));
+            result.Add(await GetTableDomaineAsync<TypeGarantie>("types_garantie"));
+            result.Add(await GetTableDomaineAsync<NiveauResponsabilité>("niveaux_responsabilite"));
+
+            return result;
         }
-    }
+        private async Task<TablesDomainesDto> GetTableDomaineAsync<T>(string nomTable) where T : BaseTG
+        {
+            var query = _contexte.Set<T>().AsNoTracking();
+            var items = await query.OrderBy(x => x.code).ToListAsync();
+
+            return new TablesDomainesDto
+            {
+                nom_table = nomTable,
+                valeurs = items.Select(x => new ValeursTableDomaines
+                {
+                    code = x.code,
+                    domaine = x.domaine
+                }).ToList()
+            };
+        }
+
+}
 }
