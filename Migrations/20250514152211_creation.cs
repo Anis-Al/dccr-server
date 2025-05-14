@@ -328,8 +328,7 @@ namespace DCCR_SERVER.Migrations
                     id_excel = table.Column<int>(type: "int", nullable: false),
                     id_regle = table.Column<int>(type: "int", nullable: true),
                     ligne_excel = table.Column<int>(type: "int", nullable: false),
-                    message_erreur = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    id_staging_raw_data = table.Column<int>(type: "int", nullable: true)
+                    message_erreur = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -412,8 +411,8 @@ namespace DCCR_SERVER.Migrations
                     montant_interets_retard = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     montant_capital_retard = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     motif = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    participant_cle = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    participant_type_cle = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    participant_cle = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    participant_type_cle = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     participant_nif = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     participant_cli = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     participant_rib = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -846,19 +845,20 @@ namespace DCCR_SERVER.Migrations
                 column: "code");
 
             migrationBuilder.CreateIndex(
-                name: "IX_table_intermediaire_traitement_date_declaration",
+                name: "IX_table_intermediaire_traitement_id_import_excel_est_valide_ligne_original",
                 table: "table_intermediaire_traitement",
-                column: "date_declaration");
+                columns: new[] { "id_import_excel", "est_valide", "ligne_original" })
+                .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
-                name: "IX_table_intermediaire_traitement_id_import_excel",
+                name: "IX_table_intermediaire_traitement_numero_contrat_date_declaration",
                 table: "table_intermediaire_traitement",
-                column: "id_import_excel");
+                columns: new[] { "numero_contrat", "date_declaration" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_table_intermediaire_traitement_numero_contrat",
+                name: "IX_table_intermediaire_traitement_participant_cle_participant_type_cle",
                 table: "table_intermediaire_traitement",
-                column: "numero_contrat");
+                columns: new[] { "participant_cle", "participant_type_cle" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_types_credit_code",

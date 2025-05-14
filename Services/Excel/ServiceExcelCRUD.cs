@@ -13,7 +13,6 @@ namespace DCCR_SERVER.Services.Excel
         {
             _contexte = contexte;
         }
-        private const string DateFormat = "dd-MM-yyyy HH:mm";
 
         public async Task<List<ExcelMetaDonneesDto>> getTousLesMetaDonneesDuExcel()
         {
@@ -29,7 +28,7 @@ namespace DCCR_SERVER.Services.Excel
                         id_fichier_excel=emd.id_fichier_excel,
                         nom_fichier_excel=emd.nom_fichier_excel,
                         chemin_fichier_excel=emd.chemin_fichier_excel,
-                        date_heure_integration_excel=emd.date_heure_integration_excel.ToString(DateFormat),
+                        date_heure_integration_excel=emd.date_heure_integration_excel,
                         integrateur = emd.integrateurExcel.nom_complet,
                     })
                     .ToListAsync();

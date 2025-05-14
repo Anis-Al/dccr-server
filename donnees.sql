@@ -1,5 +1,4 @@
 -- #region mapping excel-bdd
--- #region mapping excel-bdd
 INSERT INTO mapping_colonnes (colonne_excel, colonne_bdd, colonne_prod, table_prod, type_donnee_prod) VALUES
 ('cli', 'participant_cli', 'cli', 'intervenants', 'string'),
 ('date_declaration', 'date_declaration', 'date_declaration', 'credits', 'dateonly'),
@@ -42,8 +41,6 @@ INSERT INTO mapping_colonnes (colonne_excel, colonne_bdd, colonne_prod, table_pr
 ('statut', NULL, NULL, NULL, 'string'),
 ('motif', 'motif', 'motif', 'credits', 'string'),
 ('date_exe', 'date_execution', 'date_execution', NULL, 'dateonly');
--- #endregion
-
 -- #endregion
 
 -- #region tables des domaines
@@ -392,6 +389,9 @@ INSERT INTO regles_validation (
 ) VALUES
 
 ('numero_contrat', 'OBLIGATOIRE', NULL, 'Le numéro de contrat est obligatoire.', NULL, NULL, NULL, NULL),
+('participant_cle', 'OBLIGATOIRE', NULL, 'La clé de débiteur est obligatoire.', NULL, NULL, NULL, NULL),
+('participant_type_cle', 'OBLIGATOIRE', NULL, 'Le type de clé de débiteur est obligatoire.', NULL, NULL, NULL, NULL),
+('participant_cli', 'OBLIGATOIRE', NULL, 'L''identifiant du client SGA est obligatoire.', NULL, NULL, NULL, NULL),
 ('situation_credit', 'OBLIGATOIRE', NULL, 'La situation du crédit est obligatoire.', NULL, NULL, NULL, NULL),
 ('role_niveau_responsabilite', 'OBLIGATOIRE', NULL, 'Le niveau de responsabilité est obligatoire.', NULL, NULL, NULL, NULL),
 ('code_agence', 'OBLIGATOIRE', NULL, 'Le code agence est obligatoire.', NULL, NULL, NULL, NULL),
@@ -419,61 +419,60 @@ INSERT INTO regles_validation (
 ('date_expiration', 'TYPE', 'dateonly', 'Le champ date_expiration doit être une date.', NULL, NULL, NULL, NULL),
 ('montant_garantie', 'TYPE', 'decimal', 'Le champ montant_garantie doit être un nombre décimal.', NULL, NULL, NULL, NULL),
 
-('role_niveau_responsabilite', 'DOMAINE', 'niveaux_responsabilite', 'La valeur de niveau de responsabilité est hors domaine autorisé.', NULL, NULL, NULL, NULL),
-
 ('id_plafond', 'OBLIGATOIRE_SI', NULL, 'Le champ numero_plafond est obligatoire si type_credit est 900.', 'type_credit', '900', NULL, NULL), -- marche
+('code_wilaya', 'OBLIGATOIRE_SI', NULL, 'Le code wilaya est obligatoire si le pays est l’Algérie.', 'code_pays', '012', NULL, NULL), --marche
+('code_agence', 'OBLIGATOIRE_SI', NULL, 'Le code ''agence est obligatoire si le pays est l’Algérie.', 'code_pays', '012', NULL, NULL), --marche
+('classe_retard', 'OBLIGATOIRE_SI', NULL, 'Classe retard doit être renseignée si situation_credit est dans [010,011,012,013,015].', 'situation_credit', '010,011,012,013,015', NULL, NULL), --marche
+('duree_restante', 'OBLIGATOIRE_SI', NULL, 'La durée restante doit être renseignée si credit_accorde est renseigné.', 'credit_accorde', 'NOT_NULL', NULL, NULL),
+('mensualite', 'OBLIGATOIRE_SI', NULL, 'La mensualité est obligatoire pour type_credit dans [050,051,052].', 'type_credit', '050,051,052', NULL, NULL),
+('cout_total_credit', 'OBLIGATOIRE_SI', NULL, 'Le coût total est obligatoire pour type_credit dans [050,051,052] et débiteur i1 ou i2.', 'type_credit|participant_type_cle', '050,051,052|i1,i2', NULL, NULL),
 
-('num_contrat_credit', 'FORMAT', 'CR+[code_banque]+[date.HHMMSS]', 'Le format du numéro de contrat de crédit est invalide.', NULL, NULL, NULL, NULL),
-
-('monnaie', 'DOMAINE', 'monnaies', 'La valeur de code monnaie est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+('num_contrat', 'FORMAT', 'CR+[code_banque]+[date.HHMMSS]', 'Le format du numéro de contrat de crédit est invalide.', NULL, NULL, NULL, NULL),
 
 ('participant_rib', 'LONGUEUR', '20', 'Le RIB a une taille differente de 20 positions.', NULL, NULL, NULL, NULL),
+('participant_cli', 'LONGUEUR', '15', 'L''identifiant du client SGA a une taille differente de 15 positions.', NULL, NULL, NULL, NULL),
 
+('role_niveau_responsabilite', 'DOMAINE', 'niveaux_responsabilite', 'La valeur de niveau de responsabilité est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+('monnaie', 'DOMAINE', 'monnaies', 'La valeur de code monnaie est hors domaine autorisé.', NULL, NULL, NULL, NULL),
 ('code_pays', 'DOMAINE', 'pays', 'La valeur de code pays est hors domaine autorisé.', NULL, NULL, NULL, NULL),
-
--- faut ajouter codes agences   
-
-('code_wilaya', 'OBLIGATOIRE_SI', NULL, 'Le code wilaya est obligatoire si le pays est l’Algérie.', 'code_pays', '012', NULL, NULL), --marche
-('code_wilaya', 'DOMAINE', 'wilayas', 'La valeur de code wilaya est hors domaine autorisé.', NULL, NULL, NULL, NULL),
-('code_wilaya', 'DOIT_ETRE_NULL_SI', NULL, 'Le code wilaya ne doit pas être renseigné si le pays n’est pas l’Algérie.', 'code_pays', '!=012', NULL, NULL),
-
+('code_agence', 'DOMAINE', 'agences', 'La valeur de code agence est hors domaine autorisé.', NULL, NULL, NULL, NULL),
 ('code_activite', 'DOMAINE', 'activites_credit', 'La valeur de code activité est hors domaine autorisé.', NULL, NULL, NULL, NULL),
-
 ('type_credit', 'DOMAINE', 'types_credit', 'La valeur de type crédit est hors domaine autorisé.', NULL, NULL, NULL, NULL),
-('type_credit', 'VALEURS_INTERDITES_SI', '050,051,052,080', 'Type crédit interdit pour débiteur du type : entreprise (i3).', 'participant_type_cle', 'i3', NULL, NULL),
-        
-('situation_credit', 'DOMAINE', 'situations_credit', 'La valeur de situation crédit est hors domaine autorisé.', NULL, NULL, NULL, NULL),
-('situation_credit', 'EGAL_A_SI', '900', 'La situation crédit doit être 900 si type_credit est 900.', 'type_credit', '900', 'situation_credit', '900'), 
-    
 ('classe_retard', 'DOMAINE', 'classes_retard', 'La valeur de classe retard est hors domaine autorisé.', NULL, NULL, NULL, NULL), --marche
-('classe_retard', 'OBLIGATOIRE_SI', NULL, 'Classe retard doit être renseignée si situation_credit est dans [010,011,012,013,015].', 'situation_credit', '010,011,012,013,015', NULL, NULL), --marche
+('situation_credit', 'DOMAINE', 'situations_credit', 'La valeur de situation crédit est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+('duree_initiale', 'DOMAINE', 'durees_credit', 'La valeur de durée initiale est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+('duree_restante', 'DOMAINE', 'durees_credit', 'La valeur de durée restante est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+('code_wilaya', 'DOMAINE', 'wilayas', 'La valeur de code wilaya est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+
+
+('code_wilaya', 'DOIT_ETRE_NULL_SI', NULL, 'Le code wilaya ne doit pas être renseigné si le pays n’est pas l’Algérie.', 'code_pays', '!=012', NULL, NULL),
 ('classe_retard', 'DOIT_ETRE_NULL_SI', NULL, 'Classe retard ne doit pas être renseignée si situation_credit est dans [001,002,020,900,014,018,005].', 'situation_credit', '001,002,020,900,014,018,005', NULL, NULL), --marche
 ('classe_retard', 'DOIT_ETRE_NULL_SI', NULL, 'Classe retard ne doit pas être renseignée si id_plafond est 900.', 'id_plafond', '900', NULL, NULL),
+('mensualite', 'DOIT_ETRE_NULL_SI', NULL, 'La mensualité ne doit pas être renseignée si type_credit n’est pas dans [050,051,052].', 'type_credit', '!=050,051,052', NULL, NULL),
 
-('duree_initiale', 'DOMAINE', 'durees_credit', 'La valeur de durée initiale est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+
+('type_credit', 'VALEURS_INTERDITES_SI', '050,051,052,080', 'Type crédit interdit pour débiteur du type : entreprise (i3).', 'participant_type_cle', 'i3', NULL, NULL),
+        
+('situation_credit', 'EGAL_A_SI', '900', 'La situation crédit doit être 900 si type_credit est 900.', 'type_credit', '900', 'situation_credit', '900'), 
+    
+
 ('duree_initiale', 'VALEUR_INTERDITE', '000', 'La durée initiale ne doit pas être 000.', NULL, NULL, NULL, NULL),
 ('duree_initiale', 'EGAL_A_SI', '999', 'La durée initiale doit être 999 si situation_credit est 001.', 'situation_credit', '001', 'duree_initiale', '999'),
 ('duree_initiale', 'VALEURS_INTERDITES_SI_PAS', '999', 'La durée initiale ne doit pas être 999 si situation_credit n’est pas 001.', 'situation_credit', '001', NULL, NULL),
 ('duree_initiale', 'EGAL_A_SI', '900', 'La durée initiale doit être 900 si type_credit est 900.', 'type_credit', '900', 'duree_initiale', '900'),
 ('duree_initiale', 'VALEURS_INTERDITES_SI_PAS', '900', 'La durée initiale ne doit pas être 900 si type_credit n’est pas 900.', 'type_credit', '900', NULL, NULL),
 
-('duree_restante', 'DOMAINE', 'durees_credit', 'La valeur de durée restante est hors domaine autorisé.', NULL, NULL, NULL, NULL),
-('duree_restante', 'OBLIGATOIRE_SI', NULL, 'La durée restante doit être renseignée si credit_accorde est renseigné.', 'credit_accorde', 'NOT_NULL', NULL, NULL),
 ('duree_restante', 'EGAL_A_SI', '999', 'La durée restante doit être 999 si situation_credit est 001.', 'situation_credit', '001', 'duree_rest', '999'),
 ('duree_restante', 'EGAL_A_SI', '900', 'La durée restante doit être 900 si type_credit est 900.', 'type_credit', '900', 'duree_rest', '900'),
 
 ('credit_accorde', 'EGAL_A_SI', '0', 'Le crédit accordé doit être 0 si type_credit est 900.', 'type_credit', '900', 'credit_accorde', '0'),
 ('credit_accorde', 'EGAL_A_SI', '0', 'Le crédit accordé doit être 0 si type_credit est 001.', 'type_credit', '001', 'credit_accorde', '0'),
-('credit_accorde', 'SUP_A_SI', '0', 'Le crédit accordé doit être > 0 pour les autres types de crédit.', 'type_credit', '!=900,001', NULL, NULL),
+('credit_accorde', 'SUP_A_SI', '0', 'Le crédit accordé doit être supérieur à ce type de crédit.', 'type_credit', '!=900,001', NULL, NULL),
 
-('solde_restant', 'OBLIGATOIRE', NULL, 'Le solde restant est obligatoire.', NULL, NULL, NULL, NULL),
 ('solde_restant', 'EGAL_A_SI', '0', 'Le solde restant doit être 0 si type_credit n’est pas 900 et situation_credit est 900.', 'type_credit,situation_credit', '!=900,900', 'solde_restant', '0'),
 ('solde_restant', 'EGAL_A_SI', '0', 'Le solde restant doit être 0 si situation_credit est egal à l''un de ces 4 : [001,020,005,018].', 'situation_credit', '001,020,018', 'solde_restant', '0'),
 
-('cout_total_credit', 'OBLIGATOIRE_SI', NULL, 'Le coût total est obligatoire pour type_credit dans [050,051,052] et débiteur i1 ou i2.', 'type_credit|participant_type_cle', '050,051,052|i1,i2', NULL, NULL),
 ('cout_total_credit', 'DOIT_ETRE_NULL_OU_ZERO_SI', NULL, 'Le coût total ne doit pas être renseigné ou doit être 0 si type_credit dans [050,051,052] et situation_credit dans [001,005,020,018].', 'type_credit', '050,051,052', 'situation_credit', '001,005,020,018'),
-('mensualite', 'OBLIGATOIRE_SI', NULL, 'La mensualité est obligatoire pour type_credit dans [050,051,052].', 'type_credit', '050,051,052', NULL, NULL),
-('mensualite', 'DOIT_ETRE_NULL_SI', NULL, 'La mensualité ne doit pas être renseignée si type_credit n’est pas dans [050,051,052].', 'type_credit', '!=050,051,052', NULL, NULL),
 ('mensualite', 'DOIT_ETRE_NULL_OU_ZERO_SI', NULL, 'La mensualité ne doit pas être renseignée ou doit être 0 si type_credit dans [050,051,052] et situation_credit dans [001,005,020,018].', 'type_credit', '050,051,052', 'situation_credit', '001,005,020,018'),
 ('montant_garantie', 'SUP_A_SI', '0', 'Le montant de la garantie doit être supérieur à 0 pour type_garantie != 999.', 'type_garantie', '!=999', NULL, NULL),
 ('montant_garantie', 'EGAL_A_SI', '0', 'Le montant de la garantie doit être 0 si type_garantie est 999.', 'type_garantie', '999', 'montant_garantie', '0');

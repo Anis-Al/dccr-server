@@ -450,7 +450,7 @@
           },
           "date_heure_integration_excel": {
             "type": "string",
-            "nullable": true
+            "format": "date-time"
           },
           "integrateur": {
             "type": "string",

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DCCR_SERVER.Migrations
 {
     [DbContext(typeof(BddContext))]
-    [Migration("20250512142428_creation")]
+    [Migration("20250514152211_creation")]
     partial class creation
     {
         /// <inheritdoc />
@@ -498,7 +498,7 @@ namespace DCCR_SERVER.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("participant_cle")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("participant_cli")
                         .HasColumnType("nvarchar(max)");
@@ -510,7 +510,7 @@ namespace DCCR_SERVER.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("participant_type_cle")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("role_niveau_responsabilite")
                         .HasColumnType("nvarchar(max)");
@@ -532,11 +532,13 @@ namespace DCCR_SERVER.Migrations
 
                     b.HasKey("id");
 
-                    b.HasIndex("date_declaration");
+                    b.HasIndex("numero_contrat", "date_declaration");
 
-                    b.HasIndex("id_import_excel");
+                    b.HasIndex("participant_cle", "participant_type_cle");
 
-                    b.HasIndex("numero_contrat");
+                    b.HasIndex("id_import_excel", "est_valide", "ligne_original");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("id_import_excel", "est_valide", "ligne_original"), false);
 
                     b.ToTable("table_intermediaire_traitement");
                 });
@@ -842,9 +844,6 @@ namespace DCCR_SERVER.Migrations
                         .HasColumnType("int");
 
                     b.Property<int?>("id_regle")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("id_staging_raw_data")
                         .HasColumnType("int");
 
                     b.Property<int>("ligne_excel")

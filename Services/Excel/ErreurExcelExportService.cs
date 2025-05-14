@@ -49,10 +49,10 @@ namespace DCCR_SERVER.Services.Excel
                     .ToListAsync();
                 _context.erreurs_fichiers_excel.RemoveRange(erreursToDelete);
 
-                var fichierExcelToDelete = await _context.fichiers_excel.FirstOrDefaultAsync(f => f.id_fichier_excel == idExcel);
-                if (fichierExcelToDelete != null)
+                var FichierASupprimer = await _context.fichiers_excel.FirstOrDefaultAsync(f => f.id_fichier_excel == idExcel);
+                if (FichierASupprimer != null)
                 {
-                    _context.fichiers_excel.Remove(fichierExcelToDelete);
+                    _context.fichiers_excel.Remove(FichierASupprimer);
                 }
 
                 await _context.SaveChangesAsync();

@@ -215,7 +215,7 @@ namespace DCCR_SERVER.Context
                 .HasMany(i => i.intervenant_credits)
                 .WithOne(ic => ic.intervenant)
                 .HasForeignKey(ic => ic.cle_intervenant)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<IntervenantCrédit>()
                 .HasOne(ic => ic.niveau_resp)
@@ -298,19 +298,21 @@ namespace DCCR_SERVER.Context
 
             modelBuilder.Entity<FichierXml>().HasIndex(fx => fx.id_fichier_xml);
 
-            modelBuilder.Entity<ErreurExcel>().HasIndex(ee => ee.id_excel);
-            modelBuilder.Entity<ErreurExcel>().HasIndex(ee => ee.id_regle);
+            modelBuilder.Entity<ErreurExcel>().HasIndex(ee => new { ee.id_excel,ee.ligne_excel});
 
             modelBuilder.Entity<MappingColonnes>().HasIndex(mc => mc.id_mapping);
 
             modelBuilder.Entity<RegleValidation>().HasIndex(rv => rv.nom_colonne);
 
-            modelBuilder.Entity<donnees_brutes>().HasIndex(db => db.id_import_excel);
-            modelBuilder.Entity<donnees_brutes>().HasIndex(db => db.numero_contrat);
-            modelBuilder.Entity<donnees_brutes>().HasIndex(db => db.date_declaration);
+            modelBuilder.Entity<donnees_brutes>().HasIndex(db => new { db.id_import_excel,db.est_valide,db.ligne_original }).IsClustered(false);  
+            modelBuilder.Entity<donnees_brutes>().HasIndex(x => new { x.numero_contrat, x.date_declaration });
+            modelBuilder.Entity<donnees_brutes>().HasIndex(x => new { x.participant_cle, x.participant_type_cle });
+           
             modelBuilder.Entity<Utilisateur>().HasIndex(u => u.matricule);
+           
             modelBuilder.Entity<Audit>().HasIndex(a => a.id_action);
             modelBuilder.Entity<Audit>().HasIndex(a => a.matricule_utilisateur);
+           
             modelBuilder.Entity<ParametrageFichierXml>().HasIndex(pfx => pfx.id);
 
             modelBuilder.Entity<ActivitéCrédit>().HasIndex(ac => ac.code);

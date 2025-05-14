@@ -7,7 +7,7 @@ namespace DCCR_SERVER.DTOs.Excel
     {
         public bool contientErreurs { get; set; }
         public List<object> Erreurs { get; set; }
-        public List<LoanPreviewDto> ApercuDonnees { get; set; }
+        public List<ApercuCredit> ApercuDonnees { get; set; }
         public int IdExcel { get; set; }
         public string NomFichierExcel { get; internal set; }
     }

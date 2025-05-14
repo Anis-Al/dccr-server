@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DCCR_SERVER.DTOs.Excel
 {
-    public class LoanPreviewDto
+    public class ApercuCredit
     {
 
         public string NumeroContrat { get; set; }
@@ -35,11 +35,11 @@ namespace DCCR_SERVER.DTOs.Excel
         public string CodeWilaya { get; set; }
         public string CodePays { get; set; }
         public bool EstValide { get; set; }
-        public List<ParticipantPreviewDto> Participants { get; set; }
-        public List<GarantiePreviewDto> Garanties { get; set; }
+        public List<ApercuParticipant> Participants { get; set; }
+        public List<ApercuGarantie> Garanties { get; set; }
     }
 
-    public class ParticipantPreviewDto
+    public class ApercuParticipant
     {
         public string ParticipantCle { get; set; }
         public string ParticipantType { get; set; }
@@ -49,7 +49,7 @@ namespace DCCR_SERVER.DTOs.Excel
         public string RoleNiveauResponsabilite { get; set; }
     }
 
-    public class GarantiePreviewDto
+    public class ApercuGarantie
     {
         public string? TypeGarantie { get; set; }
         public string? MontantGarantie { get; set; }
