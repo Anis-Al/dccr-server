@@ -12,7 +12,6 @@ namespace DCCR_SERVER.Models.Principaux
         public bool? est_plafond_accorde { get; set; } = false;
         public string situation_credit { get; set; }
 
-        // dates
         public DateOnly date_octroi { get; set; }
         public DateOnly? date_rejet { get; set; }
         public DateOnly date_expiration { get; set; }
@@ -20,9 +19,7 @@ namespace DCCR_SERVER.Models.Principaux
 
         public string duree_initiale { get; set; }
         public string duree_restante { get; set; }
-        //
         public int id_lieu { get; set; }
-        //
 
         public string type_credit { get; set; }
         public string activite_credit { get; set; }

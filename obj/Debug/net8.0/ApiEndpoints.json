@@ -40,6 +40,38 @@
     ]
   },
   {
+    "ContainingType": "DCCR_SERVER.Controllers.declarationsBAController",
+    "Method": "GenerateXml",
+    "RelativePath": "api/declarationsBA/generer-declarations/{idExcel}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idExcel",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.declarationsBAController",
+    "Method": "DownloadBothXml",
+    "RelativePath": "api/declarationsBA/telecharger-declarations/{idXml}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idXml",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "DCCR_SERVER.Controllers.ExcelController",
     "Method": "MigrerStagingVersProd",
     "RelativePath": "api/Excel/confirmer-integration",

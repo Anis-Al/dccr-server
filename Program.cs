@@ -1,6 +1,7 @@
 using DCCR_SERVER.Context;
 using DCCR_SERVER.Services.Credits;
 using DCCR_SERVER.Services.Dashboard;
+using DCCR_SERVER.Services.Décl.BA;
 using DCCR_SERVER.Services.Excel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -31,6 +32,7 @@ builder.Services.AddScoped<ErreurExcelExportService>();
 builder.Services.AddScoped<ServiceCreditsCRUD>();
 builder.Services.AddScoped<ServiceTBD>();
 builder.Services.AddScoped<ServiceExcelCRUD>();
+builder.Services.AddScoped<ServiceXmlCRUD>();
 
 //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //    .AddJwtBearer(options =>

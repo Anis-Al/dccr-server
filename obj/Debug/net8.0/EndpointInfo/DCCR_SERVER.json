@@ -81,6 +81,52 @@
         }
       }
     },
+    "/api/declarationsBA/generer-declarations/{idExcel}": {
+      "post": {
+        "tags": [
+          "declarationsBA"
+        ],
+        "parameters": [
+          {
+            "name": "idExcel",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/declarationsBA/telecharger-declarations/{idXml}": {
+      "get": {
+        "tags": [
+          "declarationsBA"
+        ],
+        "parameters": [
+          {
+            "name": "idXml",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Excel/importer": {
       "post": {
         "tags": [

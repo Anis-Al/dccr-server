@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DCCR_SERVER")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a7aefd1698647c46a52fb03b7e6cfde3b9fd2a6c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3340166374570b265598327deed2a9b97fe5109b")]
 [assembly: System.Reflection.AssemblyProductAttribute("DCCR_SERVER")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DCCR_SERVER")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
