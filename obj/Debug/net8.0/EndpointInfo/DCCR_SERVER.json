@@ -127,6 +127,44 @@
         }
       }
     },
+    "/api/declarationsBA": {
+      "get": {
+        "tags": [
+          "declarationsBA"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FichierXml"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FichierXml"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FichierXml"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Excel/importer": {
       "post": {
         "tags": [
@@ -289,6 +327,115 @@
   },
   "components": {
     "schemas": {
+      "ActivitéCrédit": {
+        "required": [
+          "domaine"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "domaine": {
+            "type": "string",
+            "nullable": true
+          },
+          "credits_type_activite": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Crédit"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Agence": {
+        "required": [
+          "domaine"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "domaine": {
+            "type": "string",
+            "nullable": true
+          },
+          "agences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Lieu"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Audit": {
+        "required": [
+          "id_entité",
+          "table_ciblée",
+          "type_action"
+        ],
+        "type": "object",
+        "properties": {
+          "id_action": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "matricule_utilisateur": {
+            "type": "string",
+            "nullable": true
+          },
+          "table_ciblée": {
+            "type": "string",
+            "nullable": true
+          },
+          "id_entité": {
+            "type": "string",
+            "nullable": true
+          },
+          "type_action": {
+            "$ref": "#/components/schemas/typeActionAudit"
+          },
+          "date_action": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "utilisateur_acteur": {
+            "$ref": "#/components/schemas/Utilisateur"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ClasseRetard": {
+        "required": [
+          "domaine"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "domaine": {
+            "type": "string",
+            "nullable": true
+          },
+          "credits_classe_retard": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Crédit"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "CreditDto": {
         "type": "object",
         "properties": {
@@ -479,6 +626,237 @@
         },
         "additionalProperties": false
       },
+      "Crédit": {
+        "type": "object",
+        "properties": {
+          "numero_contrat_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_declaration": {
+            "type": "string",
+            "format": "date"
+          },
+          "id_excel": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "est_plafond_accorde": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "situation_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_octroi": {
+            "type": "string",
+            "format": "date"
+          },
+          "date_rejet": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "date_expiration": {
+            "type": "string",
+            "format": "date"
+          },
+          "date_execution": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "duree_initiale": {
+            "type": "string",
+            "nullable": true
+          },
+          "duree_restante": {
+            "type": "string",
+            "nullable": true
+          },
+          "id_lieu": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "type_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "activite_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "monnaie": {
+            "type": "string",
+            "nullable": true
+          },
+          "credit_accorde": {
+            "type": "number",
+            "format": "double"
+          },
+          "id_plafond": {
+            "type": "string",
+            "nullable": true
+          },
+          "taux": {
+            "type": "number",
+            "format": "double"
+          },
+          "mensualite": {
+            "type": "number",
+            "format": "double"
+          },
+          "cout_total_credit": {
+            "type": "number",
+            "format": "double"
+          },
+          "solde_restant": {
+            "type": "number",
+            "format": "double"
+          },
+          "classe_retard": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_constatation": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "nombre_echeances_impayes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "montant_interets_courus": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "montant_interets_retard": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "montant_capital_retard": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "motif": {
+            "type": "string",
+            "nullable": true
+          },
+          "excel": {
+            "$ref": "#/components/schemas/FichierExcel"
+          },
+          "intervenantsCredit": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IntervenantCrédit"
+            },
+            "nullable": true
+          },
+          "garanties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Garantie"
+            },
+            "nullable": true
+          },
+          "lieu": {
+            "$ref": "#/components/schemas/Lieu"
+          },
+          "devise": {
+            "$ref": "#/components/schemas/Monnaie"
+          },
+          "typecredit": {
+            "$ref": "#/components/schemas/TypeCrédit"
+          },
+          "situationcredit": {
+            "$ref": "#/components/schemas/SituationCrédit"
+          },
+          "classeretard": {
+            "$ref": "#/components/schemas/ClasseRetard"
+          },
+          "activitecredit": {
+            "$ref": "#/components/schemas/ActivitéCrédit"
+          },
+          "dureeinitiale": {
+            "$ref": "#/components/schemas/DuréeCrédit"
+          },
+          "dureerestante": {
+            "$ref": "#/components/schemas/DuréeCrédit"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DuréeCrédit": {
+        "required": [
+          "domaine"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "domaine": {
+            "type": "string",
+            "nullable": true
+          },
+          "credits_duree_initiale": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Crédit"
+            },
+            "nullable": true
+          },
+          "credits_duree_restante": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Crédit"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ErreurExcel": {
+        "type": "object",
+        "properties": {
+          "id_erreur": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id_excel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id_regle": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "ligne_excel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message_erreur": {
+            "type": "string",
+            "nullable": true
+          },
+          "excel_associe": {
+            "$ref": "#/components/schemas/FichierExcel"
+          },
+          "regle_associe": {
+            "$ref": "#/components/schemas/RegleValidation"
+          }
+        },
+        "additionalProperties": false
+      },
       "ExcelMetaDonneesDto": {
         "type": "object",
         "properties": {
@@ -505,6 +883,165 @@
         },
         "additionalProperties": false
       },
+      "FichierExcel": {
+        "type": "object",
+        "properties": {
+          "id_fichier_excel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nom_fichier_excel": {
+            "type": "string",
+            "nullable": true
+          },
+          "chemin_fichier_excel": {
+            "type": "string",
+            "nullable": true
+          },
+          "id_integrateur_excel": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_heure_integration_excel": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id_session_import": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "statut_import": {
+            "$ref": "#/components/schemas/StatutImport"
+          },
+          "message_statut": {
+            "type": "string",
+            "nullable": true
+          },
+          "resume_validation": {
+            "type": "string",
+            "nullable": true
+          },
+          "credits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Crédit"
+            },
+            "nullable": true
+          },
+          "erreurs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErreurExcel"
+            },
+            "nullable": true
+          },
+          "integrateurExcel": {
+            "$ref": "#/components/schemas/Utilisateur"
+          },
+          "fichiers_xml": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FichierXml"
+            },
+            "nullable": true
+          },
+          "donnees_brutes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/donnees_brutes"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FichierXml": {
+        "required": [
+          "contenu_correction",
+          "contenu_supression"
+        ],
+        "type": "object",
+        "properties": {
+          "id_fichier_xml": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nom_fichier_xml": {
+            "type": "string",
+            "nullable": true
+          },
+          "contenu_correction": {
+            "type": "string",
+            "nullable": true
+          },
+          "contenu_supression": {
+            "type": "string",
+            "nullable": true
+          },
+          "id_utilisateur_generateur_xml": {
+            "type": "string",
+            "nullable": true
+          },
+          "generateurXml": {
+            "$ref": "#/components/schemas/Utilisateur"
+          },
+          "date_heure_generation_xml": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id_fichier_excel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fichier_excel": {
+            "$ref": "#/components/schemas/FichierExcel"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Garantie": {
+        "type": "object",
+        "properties": {
+          "id_garantie": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cle_interventant": {
+            "type": "string",
+            "nullable": true
+          },
+          "guarant": {
+            "$ref": "#/components/schemas/Intervenant"
+          },
+          "numero_contrat_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_declaration": {
+            "type": "string",
+            "format": "date"
+          },
+          "id_excel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "credit": {
+            "$ref": "#/components/schemas/Crédit"
+          },
+          "type_garantie": {
+            "type": "string",
+            "nullable": true
+          },
+          "typeGarantie": {
+            "$ref": "#/components/schemas/TypeGarantie"
+          },
+          "montant_garantie": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
       "GarantieDto": {
         "type": "object",
         "properties": {
@@ -524,6 +1061,85 @@
             "type": "number",
             "format": "double",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Intervenant": {
+        "type": "object",
+        "properties": {
+          "cle": {
+            "type": "string",
+            "nullable": true
+          },
+          "type_cle": {
+            "type": "string",
+            "nullable": true
+          },
+          "nif": {
+            "type": "string",
+            "nullable": true
+          },
+          "cli": {
+            "type": "string",
+            "nullable": true
+          },
+          "rib": {
+            "type": "string",
+            "nullable": true
+          },
+          "garanties_intervenant": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Garantie"
+            },
+            "nullable": true
+          },
+          "intervenant_credits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IntervenantCrédit"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "IntervenantCrédit": {
+        "type": "object",
+        "properties": {
+          "id_intervenantcredit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numero_contrat_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_declaration": {
+            "type": "string",
+            "format": "date"
+          },
+          "id_excel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "credit": {
+            "$ref": "#/components/schemas/Crédit"
+          },
+          "cle_intervenant": {
+            "type": "string",
+            "nullable": true
+          },
+          "intervenant": {
+            "$ref": "#/components/schemas/Intervenant"
+          },
+          "niveau_responsabilite": {
+            "type": "string",
+            "nullable": true
+          },
+          "niveau_resp": {
+            "$ref": "#/components/schemas/NiveauResponsabilité"
           }
         },
         "additionalProperties": false
@@ -562,6 +1178,92 @@
         },
         "additionalProperties": false
       },
+      "Lieu": {
+        "type": "object",
+        "properties": {
+          "id_lieu": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "code_agence": {
+            "type": "string",
+            "nullable": true
+          },
+          "code_wilaya": {
+            "type": "string",
+            "nullable": true
+          },
+          "code_pays": {
+            "type": "string",
+            "nullable": true
+          },
+          "credits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Crédit"
+            },
+            "nullable": true
+          },
+          "agence": {
+            "$ref": "#/components/schemas/Agence"
+          },
+          "wilaya": {
+            "$ref": "#/components/schemas/Wilaya"
+          },
+          "pays": {
+            "$ref": "#/components/schemas/Pays"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Monnaie": {
+        "required": [
+          "domaine"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "domaine": {
+            "type": "string",
+            "nullable": true
+          },
+          "credits_monnaie": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Crédit"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "NiveauResponsabilité": {
+        "required": [
+          "domaine"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "domaine": {
+            "type": "string",
+            "nullable": true
+          },
+          "intervenants_niveau_resp": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IntervenantCrédit"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "ObjectResultatDTO": {
         "type": "object",
         "properties": {
@@ -581,6 +1283,123 @@
         },
         "additionalProperties": false
       },
+      "Pays": {
+        "required": [
+          "domaine"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "domaine": {
+            "type": "string",
+            "nullable": true
+          },
+          "pays": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Lieu"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RegleValidation": {
+        "type": "object",
+        "properties": {
+          "id_regle": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nom_colonne": {
+            "type": "string",
+            "nullable": true
+          },
+          "type_regle": {
+            "type": "string",
+            "nullable": true
+          },
+          "valeur_regle": {
+            "type": "string",
+            "nullable": true
+          },
+          "message_erreur": {
+            "type": "string",
+            "nullable": true
+          },
+          "colonne_dependante": {
+            "type": "string",
+            "nullable": true
+          },
+          "valeur_dependante": {
+            "type": "string",
+            "nullable": true
+          },
+          "colonne_cible": {
+            "type": "string",
+            "nullable": true
+          },
+          "valeur_cible_attendue": {
+            "type": "string",
+            "nullable": true
+          },
+          "erreurs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErreurExcel"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RoleUtilisateur": {
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "SituationCrédit": {
+        "required": [
+          "domaine"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "domaine": {
+            "type": "string",
+            "nullable": true
+          },
+          "credits_situation": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Crédit"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StatutImport": {
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
       "TablesDomainesDto": {
         "type": "object",
         "properties": {
@@ -592,6 +1411,103 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ValeursTableDomaines"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TypeCrédit": {
+        "required": [
+          "domaine"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "domaine": {
+            "type": "string",
+            "nullable": true
+          },
+          "credits_type_credit": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Crédit"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TypeGarantie": {
+        "required": [
+          "domaine"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "domaine": {
+            "type": "string",
+            "nullable": true
+          },
+          "types_garantie": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Garantie"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Utilisateur": {
+        "required": [
+          "matricule",
+          "mot_de_passe",
+          "nom_complet",
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "matricule": {
+            "type": "string",
+            "nullable": true
+          },
+          "nom_complet": {
+            "type": "string",
+            "nullable": true
+          },
+          "mot_de_passe": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "role": {
+            "$ref": "#/components/schemas/RoleUtilisateur"
+          },
+          "actions_de_cet_utilisateur": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Audit"
+            },
+            "nullable": true
+          },
+          "fichiers_excel_integres": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FichierExcel"
+            },
+            "nullable": true
+          },
+          "fichiers_xml_générés": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FichierXml"
             },
             "nullable": true
           }
@@ -611,6 +1527,214 @@
           }
         },
         "additionalProperties": false
+      },
+      "Wilaya": {
+        "required": [
+          "domaine"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "domaine": {
+            "type": "string",
+            "nullable": true
+          },
+          "wilayas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Lieu"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "donnees_brutes": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id_import_excel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id_session_import": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ligne_original": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numero_contrat": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_declaration": {
+            "type": "string",
+            "nullable": true
+          },
+          "situation_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_octroi": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_rejet": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_expiration": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_execution": {
+            "type": "string",
+            "nullable": true
+          },
+          "duree_initiale": {
+            "type": "string",
+            "nullable": true
+          },
+          "duree_restante": {
+            "type": "string",
+            "nullable": true
+          },
+          "type_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "activite_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "monnaie": {
+            "type": "string",
+            "nullable": true
+          },
+          "credit_accorde": {
+            "type": "string",
+            "nullable": true
+          },
+          "id_plafond": {
+            "type": "string",
+            "nullable": true
+          },
+          "taux": {
+            "type": "string",
+            "nullable": true
+          },
+          "mensualite": {
+            "type": "string",
+            "nullable": true
+          },
+          "cout_total_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "solde_restant": {
+            "type": "string",
+            "nullable": true
+          },
+          "classe_retard": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_constatation": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombre_echeances_impayes": {
+            "type": "string",
+            "nullable": true
+          },
+          "montant_interets_courus": {
+            "type": "string",
+            "nullable": true
+          },
+          "montant_interets_retard": {
+            "type": "string",
+            "nullable": true
+          },
+          "montant_capital_retard": {
+            "type": "string",
+            "nullable": true
+          },
+          "motif": {
+            "type": "string",
+            "nullable": true
+          },
+          "participant_cle": {
+            "type": "string",
+            "nullable": true
+          },
+          "participant_type_cle": {
+            "type": "string",
+            "nullable": true
+          },
+          "participant_nif": {
+            "type": "string",
+            "nullable": true
+          },
+          "participant_cli": {
+            "type": "string",
+            "nullable": true
+          },
+          "participant_rib": {
+            "type": "string",
+            "nullable": true
+          },
+          "role_niveau_responsabilite": {
+            "type": "string",
+            "nullable": true
+          },
+          "type_garantie": {
+            "type": "string",
+            "nullable": true
+          },
+          "montant_garantie": {
+            "type": "string",
+            "nullable": true
+          },
+          "code_agence": {
+            "type": "string",
+            "nullable": true
+          },
+          "code_wilaya": {
+            "type": "string",
+            "nullable": true
+          },
+          "code_pays": {
+            "type": "string",
+            "nullable": true
+          },
+          "est_valide": {
+            "type": "boolean"
+          },
+          "import_excel": {
+            "$ref": "#/components/schemas/FichierExcel"
+          }
+        },
+        "additionalProperties": false
+      },
+      "typeActionAudit": {
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "type": "integer",
+        "format": "int32"
       }
     }
   }

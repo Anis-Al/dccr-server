@@ -69,5 +69,19 @@ namespace DCCR_SERVER.Controllers
                 return File(memoryStream.ToArray(), "application/zip", $"xml_files_{idXml}.zip");
             }
         }
+
+        [HttpGet]
+        public async Task<ActionResult<List<FichierXml>>> GetAllXmlFiles()
+        {
+            try
+            {
+                var xmlFiles = await _xmlService.getTousLesFichiersXml();
+                return Ok(xmlFiles);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

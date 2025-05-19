@@ -41,6 +41,26 @@
   },
   {
     "ContainingType": "DCCR_SERVER.Controllers.declarationsBAController",
+    "Method": "GetAllXmlFiles",
+    "RelativePath": "api/declarationsBA",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[DCCR_SERVER.Models.Principaux.FichierXml, DCCR_SERVER, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.declarationsBAController",
     "Method": "GenerateXml",
     "RelativePath": "api/declarationsBA/generer-declarations/{idExcel}",
     "HttpMethod": "POST",
