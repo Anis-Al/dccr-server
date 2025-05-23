@@ -41,7 +41,7 @@
   },
   {
     "ContainingType": "DCCR_SERVER.Controllers.declarationsBAController",
-    "Method": "GetAllXmlFiles",
+    "Method": "tousLesDeclarationsBA",
     "RelativePath": "api/declarationsBA",
     "HttpMethod": "GET",
     "IsController": true,
@@ -61,7 +61,7 @@
   },
   {
     "ContainingType": "DCCR_SERVER.Controllers.declarationsBAController",
-    "Method": "GenerateXml",
+    "Method": "genererDeclarationsParSource",
     "RelativePath": "api/declarationsBA/generer-declarations/{idExcel}",
     "HttpMethod": "POST",
     "IsController": true,
@@ -77,7 +77,7 @@
   },
   {
     "ContainingType": "DCCR_SERVER.Controllers.declarationsBAController",
-    "Method": "DownloadBothXml",
+    "Method": "telechargerLesFichiersParDeclarations",
     "RelativePath": "api/declarationsBA/telecharger-declarations/{idXml}",
     "HttpMethod": "GET",
     "IsController": true,
@@ -183,5 +183,93 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.utilisateursController",
+    "Method": "ObtenirTousLesUtilisateurs",
+    "RelativePath": "api/utilisateurs",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[DCCR_SERVER.DTOs.Auth.UtilisateurDto, DCCR_SERVER, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.utilisateursController",
+    "Method": "AjouterUtilisateur",
+    "RelativePath": "api/utilisateurs/ajouter",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "registerDto",
+        "Type": "DCCR_SERVER.DTOs.Auth.RegisterDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DCCR_SERVER.DTOs.Auth.UtilisateurDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.utilisateursController",
+    "Method": "AjouterUtilisateurLDAP",
+    "RelativePath": "api/utilisateurs/ajouter-ldap",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "DCCR_SERVER.DTOs.Auth.DemandeInscriptionLdap",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DCCR_SERVER.DTOs.Auth.UtilisateurDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.utilisateursController",
+    "Method": "SupprimerUtilisateur",
+    "RelativePath": "api/utilisateurs/supprimer/{matricule}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "matricule",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   }
 ]

@@ -75,30 +75,30 @@ namespace DCCR_SERVER.Services.Décl.BA
 
                     writer.WriteStartElement("c3");
 
-                    foreach (var dateGroup in creditsParDate)
+                    foreach (var date in creditsParDate)
                     {
                         writer.WriteStartElement("c31");
-                        writer.WriteAttributeString("s1", dateGroup.Key.ToString("yyyy-MM-dd"));
+                        writer.WriteAttributeString("s1", date.Key.ToString("yyyy-MM-dd"));
 
-                        var creditsByIntervenant = dateGroup
+                        var creditsParPersonne = date
                             .SelectMany(c => c.intervenantsCredit.Select(ic => new { Credit = c, Intervenant = ic.intervenant, IntervenantCredit = ic }))
                             .GroupBy(x => x.Intervenant.cle);
 
-                        foreach (var intervenantGroup in creditsByIntervenant)
+                        foreach (var personne in creditsParPersonne)
                         {
                             writer.WriteStartElement("s2");
 
                             writer.WriteStartElement("d32");
-                            var firstIntervenantRecord = intervenantGroup.First();
-                            writer.WriteAttributeString("xsi", "type", "http://www.w3.org/2001/XMLSchema-instance", firstIntervenantRecord.Intervenant.type_cle);
-                            writer.WriteString(intervenantGroup.Key);
+                            var instance_personne_unique = personne.First();
+                            writer.WriteAttributeString("xsi", "type", "http://www.w3.org/2001/XMLSchema-instance", instance_personne_unique.Intervenant.type_cle);
+                            writer.WriteString(personne.Key.Trim());
                             writer.WriteEndElement();
 
                             writer.WriteStartElement("s11");
 
-                            foreach (var creditRecord in intervenantGroup)
+                            foreach (var creditsCettePersonne in personne)
                             {
-                                var credit = creditRecord.Credit;
+                                var credit = creditsCettePersonne.Credit;
                                 writer.WriteStartElement("s20");
 
                                 if (credit.id_plafond != null) writer.WriteAttributeString("s129", credit.id_plafond);
@@ -131,10 +131,10 @@ namespace DCCR_SERVER.Services.Décl.BA
 
                                 writer.WriteAttributeString("s124", credit.date_octroi.ToString("yyyy-MM-dd"));
                                 writer.WriteAttributeString("s125", credit.date_expiration.ToString("yyyy-MM-dd"));
-                                writer.WriteAttributeString("s102", creditRecord.IntervenantCredit.niveau_responsabilite);
+                                writer.WriteAttributeString("s102", creditsCettePersonne.IntervenantCredit.niveau_responsabilite);
 
-                                if (!string.IsNullOrEmpty(creditRecord.Intervenant.rib))
-                                    writer.WriteAttributeString("s113", creditRecord.Intervenant.rib);
+                                if (!string.IsNullOrEmpty(creditsCettePersonne.Intervenant.rib))
+                                    writer.WriteAttributeString("s113", creditsCettePersonne.Intervenant.rib);
 
                                 if (credit.lieu != null)
                                 {
@@ -170,7 +170,7 @@ namespace DCCR_SERVER.Services.Décl.BA
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error generating correction XML: {ex.Message}", ex);
+                throw;
             }
         }
 
@@ -206,23 +206,23 @@ namespace DCCR_SERVER.Services.Décl.BA
 
                     writer.WriteStartElement("c3");
 
-                    foreach (var dateUnique in creditsParDate)
+                    foreach (var date in creditsParDate)
                     {
                         writer.WriteStartElement("c31");
-                        writer.WriteAttributeString("s1", dateUnique.Key.ToString("yyyy-MM-dd"));
+                        writer.WriteAttributeString("s1", date.Key.ToString("yyyy-MM-dd"));
 
-                        var creditsByIntervenant = dateUnique
+                        var creditsParPersonne = date
                             .SelectMany(c => c.intervenantsCredit.Select(ic => new { Credit = c, Intervenant = ic.intervenant, IntervenantCredit = ic }))
                             .GroupBy(x => x.Intervenant.cle);
 
-                        foreach (var intervenantGroup in creditsByIntervenant)
+                        foreach (var personne in creditsParPersonne)
                         {
                             writer.WriteStartElement("s2");
 
                             writer.WriteStartElement("d32");
-                            var firstIntervenantRecord = intervenantGroup.First();
-                            writer.WriteAttributeString("xsi", "type", "http://www.w3.org/2001/XMLSchema-instance", firstIntervenantRecord.Intervenant.type_cle);
-                            writer.WriteString(intervenantGroup.Key);
+                            var instanceUniquePersonne = personne.First();
+                            writer.WriteAttributeString("xsi", "type", "http://www.w3.org/2001/XMLSchema-instance", instanceUniquePersonne.Intervenant.type_cle);
+                            writer.WriteString(personne.Key.Trim());
                             writer.WriteEndElement(); // d32
 
                             writer.WriteEndElement(); // s2
@@ -237,7 +237,7 @@ namespace DCCR_SERVER.Services.Décl.BA
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error generating suppression XML: {ex.Message}", ex);
+                throw new Exception($"{ex.Message}");
             }
         }
 
@@ -255,7 +255,7 @@ namespace DCCR_SERVER.Services.Décl.BA
             return Encoding.UTF8.GetBytes(xmlContent);
         }
 
-        public async Task<(byte[] correctionContent, string correctionFileName, byte[] suppressionContent, string suppressionFileName)> getLesFichiersXml(int idXml)
+        public async Task<(byte[] fichierCorrection, string nomFichierCorrection, byte[] fichierSuppression, string nomFichierSuppression)> envoyerLesDonneesDeDeclarationPourTelecharger(int idXml)
         {
             var xmlFile = await getXmlParId(idXml);
             if (xmlFile == null)
@@ -263,13 +263,13 @@ namespace DCCR_SERVER.Services.Décl.BA
                 return (null, null, null, null);
             }
 
-            string correctionFileName = $"correction_{xmlFile.nom_fichier_xml}";
-            byte[] correctionContent = convertirStringAuXml(xmlFile.contenu_correction);
+            string nomFichierCorrection = $"correction_{xmlFile.nom_fichier_xml}";
+            byte[] fichierCorrection = convertirStringAuXml(xmlFile.contenu_correction);
 
-            string suppressionFileName = $"suppression_{xmlFile.nom_fichier_xml}";
-            byte[] suppressionContent = convertirStringAuXml(xmlFile.contenu_supression);
+            string nomFichierSuppression = $"suppression_{xmlFile.nom_fichier_xml}";
+            byte[] fichierSuppression = convertirStringAuXml(xmlFile.contenu_supression);
 
-            return (correctionContent, correctionFileName, suppressionContent, suppressionFileName);
+            return (fichierCorrection, nomFichierCorrection, fichierSuppression, nomFichierSuppression);
         }
 
         public async Task<List<XmlDto>> getTousLesFichiersXml()

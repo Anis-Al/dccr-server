@@ -20,7 +20,7 @@ namespace DCCR_SERVER.Controllers
         }
 
         [HttpPost("generer-declarations/{idExcel}")]
-        public IActionResult GenerateXml(int idExcel)
+        public IActionResult genererDeclarationsParSource(int idExcel)
         {
             try
             {
@@ -38,12 +38,12 @@ namespace DCCR_SERVER.Controllers
         }
 
         [HttpGet("telecharger-declarations/{idXml}")]
-        public async Task<IActionResult> DownloadBothXml(int idXml)
+        public async Task<IActionResult> telechargerLesFichiersParDeclarations(int idXml)
         {
-            var (correctionContent, correctionFileName, suppressionContent, suppressionFileName) =
-                await _xmlService.getLesFichiersXml(idXml);
+            var (contenuCorrection, nomFichierCorrection, contenuSuppression, nomFichierSuppression) =
+                await _xmlService.envoyerLesDonneesDeDeclarationPourTelecharger(idXml);
 
-            if (correctionContent == null || suppressionContent == null)
+            if (contenuCorrection == null || contenuSuppression == null)
             {
                 return NotFound();
             }
@@ -52,26 +52,26 @@ namespace DCCR_SERVER.Controllers
             {
                 using (var archive = new System.IO.Compression.ZipArchive(memoryStream, System.IO.Compression.ZipArchiveMode.Create, true))
                 {
-                    var correctionEntry = archive.CreateEntry(correctionFileName);
-                    using (var entryStream = correctionEntry.Open())
+                    var fichierCorrectionStream = archive.CreateEntry(nomFichierCorrection);
+                    using (var streameur = fichierCorrectionStream.Open())
                     {
-                        await entryStream.WriteAsync(correctionContent, 0, correctionContent.Length);
+                        await streameur.WriteAsync(contenuCorrection, 0, contenuCorrection.Length);
                     }
 
-                    var suppressionEntry = archive.CreateEntry(suppressionFileName);
-                    using (var entryStream = suppressionEntry.Open())
+                    var fichierSuppressionStream = archive.CreateEntry(nomFichierSuppression);
+                    using (var entryStream = fichierSuppressionStream.Open())
                     {
-                        await entryStream.WriteAsync(suppressionContent, 0, suppressionContent.Length);
+                        await entryStream.WriteAsync(contenuSuppression, 0, contenuSuppression.Length);
                     }
                 }
-
+                string ajrdui = DateTime.Now.ToString();
                 memoryStream.Position = 0;
-                return File(memoryStream.ToArray(), "application/zip", $"xml_files_{idXml}.zip");
+                return File(memoryStream.ToArray(), "application/zip", $"declarations_{ajrdui}.zip");
             }
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<FichierXml>>> GetAllXmlFiles()
+        public async Task<ActionResult<List<FichierXml>>> tousLesDeclarationsBA()
         {
             try
             {

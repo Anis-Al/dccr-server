@@ -3,6 +3,7 @@ using DCCR_SERVER.Services.Credits;
 using DCCR_SERVER.Services.Dashboard;
 using DCCR_SERVER.Services.Décl.BA;
 using DCCR_SERVER.Services.Excel;
+using DCCR_SERVER.Services.Utilisateur;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OfficeOpenXml;
@@ -33,6 +34,8 @@ builder.Services.AddScoped<ServiceCreditsCRUD>();
 builder.Services.AddScoped<ServiceTBD>();
 builder.Services.AddScoped<ServiceExcelCRUD>();
 builder.Services.AddScoped<ServiceXmlCRUD>();
+builder.Services.AddScoped<AuthentificationService>();
+builder.Services.AddScoped<ServiceUtilisateurCRUD>();
 
 //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //    .AddJwtBearer(options =>
