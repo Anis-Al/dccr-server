@@ -40,6 +40,32 @@
     ]
   },
   {
+    "ContainingType": "DCCR_SERVER.Controllers.creditsController",
+    "Method": "creerCreditUi",
+    "RelativePath": "api/credits/nouveau-credit",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "credit",
+        "Type": "DCCR_SERVER.DTOs.CreditsDto\u002BCreditDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[DCCR_SERVER.Models.ValidationFichiers.ErreurExcel, DCCR_SERVER, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "DCCR_SERVER.Controllers.declarationsBAController",
     "Method": "tousLesDeclarationsBA",
     "RelativePath": "api/declarationsBA",
@@ -160,6 +186,22 @@
         "Name": "matricule_utilisateur",
         "Type": "System.String",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.ExcelController",
+    "Method": "supprimerFichierExcel",
+    "RelativePath": "api/Excel/supprimer-fichier-excel/{idExcel}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idExcel",
+        "Type": "System.Int32",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []

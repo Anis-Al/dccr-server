@@ -3,11 +3,11 @@ using DCCR_SERVER.DTOs;
 using DCCR_SERVER.DTOs.Credits;
 using DCCR_SERVER.Models.Principaux;
 using DCCR_SERVER.Models.Statiques.TablesDomaines;
+using DCCR_SERVER.Models.ValidationFichiers;
+using DCCR_SERVER.Services.Excel;
 using DocumentFormat.OpenXml.InkML;
 using Microsoft.EntityFrameworkCore;
 using static DCCR_SERVER.DTOs.CreditsDto;
-using DCCR_SERVER.DTOs.Credits;
-using DCCR_SERVER.Models.Statiques.TablesDomaines;
 
 namespace DCCR_SERVER.Services.Credits
 {
@@ -147,6 +147,77 @@ namespace DCCR_SERVER.Services.Credits
                     domaine = x.domaine
                 }).ToList()
             };
+        }
+
+        public async Task<List<ErreurExcel>> creerCreditDepuisUi(CreditDto credit)
+        {
+            var donnees = new List<donnees_brutes>();
+
+            if (credit.intervenants != null)
+            {
+                foreach (var intervenant in credit.intervenants)
+                {
+                    var garantieForIntervenant = credit.garanties?.FirstOrDefault(g => g.cle_intervenant == intervenant.cle);
+                    
+                    var donneeRecord = new donnees_brutes
+                    {
+                        numero_contrat = credit.num_contrat_credit,
+                        date_declaration = credit.date_declaration,
+                        id_import_excel = credit.id_excel,
+                        type_credit = credit.type_credit,
+                        id_plafond = credit.id_plafond,
+                        activite_credit = credit.code_activite,
+                        situation_credit = credit.situation,
+                        motif = credit.motif,
+                        code_agence = credit.code_agence,
+                        code_wilaya = credit.code_wilaya,
+                        code_pays = credit.code_pays,
+                        credit_accorde = credit.credit_accorde.ToString(),
+                        monnaie = credit.monnaie,
+                        taux = credit.taux_interets.ToString(),
+                        cout_total_credit = credit.cout_total_credit.ToString(),
+                        solde_restant = credit.solde_restant.ToString(),
+                        mensualite = credit.mensualite.ToString(),
+                        duree_initiale = credit.duree_initiale,
+                        duree_restante = credit.duree_restante,
+                        classe_retard = credit.classe_retard,
+                        nombre_echeances_impayes = credit.nombre_echeances_impayes.ToString(),
+                        date_constatation = credit.date_constatation_echeances_impayes,
+                        montant_capital_retard = credit.montant_capital_retard.ToString(),
+                        montant_interets_retard = credit.montant_interets_retard.ToString(),
+                        montant_interets_courus = credit.montant_interets_courus.ToString(),
+                        date_octroi = credit.date_octroi,
+                        date_expiration = credit.date_expiration,
+                        date_execution = credit.date_execution,
+                        date_rejet = credit.date_rejet,
+                        participant_cle = intervenant.cle,
+                        participant_type_cle = intervenant.type_cle,
+                        participant_nif = intervenant.nif,
+                        participant_rib = intervenant.rib,
+                        participant_cli = intervenant.cli,
+                        role_niveau_responsabilite = intervenant.niveau_responsabilite,
+                        type_garantie = garantieForIntervenant?.type_garantie,
+                        montant_garantie = garantieForIntervenant?.montant_garantie.ToString(),
+                        ligne_original = 1,
+                        est_valide = true,
+                        id_session_import = Guid.NewGuid()
+                    };
+                    donnees.Add(donneeRecord);
+                }
+            }
+
+            _contexte.table_intermediaire_traitement.AddRange(donnees);
+            await _contexte.SaveChangesAsync();
+
+            var erreurs = await new ServiceIntegration(_contexte, null, null).ValiderAvecReglesAsync(donnees);
+            
+            if (!erreurs.Any())
+            {
+                var id_import_excel = donnees.First().id_import_excel;
+                await new ServiceIntegration(_contexte, null, null).MigrerDonneesStagingVersProdAsync(id_import_excel);
+            }
+
+            return erreurs;
         }
 
 }

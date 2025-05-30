@@ -51,7 +51,7 @@
             public string? date_execution { get; set; }
             public string? date_rejet { get; set; }
 
-            public int? id_excel { get; set; } 
+            public int id_excel { get; set; } 
 
             public List<IntervenantDto>? intervenants { get; set; } = new List<IntervenantDto>();
             public List<GarantieDto>? garanties { get; set; } = new List<GarantieDto>();

@@ -56,13 +56,14 @@ namespace DCCR_SERVER.Services.Décl.BA
                     NewLineChars = "\r\n",
                     NewLineHandling = NewLineHandling.Replace,
                     Encoding = Encoding.UTF8,
-                    OmitXmlDeclaration = true
+                    OmitXmlDeclaration = false
                 };
 
                 using (var writer = XmlWriter.Create(sb, settings))
                 {
                     writer.WriteStartDocument();
                     writer.WriteStartElement("crem");
+                    writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
                     writer.WriteAttributeString("c1", "1.0");
 
                     writer.WriteStartElement("c2");
@@ -90,7 +91,7 @@ namespace DCCR_SERVER.Services.Décl.BA
 
                             writer.WriteStartElement("d32");
                             var instance_personne_unique = personne.First();
-                            writer.WriteAttributeString("xsi", "type", "http://www.w3.org/2001/XMLSchema-instance", instance_personne_unique.Intervenant.type_cle);
+                            writer.WriteAttributeString("xsi", "type", null, instance_personne_unique.Intervenant.type_cle);
                             writer.WriteString(personne.Key.Trim());
                             writer.WriteEndElement();
 
@@ -187,13 +188,14 @@ namespace DCCR_SERVER.Services.Décl.BA
                     NewLineChars = "\r\n",
                     NewLineHandling = NewLineHandling.Replace,
                     Encoding = Encoding.UTF8,
-                    OmitXmlDeclaration = true
+                    OmitXmlDeclaration = false
                 };
 
                 using (var writer = XmlWriter.Create(sb, settings))
                 {
                     writer.WriteStartDocument();
                     writer.WriteStartElement("crem");
+                    writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
                     writer.WriteAttributeString("c1", "1.0");
 
                     writer.WriteStartElement("c2");
@@ -221,7 +223,7 @@ namespace DCCR_SERVER.Services.Décl.BA
 
                             writer.WriteStartElement("d32");
                             var instanceUniquePersonne = personne.First();
-                            writer.WriteAttributeString("xsi", "type", "http://www.w3.org/2001/XMLSchema-instance", instanceUniquePersonne.Intervenant.type_cle);
+                            writer.WriteAttributeString("xsi", "type", null, instanceUniquePersonne.Intervenant.type_cle);
                             writer.WriteString(personne.Key.Trim());
                             writer.WriteEndElement(); // d32
 

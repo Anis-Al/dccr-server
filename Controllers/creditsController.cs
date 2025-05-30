@@ -1,4 +1,5 @@
 using DCCR_SERVER.DTOs;
+using DCCR_SERVER.Models.ValidationFichiers;
 using DCCR_SERVER.Services.Credits;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,6 +46,21 @@ namespace DCCR_SERVER.Controllers
             {
                 _logger.LogError(ex, "Error getting domain tables");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Erreur lors de la récupération des tables de domaines.");
+            }
+        }
+
+        [HttpPost("nouveau-credit")]
+        public async Task<ActionResult<List<ErreurExcel>>> creerCreditUi([FromBody] CreditsDto.CreditDto credit)
+        {
+            try
+            {
+                var erreurs = await _serviceCreditsCRUD.creerCreditDepuisUi(credit);
+                return Ok(erreurs);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error validating credit");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erreur lors de la validation du crédit.");
             }
         }
     }

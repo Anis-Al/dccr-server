@@ -110,5 +110,22 @@ namespace DCCR_SERVER.Controllers
         }
 
 
+        [HttpDelete("supprimer-fichier-excel/{idExcel}")]
+        public async Task<IActionResult> supprimerFichierExcel(int idExcel)
+        {
+            try
+            {
+                var resultat = await _serviceExcelCRUD.supprimerFichierExcel(idExcel);
+                if (!resultat)
+                    return NotFound("Fichier Excel non trouvé.");
+
+                return Ok(new { success = true, message = "Fichier Excel supprimé avec succès." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la suppression du fichier Excel");
+                return StatusCode(500, new { success = false, message = "Erreur lors de la suppression du fichier Excel." });
+            }
+        }
     }
 }

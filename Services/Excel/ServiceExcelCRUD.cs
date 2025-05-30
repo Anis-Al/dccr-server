@@ -41,5 +41,25 @@ namespace DCCR_SERVER.Services.Excel
             }
         }
 
+        public async Task<bool> supprimerFichierExcel(int id_fichier_excel)
+        {
+            try
+            {
+                var fichierExcel = await _contexte.fichiers_excel
+                    .FirstOrDefaultAsync(f => f.id_fichier_excel == id_fichier_excel);
+
+                if (fichierExcel == null)
+                    return false;
+
+                _contexte.fichiers_excel.Remove(fichierExcel);
+                await _contexte.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

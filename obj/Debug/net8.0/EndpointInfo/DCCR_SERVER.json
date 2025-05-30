@@ -81,6 +81,63 @@
         }
       }
     },
+    "/api/credits/nouveau-credit": {
+      "post": {
+        "tags": [
+          "credits"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreditDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreditDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreditDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ErreurExcel"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ErreurExcel"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ErreurExcel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/declarationsBA/generer-declarations/{idExcel}": {
       "post": {
         "tags": [
@@ -282,6 +339,29 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/Excel/supprimer-fichier-excel/{idExcel}": {
+      "delete": {
+        "tags": [
+          "Excel"
+        ],
+        "parameters": [
+          {
+            "name": "idExcel",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -762,8 +842,7 @@
           },
           "id_excel": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           },
           "intervenants": {
             "type": "array",
@@ -795,8 +874,7 @@
           },
           "id_excel": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           },
           "est_plafond_accorde": {
             "type": "boolean",
