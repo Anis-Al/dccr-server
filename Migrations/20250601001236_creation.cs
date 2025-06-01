@@ -217,7 +217,7 @@ namespace DCCR_SERVER.Migrations
                 {
                     matricule = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     nom_complet = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    mot_de_passe = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    mot_de_passe = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     role = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -589,7 +589,7 @@ namespace DCCR_SERVER.Migrations
                         column: x => x.cle_intervenant,
                         principalTable: "intervenants",
                         principalColumn: "cle",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_intervenants_credits_niveaux_responsabilite_niveau_responsabilite",
                         column: x => x.niveau_responsabilite,
@@ -674,9 +674,9 @@ namespace DCCR_SERVER.Migrations
                 column: "code");
 
             migrationBuilder.CreateIndex(
-                name: "IX_erreurs_fichiers_excel_id_excel",
+                name: "IX_erreurs_fichiers_excel_id_excel_ligne_excel",
                 table: "erreurs_fichiers_excel",
-                column: "id_excel");
+                columns: new[] { "id_excel", "ligne_excel" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_erreurs_fichiers_excel_id_regle",

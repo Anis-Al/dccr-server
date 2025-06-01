@@ -41,7 +41,7 @@ namespace DCCR_SERVER.Services.Utilisateur
                 return (false, "User already exists");
 
             string mdpGenereBrute = genererMDP();
-            byte[] mdpHashe = hasherMDP(mdpGenereBrute);
+            string mdpHashe = hasherMDP(mdpGenereBrute);
 
             var user = new Utilisateur
             {
@@ -95,11 +95,12 @@ namespace DCCR_SERVER.Services.Utilisateur
 
             await _smtpClient.SendMailAsync(mailMessage);
         }
-        private static byte[] hasherMDP(string password)
+        public static string hasherMDP(string password)
         {
             using (var sha512 = SHA512.Create())
             {
-                return sha512.ComputeHash(Encoding.UTF8.GetBytes(password));
+                byte[] hashBytes = sha512.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(hashBytes);
             }
         }
 
@@ -108,8 +109,12 @@ namespace DCCR_SERVER.Services.Utilisateur
         public async Task<LoginReponseDto> connecterUtilisateur(LoginDto loginDto)
         {
             var utilisateur = await _context.utilisateurs.FirstOrDefaultAsync(u => u.matricule == loginDto.matricule);
-            if (utilisateur == null || !verifierMDP(loginDto.mot_de_passe, utilisateur.mot_de_passe))
-                return null;        
+            
+            if (utilisateur == null)
+                return new LoginReponseDto { message = "Matricule non trouvé" };
+            
+            if (!verifierMDP(loginDto.mot_de_passe, utilisateur.mot_de_passe))
+                return new LoginReponseDto { message = "Mot de passe incorrect" };
 
             var token = genererJWT(utilisateur);
             return new LoginReponseDto
@@ -145,11 +150,12 @@ namespace DCCR_SERVER.Services.Utilisateur
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        private bool verifierMDP(string enteredPassword, byte[] storedHash)
+        public bool verifierMDP(string enteredPassword, string storedHash)
         {
-            using var sha256 = SHA256.Create();
-            var enteredHash = sha256.ComputeHash(Encoding.UTF8.GetBytes(enteredPassword));
-            return enteredHash.SequenceEqual(storedHash); 
+            using var sha512 = SHA512.Create();
+            var enteredHashBytes = sha512.ComputeHash(Encoding.UTF8.GetBytes(enteredPassword));
+            var enteredHashString = Convert.ToBase64String(enteredHashBytes);
+            return enteredHashString == storedHash;
         }
 
     }

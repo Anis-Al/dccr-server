@@ -1,9 +1,10 @@
 using DCCR_SERVER.Context;
 using DCCR_SERVER.Services.Credits;
 using DCCR_SERVER.Services.Dashboard;
-using DCCR_SERVER.Services.Décl.BA;
+using DCCR_SERVER.Services.DÃ©cl.BA;
 using DCCR_SERVER.Services.Excel;
 using DCCR_SERVER.Services.Utilisateur;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OfficeOpenXml;
@@ -15,8 +16,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<DCCR_SERVER.Context.BddContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), 
+builder.Services.AddDbContext<BddContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), 
 sqlOptions => sqlOptions.CommandTimeout(1000)));
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("cors",
@@ -37,21 +40,21 @@ builder.Services.AddScoped<ServiceXmlCRUD>();
 builder.Services.AddScoped<AuthentificationService>();
 builder.Services.AddScoped<ServiceUtilisateurCRUD>();
 
-//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//    .AddJwtBearer(options =>
-//    {
-//        var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-//        options.TokenValidationParameters = new TokenValidationParameters
-//        {
-//            ValidateIssuer = true,
-//            ValidIssuer = jwtSettings["issuer"],
-//            ValidateAudience = true,
-//            ValidAudience = jwtSettings["audience"],
-//            ValidateIssuerSigningKey = true,
-//            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["cle_jwt"])),
-//            ValidateLifetime = true
-//        };
-//    });
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtSettings["issuer"],
+            ValidateAudience = true,
+            ValidAudience = jwtSettings["audience"],
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["cle_jwt"])),
+            ValidateLifetime = true
+        };
+    });
 
 var app = builder.Build();
 app.UseCors("cors");

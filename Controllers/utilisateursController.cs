@@ -43,23 +43,23 @@ namespace DCCR_SERVER.Controllers
                 return StatusCode(500, $"deez nuts {ex.Message}");
                     }
         }
-        [HttpPost("ajouter-ldap")]
-        public async Task<ActionResult<UtilisateurDto>> AjouterUtilisateurLDAP([FromBody] DemandeInscriptionLdap request)
-        {
-            try
-            {
-                var utilisateurCree = await _serviceUtilisateur.AjouterUtilisateurLDAP(request.Matricule, request.Role);
-                return CreatedAtAction(nameof(ObtenirTousLesUtilisateurs), new { matricule = utilisateurCree.matricule }, utilisateurCree);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Erreur interne du serveur: {ex.Message}");
-            }
-        }
+        //[HttpPost("ajouter-ldap")]
+        //public async Task<ActionResult<UtilisateurDto>> AjouterUtilisateurLDAP([FromBody] DemandeInscriptionLdap request)
+        //{
+        //    try
+        //    {
+        //        var utilisateurCree = await _serviceUtilisateur.AjouterUtilisateurLDAP(request.Matricule, request.Role);
+        //        return CreatedAtAction(nameof(ObtenirTousLesUtilisateurs), new { matricule = utilisateurCree.matricule }, utilisateurCree);
+        //    }
+        //    catch (InvalidOperationException ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Erreur interne du serveur: {ex.Message}");
+        //    }
+        //}
 
         [HttpDelete("supprimer/{matricule}")]
         public async Task<ActionResult> SupprimerUtilisateur(string matricule)

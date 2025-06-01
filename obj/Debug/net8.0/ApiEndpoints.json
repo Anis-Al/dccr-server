@@ -1,5 +1,57 @@
 [
   {
+    "ContainingType": "DCCR_SERVER.Controllers.AuthController",
+    "Method": "HashPassword",
+    "RelativePath": "api/Auth/hash-password",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "DCCR_SERVER.Controllers.AuthController\u002BHashPasswordDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.String",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.AuthController",
+    "Method": "Login",
+    "RelativePath": "api/Auth/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "loginDto",
+        "Type": "DCCR_SERVER.DTOs.Auth.LoginDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DCCR_SERVER.DTOs.Auth.LoginReponseDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "DCCR_SERVER.Controllers.creditsController",
     "Method": "GetTablesDomaines",
     "RelativePath": "api/credits/get-tables-domaines",
@@ -257,32 +309,6 @@
       {
         "Name": "registerDto",
         "Type": "DCCR_SERVER.DTOs.Auth.RegisterDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "DCCR_SERVER.DTOs.Auth.UtilisateurDto",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "DCCR_SERVER.Controllers.utilisateursController",
-    "Method": "AjouterUtilisateurLDAP",
-    "RelativePath": "api/utilisateurs/ajouter-ldap",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "request",
-        "Type": "DCCR_SERVER.DTOs.Auth.DemandeInscriptionLdap",
         "IsRequired": true
       }
     ],

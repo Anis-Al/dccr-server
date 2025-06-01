@@ -810,9 +810,9 @@ namespace DCCR_SERVER.Migrations
                     b.Property<string>("matricule")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<byte[]>("mot_de_passe")
+                    b.Property<string>("mot_de_passe")
                         .IsRequired()
-                        .HasColumnType("varbinary(max)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("nom_complet")
                         .IsRequired()
@@ -851,9 +851,9 @@ namespace DCCR_SERVER.Migrations
 
                     b.HasKey("id_erreur");
 
-                    b.HasIndex("id_excel");
-
                     b.HasIndex("id_regle");
+
+                    b.HasIndex("id_excel", "ligne_excel");
 
                     b.ToTable("erreurs_fichiers_excel");
                 });
@@ -1036,7 +1036,7 @@ namespace DCCR_SERVER.Migrations
                     b.HasOne("DCCR_SERVER.Models.Principaux.Intervenant", "intervenant")
                         .WithMany("intervenant_credits")
                         .HasForeignKey("cle_intervenant")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("DCCR_SERVER.Models.Statiques.TablesDomaines.NiveauResponsabilité", "niveau_resp")

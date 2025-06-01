@@ -79,38 +79,38 @@ namespace DCCR_SERVER.Services.Utilisateur
             return await Task.FromResult(("Nom Complet", new byte[] { 0x00, 0x01 })); // remplaci hadi b return les vraies infos
 
         }
-        public async Task<UtilisateurDto> AjouterUtilisateurLDAP(string matricule, RoleUtilisateur role)
-        {
-            if (await _context.utilisateurs.AnyAsync(u => u.matricule == matricule))
-            {
-                throw new InvalidOperationException("Un utilisateur avec ce matricule existe déjà.");
-            }
+        //public async Task<UtilisateurDto> AjouterUtilisateurLDAP(string matricule, RoleUtilisateur role)
+        //{
+        //    if (await _context.utilisateurs.AnyAsync(u => u.matricule == matricule))
+        //    {
+        //        throw new InvalidOperationException("Un utilisateur avec ce matricule existe déjà.");
+        //    }
 
-            if (!await VerifierUtilisateurLDAP(matricule))
-            {
-                throw new InvalidOperationException("Utilisateur non trouvé dans l'Active Directory.");
-            }
+        //    if (!await VerifierUtilisateurLDAP(matricule))
+        //    {
+        //        throw new InvalidOperationException("Utilisateur non trouvé dans l'Active Directory.");
+        //    }
 
-            var (nomComplet, motDePasse) = await ObtenirInfosUtilisateurLDAP(matricule);
+        //    var (nomComplet, motDePasse) = await ObtenirInfosUtilisateurLDAP(matricule);
 
-            var nouvelUtilisateur = new Models.Utilisateurs_audit.Utilisateur
-            {
-                matricule = matricule,
-                nom_complet = nomComplet,
-                mot_de_passe = motDePasse,
-                role = role
-            };
+        //    var nouvelUtilisateur = new Models.Utilisateurs_audit.Utilisateur
+        //    {
+        //        matricule = matricule,
+        //        nom_complet = nomComplet,
+        //        mot_de_passe = motDePasse,
+        //        role = role
+        //    };
 
-            _context.utilisateurs.Add(nouvelUtilisateur);
-            await _context.SaveChangesAsync();
+        //    _context.utilisateurs.Add(nouvelUtilisateur);
+        //    await _context.SaveChangesAsync();
             
-            return new UtilisateurDto
-            {
-                matricule = nouvelUtilisateur.matricule,
-                nom_complet = nouvelUtilisateur.nom_complet,
-                role = nouvelUtilisateur.role.ToString()
-            };
-        }
+        //    return new UtilisateurDto
+        //    {
+        //        matricule = nouvelUtilisateur.matricule,
+        //        nom_complet = nouvelUtilisateur.nom_complet,
+        //        role = nouvelUtilisateur.role.ToString()
+        //    };
+        //}
     
     
     

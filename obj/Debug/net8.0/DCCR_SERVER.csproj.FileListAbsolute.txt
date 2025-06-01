@@ -19,6 +19,8 @@ C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\bin\Debug\net8.0\ExcelDataReader
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\bin\Debug\net8.0\ExcelNumberFormat.dll
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\bin\Debug\net8.0\Humanizer.dll
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\bin\Debug\net8.0\JWT.dll
+C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\bin\Debug\net8.0\Microsoft.Build.Locator.dll
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
