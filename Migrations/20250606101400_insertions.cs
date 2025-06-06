@@ -5,7 +5,7 @@
 namespace DCCR_SERVER.Migrations
 {
     /// <inheritdoc />
-    public partial class insertion : Migration
+    public partial class insertions : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -29,7 +29,7 @@ namespace DCCR_SERVER.Context
         public DbSet<MappingColonnes> mapping_colonnes { get; set; }
         public DbSet<ErreurExcel> erreurs_fichiers_excel { get; set; }
         public DbSet<RegleValidation> regles_validation { get; set; }
-        public DbSet<ParametrageFichierXml> parametrage_fichiers_xml { get; set; }
+        public DbSet<Parametrage> parametrage { get; set; }
         
         // tables domaines
         public DbSet<ActivitéCrédit> activites_credit { get; set; }
@@ -58,7 +58,7 @@ namespace DCCR_SERVER.Context
             modelBuilder.Entity<FichierExcel>().HasKey(fex => fex.id_fichier_excel);
             modelBuilder.Entity<ErreurExcel>().HasKey(ee => ee.id_erreur);
             modelBuilder.Entity<MappingColonnes>().HasKey(mc => mc.id_mapping);
-            modelBuilder.Entity<ParametrageFichierXml>().HasKey(pfx => pfx.id);
+            modelBuilder.Entity<Parametrage>().HasKey(pfx => pfx.parametre);
             modelBuilder.Entity<Utilisateur>().HasKey(u => u.matricule);
             modelBuilder.Entity<Audit>().HasKey(a => a.id_action);
             modelBuilder.Entity<RegleValidation>().HasKey(rv => rv.id_regle);
@@ -300,7 +300,6 @@ namespace DCCR_SERVER.Context
 
             modelBuilder.Entity<ErreurExcel>().HasIndex(ee => new { ee.id_excel,ee.ligne_excel});
 
-            modelBuilder.Entity<MappingColonnes>().HasIndex(mc => mc.id_mapping);
 
             modelBuilder.Entity<RegleValidation>().HasIndex(rv => rv.nom_colonne);
 
@@ -310,10 +309,8 @@ namespace DCCR_SERVER.Context
            
             modelBuilder.Entity<Utilisateur>().HasIndex(u => u.matricule);
            
-            modelBuilder.Entity<Audit>().HasIndex(a => a.id_action);
-            modelBuilder.Entity<Audit>().HasIndex(a => a.matricule_utilisateur);
+            
            
-            modelBuilder.Entity<ParametrageFichierXml>().HasIndex(pfx => pfx.id);
 
             modelBuilder.Entity<ActivitéCrédit>().HasIndex(ac => ac.code);
             modelBuilder.Entity<Monnaie>().HasIndex(m => m.code);

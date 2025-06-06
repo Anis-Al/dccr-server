@@ -6,16 +6,16 @@ namespace DCCR_SERVER.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    public class authController : ControllerBase
     {
         private readonly AuthentificationService _authentificationService;
 
-        public AuthController(AuthentificationService authentificationService)
+        public authController(AuthentificationService authentificationService)
         {
             _authentificationService = authentificationService;
         }
 
-        [HttpPost("login")]
+        [HttpPost]
         public async Task<ActionResult<LoginReponseDto>> Login([FromBody] LoginDto loginDto)
         {
             try
@@ -23,33 +23,24 @@ namespace DCCR_SERVER.Controllers
                 var loginResponse = await _authentificationService.connecterUtilisateur(loginDto);
                 if (loginResponse == null)
                 {
-                    return Unauthorized("Invalid credentials");
+                    return Unauthorized("Connexion invalide");
                 }
                 return Ok(loginResponse);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, ex.Message);
             }
         }
 
-        public class HashPasswordDto
+        [HttpPost("changer-mdp")]
+        public async Task<IActionResult> ChangerMotDePasse([FromBody] changerMotDePasseDto dto)
         {
-            public string password { get; set; }
-        }
-
-        [HttpPost("hash-password")]
-        public ActionResult<string> HashPassword([FromBody] HashPasswordDto request)
-        {
-            try
-            {
-                var hashedPassword = AuthentificationService.hasherMDP(request.password);
-                return Ok(hashedPassword);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            var (success, message) = await _authentificationService.ChangerMotDePasse(dto);
+            if (success)
+                return Ok(new { message });
+            else
+                return BadRequest(new { message });
         }
     }
 }

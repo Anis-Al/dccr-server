@@ -31,11 +31,30 @@ namespace DCCR_SERVER.Services.Décl.BA
             string correctionXml = genererXmlCorrection(credits);
             string suppressionXml = genererXmlSuppression(credits);
 
+            var parametreSequence = _context.parametrage.FirstOrDefault(p => p.parametre == "sequence_dccr_actuelle");
+            if (parametreSequence == null)
+            {
+                throw new Exception("Le paramètre 'sequence_dccr_actuelle' n'est pas configuré dans la table parametrage");
+            }
+
+            int sequenceActuelle = parametreSequence.valeur;
+            string sequenceSuppression = sequenceActuelle.ToString().PadLeft(3, '0');
+            string sequenceCorrection = (sequenceActuelle + 1).ToString().PadLeft(3, '0');
+
+            parametreSequence.valeur = sequenceActuelle + 2;
+            if(parametreSequence.valeur > 999)
+            {
+                parametreSequence.valeur = 1; 
+            }
+            _context.parametrage.Update(parametreSequence);
+            _context.SaveChanges();
+
             var fichierXml = new FichierXml
             {
-                nom_fichier_xml = $"crem_{DateTime.Now:yyyyMMdd_HHmmss}.xml",
+                nom_fichier_suppression = $"CREM.021.{DateTime.Now:yyyyMMdd}{sequenceSuppression}.DCCR.{DateTime.Now:yyyyMMdd.hhMMss}.xml",
+                nom_fichier_correction = $"CREM.021.{DateTime.Now:yyyyMMdd}{sequenceCorrection}.DCCR.{DateTime.Now:yyyyMMdd.hhMMss}.xml",
                 contenu_correction = correctionXml,
-                contenu_supression = suppressionXml,
+                contenu_suppression = suppressionXml,
                 id_fichier_excel = idExcel,
                 id_utilisateur_generateur_xml = "anis2002"
             };
@@ -259,17 +278,17 @@ namespace DCCR_SERVER.Services.Décl.BA
 
         public async Task<(byte[] fichierCorrection, string nomFichierCorrection, byte[] fichierSuppression, string nomFichierSuppression)> envoyerLesDonneesDeDeclarationPourTelecharger(int idXml)
         {
-            var xmlFile = await getXmlParId(idXml);
-            if (xmlFile == null)
+            var instanceDeclaration = await getXmlParId(idXml);
+            if (instanceDeclaration == null)
             {
                 return (null, null, null, null);
             }
 
-            string nomFichierCorrection = $"correction_{xmlFile.nom_fichier_xml}";
-            byte[] fichierCorrection = convertirStringAuXml(xmlFile.contenu_correction);
+            string nomFichierCorrection = $"{instanceDeclaration.nom_fichier_correction}";
+            byte[] fichierCorrection = convertirStringAuXml(instanceDeclaration.contenu_correction);
 
-            string nomFichierSuppression = $"suppression_{xmlFile.nom_fichier_xml}";
-            byte[] fichierSuppression = convertirStringAuXml(xmlFile.contenu_supression);
+            string nomFichierSuppression = $"{instanceDeclaration.nom_fichier_suppression}";
+            byte[] fichierSuppression = convertirStringAuXml(instanceDeclaration.contenu_suppression);
 
             return (fichierCorrection, nomFichierCorrection, fichierSuppression, nomFichierSuppression);
         }
@@ -285,7 +304,8 @@ namespace DCCR_SERVER.Services.Décl.BA
             return fichiers.Select(fx => new XmlDto
             {
                 IdFichierXml = fx.id_fichier_xml,
-                NomFichierXml = fx.nom_fichier_xml,
+                NomFichierCorrection = fx.nom_fichier_correction,
+                NomFichierSuppression = fx.nom_fichier_suppression,
                 DateHeureGenerationXml = fx.date_heure_generation_xml,
                 NomUtilisateurGenerateur = fx.generateurXml?.nom_complet ,
                 NomFichierExcelSource = fx.fichier_excel?.nom_fichier_excel

@@ -116,17 +116,15 @@ namespace DCCR_SERVER.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "parametrage_fichiers_xml",
+                name: "parametrage",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    parametre = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    valeur = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    parametre = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    valeur = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_parametrage_fichiers_xml", x => x.id);
+                    table.PrimaryKey("PK_parametrage", x => x.parametre);
                 });
 
             migrationBuilder.CreateTable(
@@ -218,7 +216,8 @@ namespace DCCR_SERVER.Migrations
                     matricule = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     nom_complet = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     mot_de_passe = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    role = table.Column<int>(type: "int", nullable: false)
+                    role = table.Column<int>(type: "int", nullable: false),
+                    email = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -353,9 +352,10 @@ namespace DCCR_SERVER.Migrations
                 {
                     id_fichier_xml = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    nom_fichier_xml = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    nom_fichier_correction = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    nom_fichier_suppression = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     contenu_correction = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    contenu_supression = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    contenu_suppression = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     id_utilisateur_generateur_xml = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     date_heure_generation_xml = table.Column<DateTime>(type: "datetime2", nullable: false),
                     id_fichier_excel = table.Column<int>(type: "int", nullable: false)
@@ -800,11 +800,6 @@ namespace DCCR_SERVER.Migrations
                 column: "id_lieu");
 
             migrationBuilder.CreateIndex(
-                name: "IX_mapping_colonnes_id_mapping",
-                table: "mapping_colonnes",
-                column: "id_mapping");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_monnaies_code",
                 table: "monnaies",
                 column: "code");
@@ -815,19 +810,9 @@ namespace DCCR_SERVER.Migrations
                 column: "code");
 
             migrationBuilder.CreateIndex(
-                name: "IX_parametrage_fichiers_xml_id",
-                table: "parametrage_fichiers_xml",
-                column: "id");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_pays_code",
                 table: "pays",
                 column: "code");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_pistes_audit_id_action",
-                table: "pistes_audit",
-                column: "id_action");
 
             migrationBuilder.CreateIndex(
                 name: "IX_pistes_audit_matricule_utilisateur",
@@ -901,7 +886,7 @@ namespace DCCR_SERVER.Migrations
                 name: "mapping_colonnes");
 
             migrationBuilder.DropTable(
-                name: "parametrage_fichiers_xml");
+                name: "parametrage");
 
             migrationBuilder.DropTable(
                 name: "pistes_audit");

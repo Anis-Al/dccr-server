@@ -49,8 +49,8 @@ namespace DCCR_SERVER.Controllers
             }
         }
 
-        [HttpPost("nouveau-credit")]
-        public async Task<ActionResult<List<ErreurExcel>>> creerCreditUi([FromBody] CreditsDto.CreditDto credit)
+        [HttpPost("nouveau")]
+        public async Task<ActionResult<List<string>>> creerCreditUi([FromBody] CreditsDto.CreditDto credit)
         {
             try
             {

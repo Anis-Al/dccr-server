@@ -5,10 +5,10 @@
     "version": "1.0"
   },
   "paths": {
-    "/api/Auth/login": {
+    "/api/auth": {
       "post": {
         "tags": [
-          "Auth"
+          "auth"
         ],
         "requestBody": {
           "content": {
@@ -46,54 +46,6 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/LoginReponseDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Auth/hash-password": {
-      "post": {
-        "tags": [
-          "Auth"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/HashPasswordDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/HashPasswordDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/HashPasswordDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "string"
                 }
               }
             }
@@ -177,7 +129,7 @@
         }
       }
     },
-    "/api/credits/nouveau-credit": {
+    "/api/credits/nouveau": {
       "post": {
         "tags": [
           "credits"
@@ -209,7 +161,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ErreurExcel"
+                    "type": "string"
                   }
                 }
               },
@@ -217,7 +169,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ErreurExcel"
+                    "type": "string"
                   }
                 }
               },
@@ -225,7 +177,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ErreurExcel"
+                    "type": "string"
                   }
                 }
               }
@@ -1240,7 +1192,7 @@
       "FichierXml": {
         "required": [
           "contenu_correction",
-          "contenu_supression"
+          "contenu_suppression"
         ],
         "type": "object",
         "properties": {
@@ -1248,7 +1200,11 @@
             "type": "integer",
             "format": "int32"
           },
-          "nom_fichier_xml": {
+          "nom_fichier_correction": {
+            "type": "string",
+            "nullable": true
+          },
+          "nom_fichier_suppression": {
             "type": "string",
             "nullable": true
           },
@@ -1256,7 +1212,7 @@
             "type": "string",
             "nullable": true
           },
-          "contenu_supression": {
+          "contenu_suppression": {
             "type": "string",
             "nullable": true
           },
@@ -1342,16 +1298,6 @@
           "montant_garantie": {
             "type": "number",
             "format": "double",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "HashPasswordDto": {
-        "type": "object",
-        "properties": {
-          "password": {
-            "type": "string",
             "nullable": true
           }
         },
@@ -1650,11 +1596,11 @@
             "type": "string",
             "nullable": true
           },
-          "mot_de_passe": {
+          "role": {
             "type": "string",
             "nullable": true
           },
-          "role": {
+          "email": {
             "type": "string",
             "nullable": true
           }
@@ -1821,6 +1767,7 @@
       },
       "Utilisateur": {
         "required": [
+          "email",
           "matricule",
           "mot_de_passe",
           "nom_complet",
@@ -1842,6 +1789,10 @@
           },
           "role": {
             "$ref": "#/components/schemas/RoleUtilisateur"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
           },
           "actions_de_cet_utilisateur": {
             "type": "array",
@@ -1879,6 +1830,10 @@
             "nullable": true
           },
           "role": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
             "type": "string",
             "nullable": true
           }

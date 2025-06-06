@@ -1,34 +1,8 @@
 [
   {
-    "ContainingType": "DCCR_SERVER.Controllers.AuthController",
-    "Method": "HashPassword",
-    "RelativePath": "api/Auth/hash-password",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "request",
-        "Type": "DCCR_SERVER.Controllers.AuthController\u002BHashPasswordDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "System.String",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "DCCR_SERVER.Controllers.AuthController",
+    "ContainingType": "DCCR_SERVER.Controllers.authController",
     "Method": "Login",
-    "RelativePath": "api/Auth/login",
+    "RelativePath": "api/auth",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -94,7 +68,7 @@
   {
     "ContainingType": "DCCR_SERVER.Controllers.creditsController",
     "Method": "creerCreditUi",
-    "RelativePath": "api/credits/nouveau-credit",
+    "RelativePath": "api/credits/nouveau",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -107,7 +81,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.List\u00601[[DCCR_SERVER.Models.ValidationFichiers.ErreurExcel, DCCR_SERVER, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.List\u00601[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "MediaTypes": [
           "text/plain",
           "application/json",

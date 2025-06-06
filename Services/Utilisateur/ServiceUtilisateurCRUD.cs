@@ -28,7 +28,8 @@ namespace DCCR_SERVER.Services.Utilisateur
             {
                 matricule = u.matricule,
                 nom_complet = u.nom_complet,
-                role = u.role.ToString()
+                role = u.role.ToString(),
+                email = u.email
             }).ToList();
         }
         public async Task<UtilisateurDto> AjouterUtilisateur(RegisterDto registerDto)
@@ -47,7 +48,8 @@ namespace DCCR_SERVER.Services.Utilisateur
             {
                 matricule = utilisateur.matricule,
                 nom_complet = utilisateur.nom_complet,
-                role = utilisateur.role.ToString()
+                role = utilisateur.role.ToString(),
+                email = utilisateur.email
             };
         }
         public async Task<bool> SupprimerUtilisateur(string matricule)

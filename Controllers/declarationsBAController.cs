@@ -29,7 +29,7 @@ namespace DCCR_SERVER.Controllers
                 _context.fichiers_xml.Add(fichierXml);
                 _context.SaveChanges();
 
-                return Ok(new { id = fichierXml.id_fichier_xml, correction=fichierXml.contenu_correction,suppression=fichierXml.contenu_supression });
+                return Ok(new { id = fichierXml.id_fichier_xml});
             }
             catch (Exception ex)
             {

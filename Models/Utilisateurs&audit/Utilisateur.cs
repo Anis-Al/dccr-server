@@ -10,6 +10,7 @@ namespace DCCR_SERVER.Models.Utilisateurs_audit
         public required string nom_complet { get; set; }
         public required string mot_de_passe { get; set; } 
         public required RoleUtilisateur role { get; set; }
+        public required string email { get; set; }
         
         public List<Audit>? actions_de_cet_utilisateur { get; set; } 
         public List<FichierExcel>? fichiers_excel_integres { get; set; } 

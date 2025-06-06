@@ -5,7 +5,7 @@ namespace DCCR_SERVER.Models.ValidationFichiers
         public int id_regle { get; set; }
         public string nom_colonne { get; set; }
         public string type_regle { get; set; }
-        public string? valeur_regle { get; set; } // Pour les règles de type/lookup
+        public string? valeur_regle { get; set; } 
         public string message_erreur { get; set; }
 
         public string? colonne_dependante { get; set; } // Colonne déclencheur

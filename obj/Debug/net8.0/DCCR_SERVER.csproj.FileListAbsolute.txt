@@ -183,10 +183,10 @@ C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\staticwebassets
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.DCCR_SERVER.props
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.DCCR_SERVER.props
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\staticwebassets.pack.json
+C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\DCCR_SER.D9172375.Up2Date
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\DCCR_SERVER.dll
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\refint\DCCR_SERVER.dll
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\DCCR_SERVER.pdb
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\DCCR_SERVER.genruntimeconfig.cache
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\ref\DCCR_SERVER.dll
-C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

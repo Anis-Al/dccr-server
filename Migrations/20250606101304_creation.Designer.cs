@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DCCR_SERVER.Migrations
 {
     [DbContext(typeof(BddContext))]
-    [Migration("20250601001236_creation")]
+    [Migration("20250606101304_creation")]
     partial class creation
     {
         /// <inheritdoc />
@@ -202,7 +202,7 @@ namespace DCCR_SERVER.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("contenu_supression")
+                    b.Property<string>("contenu_suppression")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -216,7 +216,11 @@ namespace DCCR_SERVER.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("nom_fichier_xml")
+                    b.Property<string>("nom_fichier_correction")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("nom_fichier_suppression")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -570,32 +574,20 @@ namespace DCCR_SERVER.Migrations
 
                     b.HasKey("id_mapping");
 
-                    b.HasIndex("id_mapping");
-
                     b.ToTable("mapping_colonnes");
                 });
 
-            modelBuilder.Entity("DCCR_SERVER.Models.Statiques.ParametrageFichierXml", b =>
+            modelBuilder.Entity("DCCR_SERVER.Models.Statiques.Parametrage", b =>
                 {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<string>("parametre")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("valeur")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+                    b.HasKey("parametre");
 
-                    b.Property<string>("parametre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("valeur")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("id");
-
-                    b.ToTable("parametrage_fichiers_xml");
+                    b.ToTable("parametrage");
                 });
 
             modelBuilder.Entity("DCCR_SERVER.Models.Statiques.TablesDomaines.ActivitéCrédit", b =>
@@ -801,8 +793,6 @@ namespace DCCR_SERVER.Migrations
 
                     b.HasKey("id_action");
 
-                    b.HasIndex("id_action");
-
                     b.HasIndex("matricule_utilisateur");
 
                     b.ToTable("pistes_audit");
@@ -812,6 +802,10 @@ namespace DCCR_SERVER.Migrations
                 {
                     b.Property<string>("matricule")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("mot_de_passe")
                         .IsRequired()

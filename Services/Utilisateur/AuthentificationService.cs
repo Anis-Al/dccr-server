@@ -23,15 +23,15 @@ namespace DCCR_SERVER.Services.Utilisateur
         {
             _context = context;
             _configuration = configuration;
-            //_smtpClient = new SmtpClient(_configuration["SmtpSettings:Server"])
-            //{
-            //    Port = int.Parse(_configuration["SmtpSettings:Port"]),
-            //    Credentials = new System.Net.NetworkCredential(
-            //        _configuration["SmtpSettings:Username"],
-            //        _configuration["SmtpSettings:Password"]
-            //    ),
-            //    EnableSsl = true
-            //};
+            _smtpClient = new SmtpClient(_configuration["SmtpSettings:Server"])
+            {
+                Port = int.Parse(_configuration["SmtpSettings:Port"]),
+                Credentials = new System.Net.NetworkCredential(
+                    _configuration["SmtpSettings:Username"],
+                    _configuration["SmtpSettings:Password"]
+                ),
+                EnableSsl = true
+            };
         }
 
         // insription
@@ -48,7 +48,8 @@ namespace DCCR_SERVER.Services.Utilisateur
                 matricule = registerDto.matricule,
                 nom_complet = registerDto.nom_complet,
                 mot_de_passe = mdpHashe,
-                role = Enum.Parse<RoleUtilisateur>(registerDto.role, true)
+                role = Enum.Parse<RoleUtilisateur>(registerDto.role, true),
+                email = registerDto.email
             };
 
             try
@@ -56,7 +57,7 @@ namespace DCCR_SERVER.Services.Utilisateur
                 _context.utilisateurs.Add(user);
                 await _context.SaveChangesAsync();
 
-                await envoyerInfosParEmail(user.matricule, user.nom_complet, mdpGenereBrute);
+                await envoyerInfosParEmail(user.matricule, user.nom_complet, user.email, mdpGenereBrute);
                 
                 return (true, "marche");
             }
@@ -72,26 +73,21 @@ namespace DCCR_SERVER.Services.Utilisateur
             return new string(Enumerable.Repeat(chars, 8)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
-        private async Task envoyerInfosParEmail(string matricule, string nomComplet, string password)
+        private async Task envoyerInfosParEmail(string matricule, string nomComplet, string email, string mdp)
         {
-            var companyDomain = _configuration["CompanySettings:EmailDomain"];
-            var emailcible = $"{matricule}@{companyDomain}";
-
             var mailMessage = new MailMessage
             {
                 From = new MailAddress(_configuration["SmtpSettings:FromEmail"]),
                 Subject = "Vos identifiants de connexion pour l'application des déclarations correctives",
                 Body = $@"Bonjour {nomComplet},
-
                 Voici vos identifiants de connexion:
-
                 matricule: {matricule}
-                Mot de passe: {password}
-
+                Mot de passe: {mdp}
+                Cordialement.
                 ",
                 IsBodyHtml = false
             };
-            mailMessage.To.Add(emailcible);
+            mailMessage.To.Add(email);
 
             await _smtpClient.SendMailAsync(mailMessage);
         }
@@ -158,5 +154,18 @@ namespace DCCR_SERVER.Services.Utilisateur
             return enteredHashString == storedHash;
         }
 
+        public async Task<(bool success, string message)> ChangerMotDePasse(changerMotDePasseDto dto)
+        {
+            var utilisateur = await _context.utilisateurs.FirstOrDefaultAsync(u => u.matricule == dto.matricule);
+            if (utilisateur == null)
+                return (false, "Utilisateur non trouvé");
+
+            if (!verifierMDP(dto.ancienMotDePasse, utilisateur.mot_de_passe))
+                return (false, "Ancien mot de passe incorrect");
+
+            utilisateur.mot_de_passe = hasherMDP(dto.nouveauMotDePasse);
+            await _context.SaveChangesAsync();
+            return (true, "Mot de passe changé avec succès");
+        }
     }
 }

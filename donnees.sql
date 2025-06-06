@@ -479,15 +479,20 @@ INSERT INTO regles_validation (
 
 
 -- #endregion
+INSERT INTO parametrage (parametre, valeur) VALUES
+('sequence_dccr_actuelle', 1);
+
 
 INSERT INTO utilisateurs (
     matricule,
     nom_complet,
+    email,
     mot_de_passe,
     role
 ) VALUES (
     'anis2002',  
     'Alim Anis', 
+    'bot.dccr.sga@gmail.com',
     'vxCzvWBe9Tj0IDi+ME5iWrCd+ky+2KaidxEyerW/3a3c2ZU4zdCI/iJTvBVqlFXRbP4ZxWf7EdZwImoVJ/xSkA==', 
     1
 );
