@@ -2,6 +2,7 @@
 using DCCR_SERVER.Models.Principaux;
 using DCCR_SERVER.Services;
 using DCCR_SERVER.Services.Décl.BA;
+using DCCR_SERVER.Services.Excel;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DCCR_SERVER.Controllers
@@ -81,6 +82,23 @@ namespace DCCR_SERVER.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("supprimer/{idXml}")]
+        public async Task<IActionResult> supprimerDeclarationBa(int idXml)
+        {
+            try
+            {
+                var resultat = await _xmlService.supprimerDeclaration(idXml);
+                if (!resultat)
+                    return NotFound();
+
+                return Ok(new { success = true, message = "Déclaration Ba supprimée avec succès." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Erreur lors de la suppression du fichier Excel." });
             }
         }
     }

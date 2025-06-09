@@ -5,6 +5,7 @@ using System.Text;
 using DCCR_SERVER.Context;
 using Microsoft.EntityFrameworkCore;
 using DCCR_SERVER.Models.DTOs;
+using DocumentFormat.OpenXml.InkML;
 
 namespace DCCR_SERVER.Services.Décl.BA
 {
@@ -292,7 +293,6 @@ namespace DCCR_SERVER.Services.Décl.BA
 
             return (fichierCorrection, nomFichierCorrection, fichierSuppression, nomFichierSuppression);
         }
-
         public async Task<List<XmlDto>> getTousLesFichiersXml()
         {
             var fichiers = await _context.fichiers_xml
@@ -311,21 +311,41 @@ namespace DCCR_SERVER.Services.Décl.BA
                 NomFichierExcelSource = fx.fichier_excel?.nom_fichier_excel
             }).ToList();
         }
+        public async Task<bool> supprimerDeclaration(int id_fichier_xml)
+        {
+            try
+            {
+                var declarationba = await _context.fichiers_xml
+                    .FirstOrDefaultAsync(f => f.id_fichier_xml == id_fichier_xml);
+
+                if (declarationba == null)
+                    return false;
+
+                _context.fichiers_xml.Remove(declarationba);
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         //  public async Task<bool>archiverDonnees<>()       
         // {
         //     using var transaction = await _context.Database.BeginTransactionAsync();
         //     try
         //     {
-               
+
         //     }
         //     catch (Exception ex)
         //     {
-                
+
         //         await transaction.RollbackAsync();
         //         throw new Exception(ex,ex.Message);
         //     }
         // }
-    
+
     }
 }

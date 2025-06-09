@@ -496,3 +496,163 @@ INSERT INTO utilisateurs (
     'vxCzvWBe9Tj0IDi+ME5iWrCd+ky+2KaidxEyerW/3a3c2ZU4zdCI/iJTvBVqlFXRbP4ZxWf7EdZwImoVJ/xSkA==', 
     1
 );
+
+
+INSERT INTO tableau_de_bord (description_kpi, requete_sql)
+VALUES
+-- KPI 1: Volume des crédits et montants moyens par mois et année
+('Volume des crédits et montants moyens par mois et année',
+'SELECT
+    FORMAT(date_declaration, ''yyyy-MM'') AS Periode,
+    COUNT(*) AS VolumeCredits,
+    AVG(credit_accorde) AS MontantMoyenAccorde
+FROM
+    credits
+GROUP BY
+    FORMAT(date_declaration, ''yyyy-MM'')
+ORDER BY
+    Periode DESC;'),
+
+-- KPI 2a: Distribution par Type de Crédit
+('Distribution par Type de Crédit',
+'SELECT
+    tc.domaine AS TypeDeCredit,
+    COUNT(c.numero_contrat_credit) AS NombreDeCredits
+FROM
+    credits c
+JOIN
+    types_credit tc ON c.type_credit = tc.code
+GROUP BY
+    tc.domaine
+ORDER BY
+    NombreDeCredits DESC;'),
+
+-- KPI 2b: Distribution par Activité de Crédit
+('Distribution par Activité de Crédit',
+'SELECT
+    ac.domaine AS Activite,
+    COUNT(c.numero_contrat_credit) AS NombreDeCredits
+FROM
+    credits c
+JOIN
+    activites_credit ac ON c.activite_credit = ac.code
+GROUP BY
+    ac.domaine
+ORDER BY
+    NombreDeCredits DESC;'),
+
+-- KPI 2c: Distribution par Classe de Retard
+('Distribution par Classe de Retard',
+'SELECT
+    ISNULL(cr.domaine, ''Pas de Retard'') AS ClasseDeRetard,
+    COUNT(c.numero_contrat_credit) AS NombreDeCredits
+FROM
+    credits c
+LEFT JOIN
+    classes_retard cr ON c.classe_retard = cr.code
+GROUP BY
+    ISNULL(cr.domaine, ''Pas de Retard'')
+ORDER BY
+    NombreDeCredits DESC;'),
+
+-- KPI 2d: Distribution par Situation du Débiteur
+('Distribution par Situation du Débiteur',
+'SELECT
+    sc.domaine AS SituationDebiteur,
+    COUNT(c.numero_contrat_credit) AS NombreDeCredits
+FROM
+    credits c
+JOIN
+    situations_credit sc ON c.situation_credit = sc.code
+GROUP BY
+    sc.domaine
+ORDER BY
+    NombreDeCredits DESC;'),
+
+-- KPI 3: Volume des déclarations générées ce trimestre et comparaison
+('Volume des déclarations générées ce trimestre et comparaison',
+'WITH Volumes AS (
+    SELECT
+        (SELECT COUNT(*) FROM fichiers_xml
+         WHERE DATEPART(quarter, date_heure_generation_xml) = DATEPART(quarter, GETDATE())
+           AND YEAR(date_heure_generation_xml) = YEAR(GETDATE())) AS VolumeTrimestreActuel,
+
+        (SELECT COUNT(*) FROM fichiers_xml
+         WHERE DATEPART(quarter, date_heure_generation_xml) = DATEPART(quarter, DATEADD(quarter, -1, GETDATE()))
+           AND YEAR(date_heure_generation_xml) = YEAR(DATEADD(quarter, -1, GETDATE()))) AS VolumeTrimestrePrecedent
+)
+SELECT
+    VolumeTrimestreActuel,
+    VolumeTrimestrePrecedent,
+    CASE
+        WHEN VolumeTrimestrePrecedent > 0
+        THEN (CAST(VolumeTrimestreActuel AS float) - VolumeTrimestrePrecedent) / VolumeTrimestrePrecedent * 100
+        ELSE NULL
+    END AS TauxDeChangementEnPourcentage
+FROM
+    Volumes;'),
+
+-- KPI 4: Activité la plus récente sur l'application
+('Activité la plus récente sur l''application',
+'SELECT TOP 1
+    pa.date_action,
+    u.nom_complet,
+    CASE pa.type_action
+        WHEN 0 THEN ''Création''
+        WHEN 1 THEN ''Modification''
+        WHEN 2 THEN ''Suppression''
+        WHEN 3 THEN ''Lecture''
+        ELSE ''Inconnu''
+    END AS TypeAction,
+    pa.table_ciblée,
+    pa.id_entité
+FROM
+    pistes_audit pa
+JOIN
+    utilisateurs u ON pa.matricule_utilisateur = u.matricule
+ORDER BY
+    pa.date_action DESC;'),
+
+-- KPI 5: Rapport déclarations soumises vs. non soumises
+('Rapport déclarations soumises vs. non soumises (à CREM)',
+'SELECT
+    SUM(CASE WHEN fx.id_fichier_xml IS NOT NULL THEN 1 ELSE 0 END) AS DeclarationsSoumises,
+    SUM(CASE WHEN fx.id_fichier_xml IS NULL THEN 1 ELSE 0 END) AS DeclarationsNonSoumises
+FROM
+    credits c
+LEFT JOIN
+    fichiers_xml fx ON c.id_excel = fx.id_fichier_excel;'),
+
+-- KPI 6: Top 5 des types de garanties les plus communs
+('Top 5 des types de garanties les plus communs',
+'SELECT TOP 5
+    tg.domaine AS TypeDeGarantie,
+    COUNT(*) AS NombreUtilisations
+FROM
+    garanties g
+JOIN
+    types_garantie tg ON g.type_garantie = tg.code
+GROUP BY
+    tg.domaine
+ORDER BY
+    NombreUtilisations DESC;'),
+
+-- KPI 7: Somme des échéances impayées par agence
+('Somme des échéances impayées par agence',
+'SELECT
+    a.domaine AS Agence,
+    SUM(c.nombre_echeances_impayes) AS TotalEcheancesImpayees
+FROM
+    credits c
+JOIN
+    lieux l ON c.id_lieu = l.id_lieu
+JOIN
+    agences a ON l.code_agence = a.code
+WHERE
+    c.nombre_echeances_impayes IS NOT NULL AND c.nombre_echeances_impayes > 0
+GROUP BY
+    a.domaine
+HAVING
+    SUM(c.nombre_echeances_impayes) > 0
+ORDER BY
+    TotalEcheancesImpayees DESC;');

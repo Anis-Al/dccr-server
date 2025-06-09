@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DCCR_SERVER.Migrations
 {
     [DbContext(typeof(BddContext))]
-    [Migration("20250606101400_insertions")]
+    [Migration("20250608145014_insertions")]
     partial class insertions
     {
         /// <inheritdoc />
@@ -24,6 +24,192 @@ namespace DCCR_SERVER.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Archives.ArchiveCrédit", b =>
+                {
+                    b.Property<string>("numero_contrat_credit")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateOnly>("date_declaration")
+                        .HasColumnType("date");
+
+                    b.Property<int>("id_excel")
+                        .HasColumnType("int");
+
+                    b.Property<string>("activite_credit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("classe_retard")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("cout_total_credit")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("credit_accorde")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateOnly?>("date_constatation")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("date_execution")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("date_expiration")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("date_octroi")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("date_rejet")
+                        .HasColumnType("date");
+
+                    b.Property<string>("duree_initiale")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("duree_restante")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("est_plafond_accorde")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("excelid_fichier_excel")
+                        .HasColumnType("int");
+
+                    b.Property<int>("id_lieu")
+                        .HasColumnType("int");
+
+                    b.Property<string>("id_plafond")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("mensualite")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("monnaie")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("montant_capital_retard")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("montant_interets_courus")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("montant_interets_retard")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("motif")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("nombre_echeances_impayes")
+                        .HasColumnType("int");
+
+                    b.Property<string>("situation_credit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("solde_restant")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("taux")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("type_credit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("numero_contrat_credit", "date_declaration", "id_excel");
+
+                    b.HasIndex("excelid_fichier_excel");
+
+                    b.ToTable("ArchiveCrédit");
+                });
+
+            modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Archives.ArchiveFichierExcel", b =>
+                {
+                    b.Property<int>("id_fichier_excel")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id_fichier_excel"));
+
+                    b.Property<string>("chemin_fichier_excel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("date_heure_integration_excel")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("id_integrateur_excel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("id_session_import")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("message_statut")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("nom_fichier_excel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("resume_validation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("statut_import")
+                        .HasColumnType("int");
+
+                    b.HasKey("id_fichier_excel");
+
+                    b.ToTable("ArchiveFichierExcel");
+                });
+
+            modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Archives.ArchiveFichierXml", b =>
+                {
+                    b.Property<int>("id_fichier_xml")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id_fichier_xml"));
+
+                    b.Property<string>("contenu_correction")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("contenu_suppression")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("date_heure_generation_xml")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("fichier_excelid_fichier_excel")
+                        .HasColumnType("int");
+
+                    b.Property<int>("id_fichier_excel")
+                        .HasColumnType("int");
+
+                    b.Property<string>("id_utilisateur_generateur_xml")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("nom_fichier_correction")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("nom_fichier_suppression")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("id_fichier_xml");
+
+                    b.HasIndex("fichier_excelid_fichier_excel");
+
+                    b.ToTable("ArchiveFichierXml");
+                });
 
             modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Crédit", b =>
                 {
@@ -244,7 +430,6 @@ namespace DCCR_SERVER.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id_garantie"));
 
                     b.Property<string>("cle_interventant")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateOnly>("date_declaration")
@@ -897,6 +1082,26 @@ namespace DCCR_SERVER.Migrations
                     b.ToTable("regles_validation");
                 });
 
+            modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Archives.ArchiveCrédit", b =>
+                {
+                    b.HasOne("DCCR_SERVER.Models.Principaux.Archives.ArchiveFichierExcel", "excel")
+                        .WithMany("credits")
+                        .HasForeignKey("excelid_fichier_excel");
+
+                    b.Navigation("excel");
+                });
+
+            modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Archives.ArchiveFichierXml", b =>
+                {
+                    b.HasOne("DCCR_SERVER.Models.Principaux.Archives.ArchiveFichierExcel", "fichier_excel")
+                        .WithMany("fichiers_xml")
+                        .HasForeignKey("fichier_excelid_fichier_excel")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("fichier_excel");
+                });
+
             modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Crédit", b =>
                 {
                     b.HasOne("DCCR_SERVER.Models.Statiques.TablesDomaines.ActivitéCrédit", "activitecredit")
@@ -1006,8 +1211,7 @@ namespace DCCR_SERVER.Migrations
                     b.HasOne("DCCR_SERVER.Models.Principaux.Intervenant", "guarant")
                         .WithMany("garanties_intervenant")
                         .HasForeignKey("cle_interventant")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("DCCR_SERVER.Models.Statiques.TablesDomaines.TypeGarantie", "typeGarantie")
                         .WithMany("types_garantie")
@@ -1119,6 +1323,13 @@ namespace DCCR_SERVER.Migrations
                     b.Navigation("excel_associe");
 
                     b.Navigation("regle_associe");
+                });
+
+            modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Archives.ArchiveFichierExcel", b =>
+                {
+                    b.Navigation("credits");
+
+                    b.Navigation("fichiers_xml");
                 });
 
             modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Crédit", b =>

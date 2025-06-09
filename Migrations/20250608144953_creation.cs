@@ -36,6 +36,26 @@ namespace DCCR_SERVER.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ArchiveFichierExcel",
+                columns: table => new
+                {
+                    id_fichier_excel = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    nom_fichier_excel = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    chemin_fichier_excel = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    id_integrateur_excel = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    date_heure_integration_excel = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    id_session_import = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    statut_import = table.Column<int>(type: "int", nullable: false),
+                    message_statut = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    resume_validation = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ArchiveFichierExcel", x => x.id_fichier_excel);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "classes_retard",
                 columns: table => new
                 {
@@ -234,6 +254,76 @@ namespace DCCR_SERVER.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_wilayas", x => x.code);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ArchiveCrédit",
+                columns: table => new
+                {
+                    numero_contrat_credit = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    date_declaration = table.Column<DateOnly>(type: "date", nullable: false),
+                    id_excel = table.Column<int>(type: "int", nullable: false),
+                    est_plafond_accorde = table.Column<bool>(type: "bit", nullable: true),
+                    situation_credit = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    date_octroi = table.Column<DateOnly>(type: "date", nullable: false),
+                    date_rejet = table.Column<DateOnly>(type: "date", nullable: true),
+                    date_expiration = table.Column<DateOnly>(type: "date", nullable: false),
+                    date_execution = table.Column<DateOnly>(type: "date", nullable: true),
+                    duree_initiale = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    duree_restante = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    id_lieu = table.Column<int>(type: "int", nullable: false),
+                    type_credit = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    activite_credit = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    monnaie = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    credit_accorde = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    id_plafond = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    taux = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    mensualite = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    cout_total_credit = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    solde_restant = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    classe_retard = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    date_constatation = table.Column<DateOnly>(type: "date", nullable: true),
+                    nombre_echeances_impayes = table.Column<int>(type: "int", nullable: true),
+                    montant_interets_courus = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    montant_interets_retard = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    montant_capital_retard = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    motif = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    excelid_fichier_excel = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ArchiveCrédit", x => new { x.numero_contrat_credit, x.date_declaration, x.id_excel });
+                    table.ForeignKey(
+                        name: "FK_ArchiveCrédit_ArchiveFichierExcel_excelid_fichier_excel",
+                        column: x => x.excelid_fichier_excel,
+                        principalTable: "ArchiveFichierExcel",
+                        principalColumn: "id_fichier_excel");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ArchiveFichierXml",
+                columns: table => new
+                {
+                    id_fichier_xml = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    nom_fichier_correction = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    nom_fichier_suppression = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    contenu_correction = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    contenu_suppression = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    id_utilisateur_generateur_xml = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    date_heure_generation_xml = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    id_fichier_excel = table.Column<int>(type: "int", nullable: false),
+                    fichier_excelid_fichier_excel = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ArchiveFichierXml", x => x.id_fichier_xml);
+                    table.ForeignKey(
+                        name: "FK_ArchiveFichierXml_ArchiveFichierExcel_fichier_excelid_fichier_excel",
+                        column: x => x.fichier_excelid_fichier_excel,
+                        principalTable: "ArchiveFichierExcel",
+                        principalColumn: "id_fichier_excel",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -533,7 +623,7 @@ namespace DCCR_SERVER.Migrations
                 {
                     id_garantie = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    cle_interventant = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    cle_interventant = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     numero_contrat_credit = table.Column<string>(type: "nvarchar(20)", nullable: false),
                     date_declaration = table.Column<DateOnly>(type: "date", nullable: false),
                     id_excel = table.Column<int>(type: "int", nullable: false),
@@ -607,6 +697,16 @@ namespace DCCR_SERVER.Migrations
                 name: "IX_agences_code",
                 table: "agences",
                 column: "code");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ArchiveCrédit_excelid_fichier_excel",
+                table: "ArchiveCrédit",
+                column: "excelid_fichier_excel");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ArchiveFichierXml_fichier_excelid_fichier_excel",
+                table: "ArchiveFichierXml",
+                column: "fichier_excelid_fichier_excel");
 
             migrationBuilder.CreateIndex(
                 name: "IX_classes_retard_code",
@@ -871,6 +971,12 @@ namespace DCCR_SERVER.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "ArchiveCrédit");
+
+            migrationBuilder.DropTable(
+                name: "ArchiveFichierXml");
+
+            migrationBuilder.DropTable(
                 name: "erreurs_fichiers_excel");
 
             migrationBuilder.DropTable(
@@ -896,6 +1002,9 @@ namespace DCCR_SERVER.Migrations
 
             migrationBuilder.DropTable(
                 name: "tableau_de_bord");
+
+            migrationBuilder.DropTable(
+                name: "ArchiveFichierExcel");
 
             migrationBuilder.DropTable(
                 name: "regles_validation");

@@ -1,4 +1,5 @@
 using DCCR_SERVER.Models.Principaux;
+using DCCR_SERVER.Models.Principaux.Archives;
 using DCCR_SERVER.Models.Statiques;
 using DCCR_SERVER.Models.Statiques.TablesDomaines;
 using DCCR_SERVER.Models.Utilisateurs_audit;
@@ -64,6 +65,9 @@ namespace DCCR_SERVER.Context
             modelBuilder.Entity<RegleValidation>().HasKey(rv => rv.id_regle);
             modelBuilder.Entity<donnees_brutes>().HasKey(db => db.id);
             modelBuilder.Entity<TableauDeBord>().HasKey(tdb => tdb.id_kpi);
+            modelBuilder.Entity<ArchiveCrédit>().HasKey(ca => new { ca.numero_contrat_credit, ca.date_declaration, ca.id_excel });
+            modelBuilder.Entity<ArchiveFichierExcel>().HasKey(afe =>  afe.id_fichier_excel);
+            modelBuilder.Entity<ArchiveFichierXml>().HasKey(afx =>  afx.id_fichier_xml);
           
                  // Domaines
             modelBuilder.Entity<ActivitéCrédit>().HasKey(ac => ac.code);

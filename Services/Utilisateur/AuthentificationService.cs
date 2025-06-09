@@ -35,21 +35,21 @@ namespace DCCR_SERVER.Services.Utilisateur
         }
 
         // insription
-        public async Task<(bool success, string message)> inscrireUtilisateur(RegisterDto registerDto)
+        public async Task<(bool success, string message)> inscrireUtilisateur(InscriptionDto idto)  
         {
-            if (await _context.utilisateurs.AnyAsync(u => u.matricule == registerDto.matricule))
-                return (false, "User already exists");
+            if (await _context.utilisateurs.AnyAsync(u => u.matricule == idto.matricule))
+                return (false, "Cet utilisateur existe déja");
 
             string mdpGenereBrute = genererMDP();
             string mdpHashe = hasherMDP(mdpGenereBrute);
 
             var user = new Utilisateur
             {
-                matricule = registerDto.matricule,
-                nom_complet = registerDto.nom_complet,
+                matricule = idto.matricule,
+                nom_complet = idto.nom_complet,
                 mot_de_passe = mdpHashe,
-                role = Enum.Parse<RoleUtilisateur>(registerDto.role, true),
-                email = registerDto.email
+                role = Enum.Parse<RoleUtilisateur>(idto.role, true),
+                email = idto.email
             };
 
             try
@@ -59,7 +59,7 @@ namespace DCCR_SERVER.Services.Utilisateur
 
                 await envoyerInfosParEmail(user.matricule, user.nom_complet, user.email, mdpGenereBrute);
                 
-                return (true, "marche");
+                return (true, "Utilisateur crée avec succés");
             }
             catch (Exception ex)
             {

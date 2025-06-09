@@ -53,6 +53,37 @@
         }
       }
     },
+    "/api/auth/changer-mdp": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/changerMotDePasseDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/changerMotDePasseDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/changerMotDePasseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/credits/get-tous-credits": {
       "get": {
         "tags": [
@@ -270,6 +301,29 @@
         }
       }
     },
+    "/api/declarationsBA/supprimer/{idXml}": {
+      "delete": {
+        "tags": [
+          "declarationsBA"
+        ],
+        "parameters": [
+          {
+            "name": "idXml",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Excel/importer": {
       "post": {
         "tags": [
@@ -414,40 +468,14 @@
         }
       }
     },
-    "/api/tbd/kpis": {
+    "/api/kpis": {
       "get": {
         "tags": [
-          "tbd"
+          "kpis"
         ],
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ObjectResultatDTO"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ObjectResultatDTO"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ObjectResultatDTO"
-                  }
-                }
-              }
-            }
+            "description": "OK"
           }
         }
       }
@@ -499,17 +527,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterDto"
+                "$ref": "#/components/schemas/InscriptionDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterDto"
+                "$ref": "#/components/schemas/InscriptionDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterDto"
+                "$ref": "#/components/schemas/InscriptionDto"
               }
             }
           }
@@ -520,17 +548,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/UtilisateurDto"
+                  "type": "string"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UtilisateurDto"
+                  "type": "string"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UtilisateurDto"
+                  "type": "string"
                 }
               }
             }
@@ -1303,6 +1331,28 @@
         },
         "additionalProperties": false
       },
+      "InscriptionDto": {
+        "type": "object",
+        "properties": {
+          "matricule": {
+            "type": "string",
+            "nullable": true
+          },
+          "nom_complet": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "Intervenant": {
         "type": "object",
         "properties": {
@@ -1542,25 +1592,6 @@
         },
         "additionalProperties": false
       },
-      "ObjectResultatDTO": {
-        "type": "object",
-        "properties": {
-          "id_kpi": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "description_kpi": {
-            "type": "string",
-            "nullable": true
-          },
-          "resultats": {
-            "type": "array",
-            "items": { },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "Pays": {
         "required": [
           "domaine"
@@ -1580,28 +1611,6 @@
             "items": {
               "$ref": "#/components/schemas/Lieu"
             },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "RegisterDto": {
-        "type": "object",
-        "properties": {
-          "matricule": {
-            "type": "string",
-            "nullable": true
-          },
-          "nom_complet": {
-            "type": "string",
-            "nullable": true
-          },
-          "role": {
-            "type": "string",
-            "nullable": true
-          },
-          "email": {
-            "type": "string",
             "nullable": true
           }
         },
@@ -1873,6 +1882,24 @@
             "items": {
               "$ref": "#/components/schemas/Lieu"
             },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "changerMotDePasseDto": {
+        "type": "object",
+        "properties": {
+          "matricule": {
+            "type": "string",
+            "nullable": true
+          },
+          "ancienMotDePasse": {
+            "type": "string",
+            "nullable": true
+          },
+          "nouveauMotDePasse": {
+            "type": "string",
             "nullable": true
           }
         },

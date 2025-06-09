@@ -32,15 +32,15 @@ namespace DCCR_SERVER.Controllers
         }
 
         [HttpPost("ajouter")]
-        public async Task<ActionResult<UtilisateurDto>> AjouterUtilisateur([FromBody] RegisterDto registerDto)
+        public async Task<ActionResult<String>> AjouterUtilisateur([FromBody] InscriptionDto idto)
         {
             try
             {
-                var utilisateurCree = await _serviceUtilisateur.AjouterUtilisateur(registerDto);
-                return CreatedAtAction(nameof(ObtenirTousLesUtilisateurs), new { matricule = utilisateurCree.matricule }, utilisateurCree);
+                var message = await _serviceUtilisateur.AjouterUtilisateur(idto);
+                return message;
             }
             catch (Exception ex) {
-                return StatusCode(500, $"deez nuts {ex.Message}");
+                return StatusCode(500, $"{ex.Message}");
                     }
         }
         //[HttpPost("ajouter-ldap")]

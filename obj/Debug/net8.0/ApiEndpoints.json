@@ -26,6 +26,22 @@
     ]
   },
   {
+    "ContainingType": "DCCR_SERVER.Controllers.authController",
+    "Method": "ChangerMotDePasse",
+    "RelativePath": "api/auth/changer-mdp",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "DCCR_SERVER.DTOs.Auth.changerMotDePasseDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "DCCR_SERVER.Controllers.creditsController",
     "Method": "GetTablesDomaines",
     "RelativePath": "api/credits/get-tables-domaines",
@@ -121,6 +137,22 @@
     "Parameters": [
       {
         "Name": "idExcel",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.declarationsBAController",
+    "Method": "supprimerDeclarationBa",
+    "RelativePath": "api/declarationsBA/supprimer/{idXml}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idXml",
         "Type": "System.Int32",
         "IsRequired": true
       }
@@ -233,24 +265,14 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "DCCR_SERVER.Controllers.tbdController",
-    "Method": "GetAllKpisWithResults",
-    "RelativePath": "api/tbd/kpis",
+    "ContainingType": "DCCR_SERVER.Controllers.kpisController",
+    "Method": "GetKpiResults",
+    "RelativePath": "api/kpis",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[DCCR_SERVER.DTOs.Dashboard.ResultatDTO\u00601[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], DCCR_SERVER, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
+    "ReturnTypes": []
   },
   {
     "ContainingType": "DCCR_SERVER.Controllers.utilisateursController",
@@ -281,14 +303,14 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "registerDto",
-        "Type": "DCCR_SERVER.DTOs.Auth.RegisterDto",
+        "Name": "idto",
+        "Type": "DCCR_SERVER.DTOs.Auth.InscriptionDto",
         "IsRequired": true
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "DCCR_SERVER.DTOs.Auth.UtilisateurDto",
+        "Type": "System.String",
         "MediaTypes": [
           "text/plain",
           "application/json",

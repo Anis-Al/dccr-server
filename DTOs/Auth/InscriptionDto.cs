@@ -1,6 +1,6 @@
 namespace DCCR_SERVER.DTOs.Auth
 {
-    public class RegisterDto
+    public class InscriptionDto
     {
         public string matricule { get; set; }
         public string nom_complet { get; set; }
