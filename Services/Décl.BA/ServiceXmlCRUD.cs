@@ -6,6 +6,7 @@ using DCCR_SERVER.Context;
 using Microsoft.EntityFrameworkCore;
 using DCCR_SERVER.Models.DTOs;
 using DocumentFormat.OpenXml.InkML;
+using Azure;
 
 namespace DCCR_SERVER.Services.Décl.BA
 {
@@ -17,7 +18,7 @@ namespace DCCR_SERVER.Services.Décl.BA
         {
             _context = context;
         }
-
+        Stream outputStream;
         public FichierXml genererDonneesFichiersXml(int idExcel)
         {
             var credits = _context.credits
@@ -35,7 +36,7 @@ namespace DCCR_SERVER.Services.Décl.BA
             var parametreSequence = _context.parametrage.FirstOrDefault(p => p.parametre == "sequence_dccr_actuelle");
             if (parametreSequence == null)
             {
-                throw new Exception("Le paramètre 'sequence_dccr_actuelle' n'est pas configuré dans la table parametrage");
+                throw new Exception("Le paramètre 'sequence_dccr_actuelle' pas trouvé dans la table parametrage");
             }
 
             int sequenceActuelle = parametreSequence.valeur;
@@ -68,18 +69,18 @@ namespace DCCR_SERVER.Services.Décl.BA
             try
             {
                 var creditsParDate = credits.GroupBy(c => c.date_declaration);
-                var sb = new StringBuilder();
+                using var ms = new MemoryStream();
                 var settings = new XmlWriterSettings
                 {
                     Indent = true,
                     IndentChars = "  ",
                     NewLineChars = "\r\n",
                     NewLineHandling = NewLineHandling.Replace,
-                    Encoding = Encoding.UTF8,
+                    Encoding = new UTF8Encoding(false),
                     OmitXmlDeclaration = false
                 };
 
-                using (var writer = XmlWriter.Create(sb, settings))
+                using (var writer = XmlWriter.Create(ms, settings))
                 {
                     writer.WriteStartDocument();
                     writer.WriteStartElement("crem");
@@ -187,7 +188,9 @@ namespace DCCR_SERVER.Services.Décl.BA
                     writer.WriteEndElement(); // crem
                     writer.WriteEndDocument();
                 }
-                return sb.ToString();
+                ms.Position = 0;
+                using var reader = new StreamReader(ms, new UTF8Encoding(false));
+                return reader.ReadToEnd();
             }
             catch (Exception ex)
             {
@@ -200,18 +203,18 @@ namespace DCCR_SERVER.Services.Décl.BA
             try
             {
                 var creditsParDate = credits.GroupBy(c => c.date_declaration);
-                var sb = new StringBuilder();
+                using var ms = new MemoryStream();
                 var settings = new XmlWriterSettings
                 {
                     Indent = true,
                     IndentChars = "  ",
                     NewLineChars = "\r\n",
                     NewLineHandling = NewLineHandling.Replace,
-                    Encoding = Encoding.UTF8,
+                    Encoding = new UTF8Encoding(false),
                     OmitXmlDeclaration = false
                 };
 
-                using (var writer = XmlWriter.Create(sb, settings))
+                using (var writer = XmlWriter.Create(ms, settings))
                 {
                     writer.WriteStartDocument();
                     writer.WriteStartElement("crem");
@@ -255,11 +258,13 @@ namespace DCCR_SERVER.Services.Décl.BA
                     writer.WriteEndElement(); // crem
                     writer.WriteEndDocument();
                 }
-                return sb.ToString();
+                ms.Position = 0;
+                using var reader = new StreamReader(ms, new UTF8Encoding(false));
+                return reader.ReadToEnd();
             }
             catch (Exception ex)
             {
-                throw new Exception($"{ex.Message}");
+                throw;
             }
         }
 

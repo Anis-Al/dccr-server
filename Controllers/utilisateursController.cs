@@ -30,6 +30,19 @@ namespace DCCR_SERVER.Controllers
                 return StatusCode(500, $"Erreur interne du serveur: {ex.Message}");
             }
         }
+        [HttpGet("utilisateur/{matricule}")] 
+        public async Task<ActionResult<UtilisateurDto>> utilisateurParMatricule(string matricule)
+        {
+            var utilisateurDto = await _serviceUtilisateur.ObtenirUtilisateurParMatricule(matricule);
+
+            if (utilisateurDto == null)
+            {
+               
+                return NotFound($"Utilisateur avec le matricule '{matricule}' non trouvé.");
+            }
+
+            return Ok(utilisateurDto);
+        }
 
         [HttpPost("ajouter")]
         public async Task<ActionResult<String>> AjouterUtilisateur([FromBody] InscriptionDto idto)

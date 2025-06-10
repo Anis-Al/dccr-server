@@ -5,7 +5,7 @@
         public class CreditDto
         {
             public string? num_contrat_credit { get; set; }
-            public string? date_declaration { get; set; }
+            public DateOnly? date_declaration { get; set; }
 
             public string? type_credit { get; set; } 
             public string? libelle_type_credit { get; set; }
@@ -41,22 +41,21 @@
             public string? classe_retard { get; set; } 
             public string? libelle_classe_retard { get; set; }
             public int? nombre_echeances_impayes { get; set; } 
-            public string? date_constatation_echeances_impayes { get; set; }
+            public DateOnly? date_constatation_echeances_impayes { get; set; }
             public decimal? montant_capital_retard { get; set; }
             public decimal? montant_interets_retard { get; set; }
             public decimal? montant_interets_courus { get; set; }
 
-            public string? date_octroi { get; set; }
-            public string? date_expiration { get; set; }
-            public string? date_execution { get; set; }
-            public string? date_rejet { get; set; }
+            public DateOnly? date_octroi { get; set; }
+            public DateOnly? date_expiration { get; set; }
+            public DateOnly? date_execution { get; set; }
+            public DateOnly? date_rejet { get; set; }
 
             public int id_excel { get; set; } 
 
             public List<IntervenantDto>? intervenants { get; set; } = new List<IntervenantDto>();
             public List<GarantieDto>? garanties { get; set; } = new List<GarantieDto>();
         }
-
         public class IntervenantDto
         {
             public string? cle { get; set; }
@@ -67,13 +66,21 @@
             public string? rib { get; set; }
             public string? cli { get; set; }
         }
-
         public class GarantieDto
         {
             public string? cle_intervenant { get; set; }
             public string? type_garantie { get; set; } 
             public string? libelle_type_garantie { get; set; }
             public decimal? montant_garantie { get; set; }
+        }
+        public class CreditsListeDto
+        {
+            public string? num_contrat_credit { get; set; }
+            public DateOnly? date_declaration { get; set; }
+            public string? libelle_type_credit { get; set; }
+            public string? libelle_activite { get; set; }
+            public string? libelle_situation { get; set; }
+            public int id_excel { get; set; }
         }
     }
 }

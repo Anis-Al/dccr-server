@@ -53,13 +53,13 @@ namespace DCCR_SERVER.Controllers
             {
                 using (var archive = new System.IO.Compression.ZipArchive(memoryStream, System.IO.Compression.ZipArchiveMode.Create, true))
                 {
-                    var fichierCorrectionStream = archive.CreateEntry(nomFichierCorrection);
+                    var fichierCorrectionStream = archive.CreateEntry($"correction/{nomFichierCorrection}");
                     using (var streameur = fichierCorrectionStream.Open())
                     {
                         await streameur.WriteAsync(contenuCorrection, 0, contenuCorrection.Length);
                     }
 
-                    var fichierSuppressionStream = archive.CreateEntry(nomFichierSuppression);
+                    var fichierSuppressionStream = archive.CreateEntry($"suppression/{nomFichierSuppression}");
                     using (var entryStream = fichierSuppressionStream.Open())
                     {
                         await entryStream.WriteAsync(contenuSuppression, 0, contenuSuppression.Length);
@@ -98,7 +98,7 @@ namespace DCCR_SERVER.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Erreur lors de la suppression du fichier Excel." });
+                return StatusCode(500, new { success = false, message = $"Erreur lors de la suppression du fichier Excel.\n {ex}" });
             }
         }
     }

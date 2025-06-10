@@ -27,8 +27,8 @@ namespace DCCR_SERVER.Services.Utilisateur
             {
                 Port = int.Parse(_configuration["SmtpSettings:Port"]),
                 Credentials = new System.Net.NetworkCredential(
-                    _configuration["SmtpSettings:Username"],
-                    _configuration["SmtpSettings:Password"]
+                    _configuration["SmtpSettings:expediteur"],
+                    _configuration["SmtpSettings:motdepasse"]
                 ),
                 EnableSsl = true
             };
@@ -77,16 +77,23 @@ namespace DCCR_SERVER.Services.Utilisateur
         {
             var mailMessage = new MailMessage
             {
-                From = new MailAddress(_configuration["SmtpSettings:FromEmail"]),
+                From = new MailAddress(_configuration["SmtpSettings:expediteur"]),
                 Subject = "Vos identifiants de connexion pour l'application des déclarations correctives",
-                Body = $@"Bonjour {nomComplet},
-                Voici vos identifiants de connexion:
-                matricule: {matricule}
-                Mot de passe: {mdp}
-                Cordialement.
+                Body = $@"
+                <html>
+                <body>
+                    <p>Bonjour {nomComplet},</p>
+                    <p>Voici vos identifiants de connexion pour l'application des déclarations correctives:</p>
+                    <ul>
+                        <li><strong>Matricule:</strong> {matricule}</li>
+                        <li><strong>Mot de passe:</strong> {mdp}</li>
+                    </ul>
+                    <p>Cordialement.</p>
+                </body>
+                </html>
                 ",
-                IsBodyHtml = false
-            };
+                IsBodyHtml = true
+            }; 
             mailMessage.To.Add(email);
 
             await _smtpClient.SendMailAsync(mailMessage);
@@ -115,10 +122,7 @@ namespace DCCR_SERVER.Services.Utilisateur
             var token = genererJWT(utilisateur);
             return new LoginReponseDto
             {
-                token = token,
-                matricule = utilisateur.matricule,
-                nom_complet = utilisateur.nom_complet,
-                role = utilisateur.role.ToString()
+                token = token
             };
         }
         public string genererJWT(Utilisateur user)

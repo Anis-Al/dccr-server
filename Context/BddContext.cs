@@ -10,11 +10,8 @@ namespace DCCR_SERVER.Context
 {
     public class BddContext : DbContext
     {
-        public BddContext(
-            DbContextOptions<BddContext> options
-            ) : base(options)
-        {
-        }
+        public BddContext(DbContextOptions<BddContext> options) : base(options) {}
+
         public DbSet<donnees_brutes> table_intermediaire_traitement { get; set; }
         public DbSet<Crédit> credits { get; set; }
         public DbSet<Intervenant> intervenants { get; set; }
@@ -26,13 +23,15 @@ namespace DCCR_SERVER.Context
         public DbSet<Audit> pistes_audit { get; set; }
         public DbSet<Utilisateur> utilisateurs { get; set; }
         public DbSet<TableauDeBord> tableau_de_bord { get; set; }
-
         public DbSet<MappingColonnes> mapping_colonnes { get; set; }
         public DbSet<ErreurExcel> erreurs_fichiers_excel { get; set; }
         public DbSet<RegleValidation> regles_validation { get; set; }
         public DbSet<Parametrage> parametrage { get; set; }
-        
-        // tables domaines
+        public DbSet<ArchiveCrédit> archives_credits { get; set; }
+        public DbSet<ArchiveFichierExcel> archives_fichiers_excel { get; set; }
+        public DbSet<ArchiveFichierXml> archives_fichiers_xml { get; set; }
+
+        // Tables domaines
         public DbSet<ActivitéCrédit> activites_credit { get; set; }
         public DbSet<Monnaie> monnaies { get; set; }
         public DbSet<SituationCrédit> situations_credit { get; set; }
@@ -47,9 +46,7 @@ namespace DCCR_SERVER.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Clés primaires
-                // Principaux
-
+            // Primary Keys
             modelBuilder.Entity<Crédit>().HasKey(c => new { c.numero_contrat_credit, c.date_declaration, c.id_excel });
             modelBuilder.Entity<Garantie>().HasKey(g => g.id_garantie);
             modelBuilder.Entity<Intervenant>().HasKey(i => i.cle);
@@ -65,11 +62,8 @@ namespace DCCR_SERVER.Context
             modelBuilder.Entity<RegleValidation>().HasKey(rv => rv.id_regle);
             modelBuilder.Entity<donnees_brutes>().HasKey(db => db.id);
             modelBuilder.Entity<TableauDeBord>().HasKey(tdb => tdb.id_kpi);
-            modelBuilder.Entity<ArchiveCrédit>().HasKey(ca => new { ca.numero_contrat_credit, ca.date_declaration, ca.id_excel });
-            modelBuilder.Entity<ArchiveFichierExcel>().HasKey(afe =>  afe.id_fichier_excel);
-            modelBuilder.Entity<ArchiveFichierXml>().HasKey(afx =>  afx.id_fichier_xml);
-          
-                 // Domaines
+
+            // Domain Keys
             modelBuilder.Entity<ActivitéCrédit>().HasKey(ac => ac.code);
             modelBuilder.Entity<Monnaie>().HasKey(m => m.code);
             modelBuilder.Entity<SituationCrédit>().HasKey(sc => sc.code);
@@ -82,17 +76,31 @@ namespace DCCR_SERVER.Context
             modelBuilder.Entity<NiveauResponsabilité>().HasKey(nr => nr.code);
             modelBuilder.Entity<Wilaya>().HasKey(w => w.code);
 
-            // Contraintes d'unicité
+            // Unique Constraints
             modelBuilder.Entity<Utilisateur>().HasIndex(u => u.matricule).IsUnique();
             modelBuilder.Entity<Intervenant>().HasIndex(i => i.cle).IsUnique();
 
-            // Relations et cardinalités
+            // Relationships
+            ConfigureRelationships(modelBuilder);
 
+            // Properties
+            ConfigureProperties(modelBuilder);
+
+            // Indexes
+            ConfigureIndexes(modelBuilder);
+
+            // Archive Configurations
+            ConfigureArchives(modelBuilder);
+        }
+
+        private void ConfigureRelationships(ModelBuilder modelBuilder)
+        {
             modelBuilder.Entity<FichierExcel>()
                 .HasMany(fex => fex.erreurs)
                 .WithOne(ee => ee.excel_associe)
                 .HasForeignKey(ee => ee.id_excel)
                 .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<FichierExcel>()
                 .HasMany(fex => fex.credits)
                 .WithOne(c => c.excel)
@@ -122,13 +130,13 @@ namespace DCCR_SERVER.Context
                 .WithMany(sc => sc.credits_situation)
                 .HasForeignKey(c => c.situation_credit)
                 .OnDelete(DeleteBehavior.Restrict);
-           
+
             modelBuilder.Entity<Crédit>()
                 .HasOne(c => c.classeretard)
                 .WithMany(cr => cr.credits_classe_retard)
                 .HasForeignKey(c => c.classe_retard)
                 .OnDelete(DeleteBehavior.Restrict);
-            
+
             modelBuilder.Entity<Crédit>()
                 .HasOne(c => c.activitecredit)
                 .WithMany(ac => ac.credits_type_activite)
@@ -146,7 +154,7 @@ namespace DCCR_SERVER.Context
                 .WithMany(dc => dc.credits_duree_restante)
                 .HasForeignKey(c => c.duree_restante)
                 .OnDelete(DeleteBehavior.Restrict);
-           
+
             modelBuilder.Entity<Crédit>()
                 .HasMany(c => c.garanties)
                 .WithOne(g => g.credit)
@@ -158,7 +166,6 @@ namespace DCCR_SERVER.Context
                 .WithOne(ic => ic.credit)
                 .HasForeignKey(ic => new { ic.numero_contrat_credit, ic.date_declaration, ic.id_excel })
                 .OnDelete(DeleteBehavior.Cascade);
-            
 
             modelBuilder.Entity<Garantie>()
                 .HasOne(g => g.typeGarantie)
@@ -174,7 +181,7 @@ namespace DCCR_SERVER.Context
 
             modelBuilder.Entity<Garantie>()
                 .HasOne(g => g.credit)
-                .WithMany(c => c.garanties  )
+                .WithMany(c => c.garanties)
                 .HasForeignKey(b => new { b.numero_contrat_credit, b.date_declaration, b.id_excel })
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -202,7 +209,6 @@ namespace DCCR_SERVER.Context
                 .HasForeignKey(a => a.matricule_utilisateur)
                 .OnDelete(DeleteBehavior.Restrict);
 
-           
             modelBuilder.Entity<FichierXml>()
                 .HasOne(fx => fx.generateurXml)
                 .WithMany(u => u.fichiers_xml_générés)
@@ -239,20 +245,15 @@ namespace DCCR_SERVER.Context
                 .HasForeignKey(fex => fex.id_integrateur_excel)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<FichierXml>()
-                .HasOne(fx => fx.generateurXml)
-                .WithMany(u => u.fichiers_xml_générés)
-                .HasForeignKey(fx => fx.id_utilisateur_generateur_xml)
-                .OnDelete(DeleteBehavior.Restrict);
-
-
             modelBuilder.Entity<donnees_brutes>()
                 .HasOne(db => db.import_excel)
                 .WithMany(f => f.donnees_brutes)
                 .HasForeignKey(db => db.id_import_excel)
                 .OnDelete(DeleteBehavior.Cascade);
+        }
 
-
+        private void ConfigureProperties(ModelBuilder modelBuilder)
+        {
             modelBuilder.Entity<Crédit>().Property(l => l.taux).HasColumnType("decimal(8,5)");
             modelBuilder.Entity<Crédit>().Property(l => l.credit_accorde).HasColumnType("decimal(18,0)");
             modelBuilder.Entity<Crédit>().Property(l => l.mensualite).HasColumnType("decimal(18,0)");
@@ -264,19 +265,20 @@ namespace DCCR_SERVER.Context
             modelBuilder.Entity<Crédit>().Property(l => l.numero_contrat_credit).HasMaxLength(20);
             modelBuilder.Entity<Garantie>().Property(g => g.montant_garantie).HasColumnType("decimal(18,0)");
             modelBuilder.Entity<Crédit>().Property(l => l.solde_restant).HasColumnType("decimal(18,0)");
+        }
 
+        private void ConfigureIndexes(ModelBuilder modelBuilder)
+        {
             modelBuilder.Entity<Crédit>().HasIndex(c => c.numero_contrat_credit);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.date_declaration);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.id_excel);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.type_credit);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.monnaie);
-            modelBuilder.Entity<Crédit>().HasIndex(c => c.type_credit);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.activite_credit);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.classe_retard);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.id_lieu);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.duree_initiale);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.duree_restante);
-
 
             modelBuilder.Entity<Garantie>().HasIndex(g => g.id_garantie);
             modelBuilder.Entity<Garantie>().HasIndex(g => g.cle_interventant);
@@ -292,29 +294,20 @@ namespace DCCR_SERVER.Context
             modelBuilder.Entity<IntervenantCrédit>().HasIndex(ic => ic.cle_intervenant);
             modelBuilder.Entity<IntervenantCrédit>().HasIndex(ic => ic.niveau_responsabilite);
 
-
             modelBuilder.Entity<Lieu>().HasIndex(l => l.id_lieu);
             modelBuilder.Entity<Lieu>().HasIndex(l => l.code_agence);
             modelBuilder.Entity<Lieu>().HasIndex(l => l.code_wilaya);
             modelBuilder.Entity<Lieu>().HasIndex(l => l.code_pays);
 
             modelBuilder.Entity<FichierExcel>().HasIndex(fex => fex.id_fichier_excel);
-
             modelBuilder.Entity<FichierXml>().HasIndex(fx => fx.id_fichier_xml);
-
-            modelBuilder.Entity<ErreurExcel>().HasIndex(ee => new { ee.id_excel,ee.ligne_excel});
-
+            modelBuilder.Entity<ErreurExcel>().HasIndex(ee => new { ee.id_excel, ee.ligne_excel });
 
             modelBuilder.Entity<RegleValidation>().HasIndex(rv => rv.nom_colonne);
-
-            modelBuilder.Entity<donnees_brutes>().HasIndex(db => new { db.id_import_excel,db.est_valide,db.ligne_original }).IsClustered(false);  
+            modelBuilder.Entity<donnees_brutes>().HasIndex(db => new { db.id_import_excel, db.est_valide, db.ligne_original }).IsClustered(false);
             modelBuilder.Entity<donnees_brutes>().HasIndex(x => new { x.numero_contrat, x.date_declaration });
             modelBuilder.Entity<donnees_brutes>().HasIndex(x => new { x.participant_cle, x.participant_type_cle });
-           
             modelBuilder.Entity<Utilisateur>().HasIndex(u => u.matricule);
-           
-            
-           
 
             modelBuilder.Entity<ActivitéCrédit>().HasIndex(ac => ac.code);
             modelBuilder.Entity<Monnaie>().HasIndex(m => m.code);
@@ -328,5 +321,36 @@ namespace DCCR_SERVER.Context
             modelBuilder.Entity<NiveauResponsabilité>().HasIndex(nr => nr.code);
             modelBuilder.Entity<Wilaya>().HasIndex(w => w.code);
         }
+
+        private void ConfigureArchives(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ArchiveCrédit>().HasKey(c => new { c.numero_contrat_credit, c.date_declaration, c.id_excel });
+            modelBuilder.Entity<ArchiveFichierExcel>().HasKey(fex => fex.id_fichier_excel);
+            modelBuilder.Entity<ArchiveFichierXml>().HasKey(fx => fx.id_fichier_xml);
+
+            modelBuilder.Entity<ArchiveCrédit>()
+                .HasOne(ac => ac.excel)
+                .WithMany(afe => afe.credits)
+                .HasForeignKey(ac => ac.id_excel)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(false);
+
+            modelBuilder.Entity<ArchiveFichierXml>()
+                .HasOne(afx => afx.fichier_excel)
+                .WithMany(afe => afe.fichiers_xml)
+                .HasForeignKey(afx => afx.id_fichier_excel)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(false);
+
+            modelBuilder.Entity<ArchiveCrédit>().HasIndex(ac => ac.numero_contrat_credit);
+            modelBuilder.Entity<ArchiveCrédit>().HasIndex(ac => ac.date_declaration);
+            modelBuilder.Entity<ArchiveCrédit>().HasIndex(ac => ac.id_excel);
+            modelBuilder.Entity<ArchiveCrédit>().HasIndex(ac => ac.id_lieu);
+            modelBuilder.Entity<ArchiveFichierExcel>().HasIndex(afe => afe.id_fichier_excel);
+            modelBuilder.Entity<ArchiveFichierXml>().HasIndex(afx => afx.id_fichier_xml);
+            modelBuilder.Entity<ArchiveFichierXml>().HasIndex(afx => afx.id_fichier_excel);
+        }
     }
 }
+
+           

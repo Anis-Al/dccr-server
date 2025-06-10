@@ -32,6 +32,26 @@ namespace DCCR_SERVER.Services.Utilisateur
                 email = u.email
             }).ToList();
         }
+        public async Task<UtilisateurDto?> ObtenirUtilisateurParMatricule(string matricule)
+        {
+            
+            var utilisateur = await _context.utilisateurs
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.matricule == matricule);
+
+            if (utilisateur == null)
+            {
+                return null;
+            }
+
+            return new UtilisateurDto
+            {
+                matricule = utilisateur.matricule,
+                nom_complet = utilisateur.nom_complet,
+                role = utilisateur.role.ToString(),
+                email = utilisateur.email
+            };
+        }
         public async Task<String> AjouterUtilisateur(InscriptionDto idto)
         {
             var (success, message) = await _authentificationService.inscrireUtilisateur(idto);

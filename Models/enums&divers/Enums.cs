@@ -5,10 +5,10 @@ namespace DCCR_SERVER.Models.enums
 
         public enum RoleUtilisateur
         {
-            visiteur = 1,
-            validateur = 2,
-            generateur_xml = 3,
-            admin = 4
+            admin = 1,
+            integrateurExcel = 2,
+            modificateurCredits = 3,
+            generateurDeclarations = 4
         }
 
         public enum typeActionAudit

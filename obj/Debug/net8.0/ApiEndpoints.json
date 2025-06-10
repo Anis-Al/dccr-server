@@ -43,6 +43,26 @@
   },
   {
     "ContainingType": "DCCR_SERVER.Controllers.creditsController",
+    "Method": "GetAllCredits",
+    "RelativePath": "api/credits",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[DCCR_SERVER.DTOs.CreditsDto\u002BCreditsListeDto, DCCR_SERVER, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.creditsController",
     "Method": "GetTablesDomaines",
     "RelativePath": "api/credits/get-tables-domaines",
     "HttpMethod": "GET",
@@ -63,12 +83,23 @@
   },
   {
     "ContainingType": "DCCR_SERVER.Controllers.creditsController",
-    "Method": "GetAllCredits",
-    "RelativePath": "api/credits/get-tous-credits",
+    "Method": "GetCreditInfos",
+    "RelativePath": "api/credits/infos",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "numContratCredit",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "dateDeclaration",
+        "Type": "System.DateOnly",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": [
       {
         "Type": "System.Collections.Generic.List\u00601[[DCCR_SERVER.DTOs.CreditsDto\u002BCreditDto, DCCR_SERVER, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
@@ -335,5 +366,31 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.utilisateursController",
+    "Method": "utilisateurParMatricule",
+    "RelativePath": "api/utilisateurs/utilisateur/{matricule}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "matricule",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DCCR_SERVER.DTOs.Auth.UtilisateurDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   }
 ]

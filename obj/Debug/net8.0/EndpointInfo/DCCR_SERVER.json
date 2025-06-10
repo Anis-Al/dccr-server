@@ -84,7 +84,7 @@
         }
       }
     },
-    "/api/credits/get-tous-credits": {
+    "/api/credits": {
       "get": {
         "tags": [
           "credits"
@@ -97,7 +97,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/CreditDto"
+                    "$ref": "#/components/schemas/CreditsListeDto"
                   }
                 }
               },
@@ -105,7 +105,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/CreditDto"
+                    "$ref": "#/components/schemas/CreditsListeDto"
                   }
                 }
               },
@@ -113,7 +113,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/CreditDto"
+                    "$ref": "#/components/schemas/CreditsListeDto"
                   }
                 }
               }
@@ -209,6 +209,61 @@
                   "type": "array",
                   "items": {
                     "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/credits/infos": {
+      "get": {
+        "tags": [
+          "credits"
+        ],
+        "parameters": [
+          {
+            "name": "numContratCredit",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateDeclaration",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CreditDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CreditDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CreditDto"
                   }
                 }
               }
@@ -518,6 +573,45 @@
         }
       }
     },
+    "/api/utilisateurs/utilisateur/{matricule}": {
+      "get": {
+        "tags": [
+          "utilisateurs"
+        ],
+        "parameters": [
+          {
+            "name": "matricule",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UtilisateurDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UtilisateurDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UtilisateurDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/utilisateurs/ajouter": {
       "post": {
         "tags": [
@@ -709,6 +803,7 @@
           },
           "date_declaration": {
             "type": "string",
+            "format": "date",
             "nullable": true
           },
           "type_credit": {
@@ -835,6 +930,7 @@
           },
           "date_constatation_echeances_impayes": {
             "type": "string",
+            "format": "date",
             "nullable": true
           },
           "montant_capital_retard": {
@@ -854,18 +950,22 @@
           },
           "date_octroi": {
             "type": "string",
+            "format": "date",
             "nullable": true
           },
           "date_expiration": {
             "type": "string",
+            "format": "date",
             "nullable": true
           },
           "date_execution": {
             "type": "string",
+            "format": "date",
             "nullable": true
           },
           "date_rejet": {
             "type": "string",
+            "format": "date",
             "nullable": true
           },
           "id_excel": {
@@ -885,6 +985,37 @@
               "$ref": "#/components/schemas/GarantieDto"
             },
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreditsListeDto": {
+        "type": "object",
+        "properties": {
+          "num_contrat_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_declaration": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "libelle_type_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "libelle_activite": {
+            "type": "string",
+            "nullable": true
+          },
+          "libelle_situation": {
+            "type": "string",
+            "nullable": true
+          },
+          "id_excel": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -1522,18 +1653,6 @@
         "type": "object",
         "properties": {
           "token": {
-            "type": "string",
-            "nullable": true
-          },
-          "matricule": {
-            "type": "string",
-            "nullable": true
-          },
-          "nom_complet": {
-            "type": "string",
-            "nullable": true
-          },
-          "role": {
             "type": "string",
             "nullable": true
           },

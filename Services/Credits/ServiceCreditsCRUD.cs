@@ -25,24 +25,61 @@ namespace DCCR_SERVER.Services.Credits
             _contexte = contexte;
             _journal = journal;
         }
-        private const string DateFormat = "yyyy-MM-dd";
+        private const string DateFormat = "yyyy-mm-dd";
 
-        
 
-        public async Task<List<CreditDto>> getTousLesCredits()
+        public async Task<List<CreditsListeDto>> tousLesCreditsListe()
+        {
+            try
+            {   
+                var queryListe = _contexte.credits
+                    .AsNoTracking();
+
+                var creditsListes = await queryListe
+                    .Select(creditListe => new CreditsListeDto
+                    {
+                        num_contrat_credit = creditListe.numero_contrat_credit,
+                        date_declaration = creditListe.date_declaration,
+                        libelle_type_credit = creditListe.typecredit.domaine,
+                        libelle_activite = creditListe.activitecredit.domaine,
+                        libelle_situation = creditListe.situationcredit.domaine,
+                        id_excel = creditListe.id_excel,
+
+                    })
+                    .ToListAsync();
+
+                return creditsListes;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public async Task<List<CreditDto>> infosCredit(string num_contrat_credit,DateOnly date_declaration)
         {
 
             try
             {
-                var query = _contexte.credits
-                    .AsNoTracking();
+            var query = _contexte.credits
+            .AsNoTracking()
+            .AsQueryable();
+
+            var hasContractFilter = !string.IsNullOrWhiteSpace(num_contrat_credit);
+            var hasDateFilter = date_declaration != default;
+
+            if (hasContractFilter || hasDateFilter)
+            {
+                query = query.Where(credit => 
+                (!hasContractFilter || credit.numero_contrat_credit == num_contrat_credit) &&
+                (!hasDateFilter || credit.date_declaration == date_declaration)
+            );
+        }
 
                 var creditsData = await query
-                    .OrderByDescending(c => c.date_declaration)
                     .Select(credit => new CreditDto
                     {
                         num_contrat_credit = credit.numero_contrat_credit,
-                        date_declaration = credit.date_declaration.ToString(DateFormat),
+                        date_declaration = credit.date_declaration,
                         type_credit = credit.type_credit,
                         libelle_type_credit = credit.typecredit.domaine,
                         est_plafond_accorde = credit.est_plafond_accorde,
@@ -76,14 +113,14 @@ namespace DCCR_SERVER.Services.Credits
                         classe_retard = credit.classe_retard,
                         libelle_classe_retard = credit.classeretard.domaine,
                         nombre_echeances_impayes = credit.nombre_echeances_impayes,
-                        date_constatation_echeances_impayes = credit.date_constatation != null ? credit.date_constatation.Value.ToString(DateFormat) : null,
+                        date_constatation_echeances_impayes = credit.date_constatation != null ? credit.date_constatation.Value : null,
                         montant_capital_retard = credit.montant_capital_retard,
                         montant_interets_retard = credit.montant_interets_retard,
                         montant_interets_courus = credit.montant_interets_courus,
-                        date_octroi = credit.date_octroi.ToString(DateFormat),
-                        date_expiration = credit.date_expiration.ToString(DateFormat),
-                        date_execution = credit.date_execution != null ? credit.date_execution.Value.ToString(DateFormat) : string.Empty,
-                        date_rejet = credit.date_rejet != null ? credit.date_rejet.Value.ToString(DateFormat) : null,
+                        date_octroi = credit.date_octroi,
+                        date_expiration = credit.date_expiration,
+                        date_execution = credit.date_execution != null ? credit.date_execution.Value : null,
+                        date_rejet = credit.date_rejet != null ? credit.date_rejet.Value : null,
                         id_excel = credit.id_excel,
 
                         intervenants = credit.intervenantsCredit
@@ -117,6 +154,7 @@ namespace DCCR_SERVER.Services.Credits
                 throw;
             }
         }
+
         public async Task<List<TablesDomainesDto>> GetToutesLesTablesDomaines()
         {
             var result = new List<TablesDomainesDto>();
@@ -150,7 +188,6 @@ namespace DCCR_SERVER.Services.Credits
                 }).ToList()
             };
         }
-
         public async Task<List<string>> creerCreditDepuisUi(CreditDto credit)
         {
             try
@@ -166,7 +203,7 @@ namespace DCCR_SERVER.Services.Credits
                         var donneeRecord = new donnees_brutes
                         {
                             numero_contrat = credit.num_contrat_credit,
-                            date_declaration = credit.date_declaration,
+                            date_declaration = credit.date_declaration.ToString(),
                             id_import_excel = credit.id_excel,
                             type_credit = credit.type_credit,
                             id_plafond = credit.id_plafond,
@@ -186,14 +223,14 @@ namespace DCCR_SERVER.Services.Credits
                             duree_restante = credit.duree_restante,
                             classe_retard = credit.classe_retard,
                             nombre_echeances_impayes = credit.nombre_echeances_impayes.ToString(),
-                            date_constatation = credit.date_constatation_echeances_impayes,
+                            date_constatation = credit.date_constatation_echeances_impayes.ToString(),
                             montant_capital_retard = credit.montant_capital_retard.ToString(),
                             montant_interets_retard = credit.montant_interets_retard.ToString(),
                             montant_interets_courus = credit.montant_interets_courus.ToString(),
-                            date_octroi = credit.date_octroi,
-                            date_expiration = credit.date_expiration,
-                            date_execution = credit.date_execution,
-                            date_rejet = credit.date_rejet,
+                            date_octroi = credit.date_octroi.ToString(),
+                            date_expiration = credit.date_expiration.ToString(),
+                            date_execution = credit.date_execution.ToString(),
+                            date_rejet = credit.date_rejet.ToString(),
                             participant_cle = intervenant.cle,
                             participant_type_cle = intervenant.type_cle,
                             participant_nif = intervenant.nif,
