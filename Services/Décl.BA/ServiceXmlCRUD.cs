@@ -30,9 +30,6 @@ namespace DCCR_SERVER.Services.Décl.BA
                 .Where(c => c.id_excel == idExcel)
                 .ToList();
 
-            string correctionXml = genererXmlCorrection(credits);
-            string suppressionXml = genererXmlSuppression(credits);
-
             var parametreSequence = _context.parametrage.FirstOrDefault(p => p.parametre == "sequence_dccr_actuelle");
             if (parametreSequence == null)
             {
@@ -40,16 +37,24 @@ namespace DCCR_SERVER.Services.Décl.BA
             }
 
             int sequenceActuelle = parametreSequence.valeur;
-            string sequenceSuppression = sequenceActuelle.ToString().PadLeft(3, '0');
-            string sequenceCorrection = (sequenceActuelle + 1).ToString().PadLeft(3, '0');
-
-            parametreSequence.valeur = sequenceActuelle + 2;
-            if(parametreSequence.valeur > 999)
-            {
-                parametreSequence.valeur = 1; 
-            }
+            
+            int suppressionSequence = sequenceActuelle;
+            int correctionSequence = sequenceActuelle + 1;
+            int sequenceProchaine = sequenceActuelle + 2;
+            
+            if (correctionSequence > 999) correctionSequence = 1;
+            
+            if (sequenceProchaine > 999) sequenceProchaine = 1;
+            
+            parametreSequence.valeur = sequenceProchaine;
             _context.parametrage.Update(parametreSequence);
             _context.SaveChanges();
+            
+            string sequenceSuppression = suppressionSequence.ToString().PadLeft(3, '0');
+            string sequenceCorrection = correctionSequence.ToString().PadLeft(3, '0');
+
+            string correctionXml = genererXmlCorrection(credits, sequenceCorrection);
+            string suppressionXml = genererXmlSuppression(credits, sequenceSuppression);
 
             var fichierXml = new FichierXml
             {
@@ -64,7 +69,7 @@ namespace DCCR_SERVER.Services.Décl.BA
             return fichierXml;
         }
 
-        private string genererXmlCorrection(List<Crédit> credits)
+        private string genererXmlCorrection(List<Crédit> credits, string sequenceCorrection)
         {
             try
             {
@@ -91,7 +96,7 @@ namespace DCCR_SERVER.Services.Décl.BA
                     writer.WriteAttributeString("c21", "021");
                     writer.WriteAttributeString("c22", "021");
                     writer.WriteAttributeString("c23", DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss"));
-                    writer.WriteAttributeString("c24", DateTime.Now.ToString("yyyyMMdd") + "999");
+                    writer.WriteAttributeString("c24", DateTime.Now.ToString("yyyyMMdd") + sequenceCorrection);
                     writer.WriteAttributeString("c25", "111");
                     writer.WriteEndElement();
 
@@ -198,7 +203,7 @@ namespace DCCR_SERVER.Services.Décl.BA
             }
         }
 
-        private string genererXmlSuppression(List<Crédit> credits)
+        private string genererXmlSuppression(List<Crédit> credits, string sequenceSuppression)
         {
             try
             {
@@ -225,7 +230,7 @@ namespace DCCR_SERVER.Services.Décl.BA
                     writer.WriteAttributeString("c21", "021");
                     writer.WriteAttributeString("c22", "021");
                     writer.WriteAttributeString("c23", DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss"));
-                    writer.WriteAttributeString("c24", DateTime.Now.ToString("yyyyMMdd") + "999");
+                    writer.WriteAttributeString("c24", DateTime.Now.ToString("yyyyMMdd") + sequenceSuppression);
                     writer.WriteAttributeString("c25", "111");
                     writer.WriteEndElement();
 
