@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DCCR_SERVER.Migrations
 {
     [DbContext(typeof(BddContext))]
-    [Migration("20250608145014_insertions")]
-    partial class insertions
+    [Migration("20250611184824_creation")]
+    partial class creation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -75,9 +75,6 @@ namespace DCCR_SERVER.Migrations
                     b.Property<bool?>("est_plafond_accorde")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("excelid_fichier_excel")
-                        .HasColumnType("int");
-
                     b.Property<int>("id_lieu")
                         .HasColumnType("int");
 
@@ -122,9 +119,15 @@ namespace DCCR_SERVER.Migrations
 
                     b.HasKey("numero_contrat_credit", "date_declaration", "id_excel");
 
-                    b.HasIndex("excelid_fichier_excel");
+                    b.HasIndex("date_declaration");
 
-                    b.ToTable("ArchiveCrédit");
+                    b.HasIndex("id_excel");
+
+                    b.HasIndex("id_lieu");
+
+                    b.HasIndex("numero_contrat_credit");
+
+                    b.ToTable("archives_credits");
                 });
 
             modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Archives.ArchiveFichierExcel", b =>
@@ -164,7 +167,9 @@ namespace DCCR_SERVER.Migrations
 
                     b.HasKey("id_fichier_excel");
 
-                    b.ToTable("ArchiveFichierExcel");
+                    b.HasIndex("id_fichier_excel");
+
+                    b.ToTable("archives_fichiers_excel");
                 });
 
             modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Archives.ArchiveFichierXml", b =>
@@ -186,9 +191,6 @@ namespace DCCR_SERVER.Migrations
                     b.Property<DateTime>("date_heure_generation_xml")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("fichier_excelid_fichier_excel")
-                        .HasColumnType("int");
-
                     b.Property<int>("id_fichier_excel")
                         .HasColumnType("int");
 
@@ -206,9 +208,11 @@ namespace DCCR_SERVER.Migrations
 
                     b.HasKey("id_fichier_xml");
 
-                    b.HasIndex("fichier_excelid_fichier_excel");
+                    b.HasIndex("id_fichier_excel");
 
-                    b.ToTable("ArchiveFichierXml");
+                    b.HasIndex("id_fichier_xml");
+
+                    b.ToTable("archives_fichiers_xml");
                 });
 
             modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Crédit", b =>
@@ -318,6 +322,8 @@ namespace DCCR_SERVER.Migrations
                     b.HasIndex("duree_restante");
 
                     b.HasIndex("id_excel");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("id_excel"), new[] { "numero_contrat_credit", "date_declaration", "type_credit", "activite_credit", "situation_credit" });
 
                     b.HasIndex("id_lieu");
 
@@ -1086,7 +1092,8 @@ namespace DCCR_SERVER.Migrations
                 {
                     b.HasOne("DCCR_SERVER.Models.Principaux.Archives.ArchiveFichierExcel", "excel")
                         .WithMany("credits")
-                        .HasForeignKey("excelid_fichier_excel");
+                        .HasForeignKey("id_excel")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("excel");
                 });
@@ -1095,9 +1102,8 @@ namespace DCCR_SERVER.Migrations
                 {
                     b.HasOne("DCCR_SERVER.Models.Principaux.Archives.ArchiveFichierExcel", "fichier_excel")
                         .WithMany("fichiers_xml")
-                        .HasForeignKey("fichier_excelid_fichier_excel")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("id_fichier_excel")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("fichier_excel");
                 });

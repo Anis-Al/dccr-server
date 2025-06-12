@@ -1,8 +1,9 @@
-﻿using DCCR_SERVER.Context;
+using DCCR_SERVER.Context;
 using DCCR_SERVER.DTOs;
 using DCCR_SERVER.DTOs.Excel;
 using DocumentFormat.OpenXml.InkML;
 using Microsoft.EntityFrameworkCore;
+using static DCCR_SERVER.Models.enums.Enums;
 
 namespace DCCR_SERVER.Services.Excel
 {
@@ -19,6 +20,7 @@ namespace DCCR_SERVER.Services.Excel
             try
             {
                 var requete = _contexte.fichiers_excel
+                    .Where(fe => fe.statut_import == StatutImport.ImportConfirme)
                     .AsNoTracking();
 
                 var MetaDonnees = await requete

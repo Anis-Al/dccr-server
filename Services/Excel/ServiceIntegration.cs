@@ -577,11 +577,19 @@ namespace DCCR_SERVER.Services.Excel
 
                 if (uniqueIntervenantCles.Any() && mappingsParTable.TryGetValue("intervenants", out var intervenantMappings))
                 {
+                    var allIntervenantCles = donnees_en_attentes_de_migration
+                        .Select(l => l.participant_cle?.Trim())
+                        .Where(c => !string.IsNullOrEmpty(c))
+                        .Distinct()
+                        .ToList();
+
                     var existingIntervenants = await _contexte.intervenants
-                        .Where(i => uniqueIntervenantCles.Contains(i.cle))
+                        .Where(i => allIntervenantCles.Contains(i.cle))
+                        .AsNoTracking()
                         .ToListAsync();
 
                     intervenantsDict = existingIntervenants.ToDictionary(i => i.cle, i => i);
+
 
                     foreach (var ligne in donnees_en_attentes_de_migration)
                     {
@@ -591,18 +599,44 @@ namespace DCCR_SERVER.Services.Excel
                             continue;
                         }
 
-                        var intervenant = new Intervenant();
-                        mapperColonnesAvecTypesEnProd(intervenantMappings, ligne, intervenant);
-                        var mappedCle = intervenant.cle?.Trim();
-                        if (!string.IsNullOrEmpty(mappedCle) && !intervenantsDict.ContainsKey(mappedCle))
+                        var newIntervenant = new Intervenant();
+                        mapperColonnesAvecTypesEnProd(intervenantMappings, ligne, newIntervenant);
+                        var mappedCle = newIntervenant.cle?.Trim();
+
+                        if (string.IsNullOrEmpty(mappedCle))
                         {
-                            if (mappedCle == intervenantCle)
+                            continue;
+                        }
+
+
+                        if (intervenantsDict.TryGetValue(mappedCle, out var existingInDict))
+                        {
+                            continue;
+                        }
+
+                        var existingInContext = _contexte.ChangeTracker.Entries<Intervenant>()
+                            .FirstOrDefault(e => string.Equals(e.Entity.cle, mappedCle, StringComparison.OrdinalIgnoreCase))?.Entity;
+
+                        if (existingInContext != null)
+                        {
+                            intervenantsDict[mappedCle] = existingInContext;
+                        }
+                        else
+                        {
+                            var existsInDb = await _contexte.intervenants
+                                .AsNoTracking()
+                                .AnyAsync(i => i.cle.ToLower() == mappedCle.ToLower());
+
+                            if (existsInDb)
                             {
-                                _contexte.intervenants.Add(intervenant);
-                                intervenantsDict[mappedCle] = intervenant;
+                                var fromDb = await _contexte.intervenants
+                                    .FirstOrDefaultAsync(i => i.cle.ToLower() == mappedCle.ToLower());
+                                intervenantsDict[mappedCle] = fromDb;
                             }
                             else
                             {
+                                _contexte.intervenants.Add(newIntervenant);
+                                intervenantsDict[mappedCle] = newIntervenant;
                             }
                         }
                     }
@@ -660,10 +694,12 @@ namespace DCCR_SERVER.Services.Excel
                 {
                     foreach (var ligne in donnees_en_attentes_de_migration)
                     {
-                        var intervenantCredit = new IntervenantCrédit();
-                        mapperColonnesAvecTypesEnProd(icMappings, ligne, intervenantCredit);
-
                         var intervenantCle = ligne.participant_cle?.Trim();
+                        if (string.IsNullOrEmpty(intervenantCle))
+                        {
+                            continue;
+                        }
+
                         string numContratCoupe = ligne.numero_contrat?.Trim();
                         DateOnly? dateDeclarationParse = null;
                         if (!string.IsNullOrEmpty(ligne.date_declaration) && DateOnly.TryParse(ligne.date_declaration, out DateOnly parsedDate))
@@ -673,35 +709,18 @@ namespace DCCR_SERVER.Services.Excel
 
                         var creditKey = (numContratCoupe, dateDeclarationParse, idExcel);
 
-                        Intervenant intervenant = null;
-                        Crédit credit = null;
-
-                        bool intevenantTrouve = !string.IsNullOrEmpty(intervenantCle) && intervenantsDict.TryGetValue(intervenantCle, out intervenant);
-                        bool cleCreditValide = !string.IsNullOrEmpty(creditKey.Item1) && creditKey.Item2.HasValue;
-                        bool creditTrouve = cleCreditValide && creditsDict.TryGetValue(creditKey, out credit);
-
-                        if (intevenantTrouve)
+                        if (intervenantsDict.TryGetValue(intervenantCle, out var intervenant) && 
+                            creditsDict.TryGetValue(creditKey, out var credit))
                         {
-                            intervenantCredit.intervenant = intervenant;
-                        }
-                        else if (!string.IsNullOrEmpty(intervenantCle))
-                        {
-                        }
-
-                        if (creditTrouve)
-                        {
-                            intervenantCredit.credit = credit;
-                        }
-                        else if (cleCreditValide)
-                        {
-                        }
-
-                        if (intervenantCredit.intervenant != null && intervenantCredit.credit != null)
-                        {
+                            var intervenantCredit = new IntervenantCrédit
+                            {
+                                intervenant = intervenant,
+                                credit = credit
+                            };
+                            
+                            mapperColonnesAvecTypesEnProd(icMappings, ligne, intervenantCredit);
+                            
                             _contexte.Set<IntervenantCrédit>().Add(intervenantCredit);
-                        }
-                        else
-                        {
                         }
                     }
                 }
@@ -766,6 +785,13 @@ namespace DCCR_SERVER.Services.Excel
                 await _contexte.SaveChangesAsync();
 
                 await transaction.CommitAsync();
+                
+                var fichierExcel = await _contexte.fichiers_excel.FirstOrDefaultAsync(i => i.id_fichier_excel == idExcel);
+                if (fichierExcel != null)
+                {
+                    fichierExcel.statut_import = StatutImport.ImportConfirme;
+                    await _contexte.SaveChangesAsync();
+                }
             }
             catch (Exception ex)
             {
@@ -920,8 +946,22 @@ namespace DCCR_SERVER.Services.Excel
                                         erreurs.Add(GenererErreur(ligne, regle, valeurStr));
                                     break;
                                 case "dateonly":
-                                    if (!DateOnly.TryParse(valeurStr, out _))
+                                    string[] dateFormats = new[] { "yyyy-MM-dd", "dd/MM/yyyy", "yyyy-MM-ddTHH:mm:ss", "dd/MM/yyyy HH:mm:ss" };
+                                    if (DateTime.TryParse(valeurStr, out DateTime dateValue))
+                                    {
+                                        string dateOnlyStr = dateValue.ToString("yyyy-MM-dd");
+                                        if (!DateOnly.TryParseExact(dateOnlyStr, new[] { "yyyy-MM-dd" }, 
+                                            System.Globalization.CultureInfo.InvariantCulture, 
+                                            System.Globalization.DateTimeStyles.None, 
+                                            out _))
+                                        {
+                                            erreurs.Add(GenererErreur(ligne, regle, valeurStr));
+                                        }
+                                    }
+                                    else
+                                    {
                                         erreurs.Add(GenererErreur(ligne, regle, valeurStr));
+                                    }
                                     break;
                                 
                                 default:

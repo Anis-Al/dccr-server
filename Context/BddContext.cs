@@ -271,7 +271,6 @@ namespace DCCR_SERVER.Context
         {
             modelBuilder.Entity<Crédit>().HasIndex(c => c.numero_contrat_credit);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.date_declaration);
-            modelBuilder.Entity<Crédit>().HasIndex(c => c.id_excel);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.type_credit);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.monnaie);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.activite_credit);
@@ -279,6 +278,15 @@ namespace DCCR_SERVER.Context
             modelBuilder.Entity<Crédit>().HasIndex(c => c.id_lieu);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.duree_initiale);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.duree_restante);
+            modelBuilder.Entity<Crédit>()
+                .HasIndex(c => c.id_excel)
+                .IncludeProperties(c => new {
+                    c.numero_contrat_credit,
+                    c.date_declaration,
+                    c.type_credit,
+                    c.activite_credit,
+                    c.situation_credit
+                });
 
             modelBuilder.Entity<Garantie>().HasIndex(g => g.id_garantie);
             modelBuilder.Entity<Garantie>().HasIndex(g => g.cle_interventant);

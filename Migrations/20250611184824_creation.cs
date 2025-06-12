@@ -36,7 +36,7 @@ namespace DCCR_SERVER.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ArchiveFichierExcel",
+                name: "archives_fichiers_excel",
                 columns: table => new
                 {
                     id_fichier_excel = table.Column<int>(type: "int", nullable: false)
@@ -52,7 +52,7 @@ namespace DCCR_SERVER.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ArchiveFichierExcel", x => x.id_fichier_excel);
+                    table.PrimaryKey("PK_archives_fichiers_excel", x => x.id_fichier_excel);
                 });
 
             migrationBuilder.CreateTable(
@@ -257,7 +257,7 @@ namespace DCCR_SERVER.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ArchiveCrédit",
+                name: "archives_credits",
                 columns: table => new
                 {
                     numero_contrat_credit = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -287,21 +287,21 @@ namespace DCCR_SERVER.Migrations
                     montant_interets_courus = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     montant_interets_retard = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     montant_capital_retard = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    motif = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    excelid_fichier_excel = table.Column<int>(type: "int", nullable: true)
+                    motif = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ArchiveCrédit", x => new { x.numero_contrat_credit, x.date_declaration, x.id_excel });
+                    table.PrimaryKey("PK_archives_credits", x => new { x.numero_contrat_credit, x.date_declaration, x.id_excel });
                     table.ForeignKey(
-                        name: "FK_ArchiveCrédit_ArchiveFichierExcel_excelid_fichier_excel",
-                        column: x => x.excelid_fichier_excel,
-                        principalTable: "ArchiveFichierExcel",
-                        principalColumn: "id_fichier_excel");
+                        name: "FK_archives_credits_archives_fichiers_excel_id_excel",
+                        column: x => x.id_excel,
+                        principalTable: "archives_fichiers_excel",
+                        principalColumn: "id_fichier_excel",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "ArchiveFichierXml",
+                name: "archives_fichiers_xml",
                 columns: table => new
                 {
                     id_fichier_xml = table.Column<int>(type: "int", nullable: false)
@@ -312,16 +312,15 @@ namespace DCCR_SERVER.Migrations
                     contenu_suppression = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     id_utilisateur_generateur_xml = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     date_heure_generation_xml = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    id_fichier_excel = table.Column<int>(type: "int", nullable: false),
-                    fichier_excelid_fichier_excel = table.Column<int>(type: "int", nullable: false)
+                    id_fichier_excel = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ArchiveFichierXml", x => x.id_fichier_xml);
+                    table.PrimaryKey("PK_archives_fichiers_xml", x => x.id_fichier_xml);
                     table.ForeignKey(
-                        name: "FK_ArchiveFichierXml_ArchiveFichierExcel_fichier_excelid_fichier_excel",
-                        column: x => x.fichier_excelid_fichier_excel,
-                        principalTable: "ArchiveFichierExcel",
+                        name: "FK_archives_fichiers_xml_archives_fichiers_excel_id_fichier_excel",
+                        column: x => x.id_fichier_excel,
+                        principalTable: "archives_fichiers_excel",
                         principalColumn: "id_fichier_excel",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -699,14 +698,39 @@ namespace DCCR_SERVER.Migrations
                 column: "code");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ArchiveCrédit_excelid_fichier_excel",
-                table: "ArchiveCrédit",
-                column: "excelid_fichier_excel");
+                name: "IX_archives_credits_date_declaration",
+                table: "archives_credits",
+                column: "date_declaration");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ArchiveFichierXml_fichier_excelid_fichier_excel",
-                table: "ArchiveFichierXml",
-                column: "fichier_excelid_fichier_excel");
+                name: "IX_archives_credits_id_excel",
+                table: "archives_credits",
+                column: "id_excel");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_archives_credits_id_lieu",
+                table: "archives_credits",
+                column: "id_lieu");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_archives_credits_numero_contrat_credit",
+                table: "archives_credits",
+                column: "numero_contrat_credit");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_archives_fichiers_excel_id_fichier_excel",
+                table: "archives_fichiers_excel",
+                column: "id_fichier_excel");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_archives_fichiers_xml_id_fichier_excel",
+                table: "archives_fichiers_xml",
+                column: "id_fichier_excel");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_archives_fichiers_xml_id_fichier_xml",
+                table: "archives_fichiers_xml",
+                column: "id_fichier_xml");
 
             migrationBuilder.CreateIndex(
                 name: "IX_classes_retard_code",
@@ -741,7 +765,8 @@ namespace DCCR_SERVER.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_credits_id_excel",
                 table: "credits",
-                column: "id_excel");
+                column: "id_excel")
+                .Annotation("SqlServer:Include", new[] { "numero_contrat_credit", "date_declaration", "type_credit", "activite_credit", "situation_credit" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_credits_id_lieu",
@@ -971,10 +996,10 @@ namespace DCCR_SERVER.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ArchiveCrédit");
+                name: "archives_credits");
 
             migrationBuilder.DropTable(
-                name: "ArchiveFichierXml");
+                name: "archives_fichiers_xml");
 
             migrationBuilder.DropTable(
                 name: "erreurs_fichiers_excel");
@@ -1004,7 +1029,7 @@ namespace DCCR_SERVER.Migrations
                 name: "tableau_de_bord");
 
             migrationBuilder.DropTable(
-                name: "ArchiveFichierExcel");
+                name: "archives_fichiers_excel");
 
             migrationBuilder.DropTable(
                 name: "regles_validation");
