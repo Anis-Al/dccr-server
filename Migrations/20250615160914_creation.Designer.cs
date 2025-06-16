@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DCCR_SERVER.Migrations
 {
     [DbContext(typeof(BddContext))]
-    [Migration("20250611184840_insertions")]
-    partial class insertions
+    [Migration("20250615160914_creation")]
+    partial class creation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,7 +28,8 @@ namespace DCCR_SERVER.Migrations
             modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Archives.ArchiveCrédit", b =>
                 {
                     b.Property<string>("numero_contrat_credit")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateOnly>("date_declaration")
                         .HasColumnType("date");
@@ -37,17 +38,16 @@ namespace DCCR_SERVER.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("activite_credit")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("classe_retard")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("cout_total_credit")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<decimal?>("cout_total_credit")
+                        .HasColumnType("decimal(18,0)");
 
-                    b.Property<decimal>("credit_accorde")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<decimal?>("credit_accorde")
+                        .HasColumnType("decimal(18,0)");
 
                     b.Property<DateOnly?>("date_constatation")
                         .HasColumnType("date");
@@ -55,21 +55,19 @@ namespace DCCR_SERVER.Migrations
                     b.Property<DateOnly?>("date_execution")
                         .HasColumnType("date");
 
-                    b.Property<DateOnly>("date_expiration")
+                    b.Property<DateOnly?>("date_expiration")
                         .HasColumnType("date");
 
-                    b.Property<DateOnly>("date_octroi")
+                    b.Property<DateOnly?>("date_octroi")
                         .HasColumnType("date");
 
                     b.Property<DateOnly?>("date_rejet")
                         .HasColumnType("date");
 
                     b.Property<string>("duree_initiale")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("duree_restante")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool?>("est_plafond_accorde")
@@ -79,23 +77,24 @@ namespace DCCR_SERVER.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("id_plafond")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
-                    b.Property<decimal>("mensualite")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<decimal?>("mensualite")
+                        .HasColumnType("decimal(18,0)");
 
                     b.Property<string>("monnaie")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("montant_capital_retard")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,0)");
 
                     b.Property<decimal?>("montant_interets_courus")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,0)");
 
                     b.Property<decimal?>("montant_interets_retard")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,0)");
 
                     b.Property<string>("motif")
                         .HasColumnType("nvarchar(max)");
@@ -104,14 +103,13 @@ namespace DCCR_SERVER.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("situation_credit")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("solde_restant")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<decimal?>("solde_restant")
+                        .HasColumnType("decimal(18,0)");
 
-                    b.Property<decimal>("taux")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<decimal?>("taux")
+                        .HasColumnType("decimal(8,5)");
 
                     b.Property<string>("type_credit")
                         .IsRequired()
@@ -149,21 +147,9 @@ namespace DCCR_SERVER.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("id_session_import")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("message_statut")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("nom_fichier_excel")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("resume_validation")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("statut_import")
-                        .HasColumnType("int");
 
                     b.HasKey("id_fichier_excel");
 
@@ -215,6 +201,101 @@ namespace DCCR_SERVER.Migrations
                     b.ToTable("archives_fichiers_xml");
                 });
 
+            modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Archives.ArchiveGarantie", b =>
+                {
+                    b.Property<int>("id_garantie")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id_garantie"));
+
+                    b.Property<string>("cle_interventant")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateOnly>("date_declaration")
+                        .HasColumnType("date");
+
+                    b.Property<string>("guarantcle")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("id_excel")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("montant_garantie")
+                        .HasColumnType("decimal(18,0)");
+
+                    b.Property<string>("numero_contrat_credit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("type_garantie")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("id_garantie");
+
+                    b.HasIndex("cle_interventant");
+
+                    b.HasIndex("date_declaration");
+
+                    b.HasIndex("guarantcle");
+
+                    b.HasIndex("id_excel");
+
+                    b.HasIndex("id_garantie");
+
+                    b.HasIndex("numero_contrat_credit");
+
+                    b.HasIndex("numero_contrat_credit", "date_declaration", "id_excel");
+
+                    b.ToTable("archives_garanties");
+                });
+
+            modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Archives.ArchiveIntervenantCrédit", b =>
+                {
+                    b.Property<int>("id_intervenantcredit")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id_intervenantcredit"));
+
+                    b.Property<string>("cle_intervenant")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateOnly>("date_declaration")
+                        .HasColumnType("date");
+
+                    b.Property<int>("id_excel")
+                        .HasColumnType("int");
+
+                    b.Property<string>("niveau_responsabilite")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("numero_contrat_credit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("id_intervenantcredit");
+
+                    b.HasIndex("cle_intervenant");
+
+                    b.HasIndex("date_declaration");
+
+                    b.HasIndex("id_excel");
+
+                    b.HasIndex("id_intervenantcredit");
+
+                    b.HasIndex("niveau_responsabilite");
+
+                    b.HasIndex("numero_contrat_credit");
+
+                    b.HasIndex("numero_contrat_credit", "date_declaration", "id_excel");
+
+                    b.ToTable("archives_intervenants_credits");
+                });
+
             modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Crédit", b =>
                 {
                     b.Property<string>("numero_contrat_credit")
@@ -228,16 +309,15 @@ namespace DCCR_SERVER.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("activite_credit")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("classe_retard")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<decimal>("cout_total_credit")
+                    b.Property<decimal?>("cout_total_credit")
                         .HasColumnType("decimal(18,0)");
 
-                    b.Property<decimal>("credit_accorde")
+                    b.Property<decimal?>("credit_accorde")
                         .HasColumnType("decimal(18,0)");
 
                     b.Property<DateOnly?>("date_constatation")
@@ -246,21 +326,19 @@ namespace DCCR_SERVER.Migrations
                     b.Property<DateOnly?>("date_execution")
                         .HasColumnType("date");
 
-                    b.Property<DateOnly>("date_expiration")
+                    b.Property<DateOnly?>("date_expiration")
                         .HasColumnType("date");
 
-                    b.Property<DateOnly>("date_octroi")
+                    b.Property<DateOnly?>("date_octroi")
                         .HasColumnType("date");
 
                     b.Property<DateOnly?>("date_rejet")
                         .HasColumnType("date");
 
                     b.Property<string>("duree_initiale")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("duree_restante")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<bool?>("est_plafond_accorde")
@@ -273,7 +351,7 @@ namespace DCCR_SERVER.Migrations
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
 
-                    b.Property<decimal>("mensualite")
+                    b.Property<decimal?>("mensualite")
                         .HasColumnType("decimal(18,0)");
 
                     b.Property<string>("monnaie")
@@ -296,13 +374,12 @@ namespace DCCR_SERVER.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("situation_credit")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<decimal>("solde_restant")
+                    b.Property<decimal?>("solde_restant")
                         .HasColumnType("decimal(18,0)");
 
-                    b.Property<decimal>("taux")
+                    b.Property<decimal?>("taux")
                         .HasColumnType("decimal(8,5)");
 
                     b.Property<string>("type_credit")
@@ -806,9 +883,15 @@ namespace DCCR_SERVER.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("wilaya_code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("code");
 
                     b.HasIndex("code");
+
+                    b.HasIndex("wilaya_code");
 
                     b.ToTable("agences");
                 });
@@ -1108,13 +1191,48 @@ namespace DCCR_SERVER.Migrations
                     b.Navigation("fichier_excel");
                 });
 
+            modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Archives.ArchiveGarantie", b =>
+                {
+                    b.HasOne("DCCR_SERVER.Models.Principaux.Intervenant", "guarant")
+                        .WithMany()
+                        .HasForeignKey("guarantcle");
+
+                    b.HasOne("DCCR_SERVER.Models.Principaux.Archives.ArchiveCrédit", "credit")
+                        .WithMany("garanties")
+                        .HasForeignKey("numero_contrat_credit", "date_declaration", "id_excel")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("credit");
+
+                    b.Navigation("guarant");
+                });
+
+            modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Archives.ArchiveIntervenantCrédit", b =>
+                {
+                    b.HasOne("DCCR_SERVER.Models.Principaux.Intervenant", "intervenant")
+                        .WithMany("intervenant_credits_archives")
+                        .HasForeignKey("cle_intervenant")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DCCR_SERVER.Models.Principaux.Archives.ArchiveCrédit", "credit")
+                        .WithMany("intervenantsCredit")
+                        .HasForeignKey("numero_contrat_credit", "date_declaration", "id_excel")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("credit");
+
+                    b.Navigation("intervenant");
+                });
+
             modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Crédit", b =>
                 {
                     b.HasOne("DCCR_SERVER.Models.Statiques.TablesDomaines.ActivitéCrédit", "activitecredit")
                         .WithMany("credits_type_activite")
                         .HasForeignKey("activite_credit")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("DCCR_SERVER.Models.Statiques.TablesDomaines.ClasseRetard", "classeretard")
                         .WithMany("credits_classe_retard")
@@ -1124,14 +1242,12 @@ namespace DCCR_SERVER.Migrations
                     b.HasOne("DCCR_SERVER.Models.Statiques.TablesDomaines.DuréeCrédit", "dureeinitiale")
                         .WithMany("credits_duree_initiale")
                         .HasForeignKey("duree_initiale")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("DCCR_SERVER.Models.Statiques.TablesDomaines.DuréeCrédit", "dureerestante")
                         .WithMany("credits_duree_restante")
                         .HasForeignKey("duree_restante")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("DCCR_SERVER.Models.Principaux.FichierExcel", "excel")
                         .WithMany("credits")
@@ -1154,8 +1270,7 @@ namespace DCCR_SERVER.Migrations
                     b.HasOne("DCCR_SERVER.Models.Statiques.TablesDomaines.SituationCrédit", "situationcredit")
                         .WithMany("credits_situation")
                         .HasForeignKey("situation_credit")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("DCCR_SERVER.Models.Statiques.TablesDomaines.TypeCrédit", "typecredit")
                         .WithMany("credits_type_credit")
@@ -1302,6 +1417,17 @@ namespace DCCR_SERVER.Migrations
                     b.Navigation("import_excel");
                 });
 
+            modelBuilder.Entity("DCCR_SERVER.Models.Statiques.TablesDomaines.Agence", b =>
+                {
+                    b.HasOne("DCCR_SERVER.Models.Statiques.TablesDomaines.Wilaya", "wilaya")
+                        .WithMany("agences")
+                        .HasForeignKey("wilaya_code")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("wilaya");
+                });
+
             modelBuilder.Entity("DCCR_SERVER.Models.Utilisateurs_audit.Audit", b =>
                 {
                     b.HasOne("DCCR_SERVER.Models.Utilisateurs_audit.Utilisateur", "utilisateur_acteur")
@@ -1329,6 +1455,13 @@ namespace DCCR_SERVER.Migrations
                     b.Navigation("excel_associe");
 
                     b.Navigation("regle_associe");
+                });
+
+            modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Archives.ArchiveCrédit", b =>
+                {
+                    b.Navigation("garanties");
+
+                    b.Navigation("intervenantsCredit");
                 });
 
             modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Archives.ArchiveFichierExcel", b =>
@@ -1361,6 +1494,8 @@ namespace DCCR_SERVER.Migrations
                     b.Navigation("garanties_intervenant");
 
                     b.Navigation("intervenant_credits");
+
+                    b.Navigation("intervenant_credits_archives");
                 });
 
             modelBuilder.Entity("DCCR_SERVER.Models.Principaux.Lieu", b =>
@@ -1422,6 +1557,8 @@ namespace DCCR_SERVER.Migrations
 
             modelBuilder.Entity("DCCR_SERVER.Models.Statiques.TablesDomaines.Wilaya", b =>
                 {
+                    b.Navigation("agences");
+
                     b.Navigation("wilayas");
                 });
 

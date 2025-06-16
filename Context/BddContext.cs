@@ -30,6 +30,8 @@ namespace DCCR_SERVER.Context
         public DbSet<ArchiveCrédit> archives_credits { get; set; }
         public DbSet<ArchiveFichierExcel> archives_fichiers_excel { get; set; }
         public DbSet<ArchiveFichierXml> archives_fichiers_xml { get; set; }
+        public DbSet<ArchiveGarantie> archives_garanties { get; set; }
+        public DbSet<ArchiveIntervenantCrédit> archives_intervenants_credits { get; set; }
 
         // Tables domaines
         public DbSet<ActivitéCrédit> activites_credit { get; set; }
@@ -46,7 +48,6 @@ namespace DCCR_SERVER.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Primary Keys
             modelBuilder.Entity<Crédit>().HasKey(c => new { c.numero_contrat_credit, c.date_declaration, c.id_excel });
             modelBuilder.Entity<Garantie>().HasKey(g => g.id_garantie);
             modelBuilder.Entity<Intervenant>().HasKey(i => i.cle);
@@ -63,7 +64,6 @@ namespace DCCR_SERVER.Context
             modelBuilder.Entity<donnees_brutes>().HasKey(db => db.id);
             modelBuilder.Entity<TableauDeBord>().HasKey(tdb => tdb.id_kpi);
 
-            // Domain Keys
             modelBuilder.Entity<ActivitéCrédit>().HasKey(ac => ac.code);
             modelBuilder.Entity<Monnaie>().HasKey(m => m.code);
             modelBuilder.Entity<SituationCrédit>().HasKey(sc => sc.code);
@@ -76,24 +76,19 @@ namespace DCCR_SERVER.Context
             modelBuilder.Entity<NiveauResponsabilité>().HasKey(nr => nr.code);
             modelBuilder.Entity<Wilaya>().HasKey(w => w.code);
 
-            // Unique Constraints
             modelBuilder.Entity<Utilisateur>().HasIndex(u => u.matricule).IsUnique();
             modelBuilder.Entity<Intervenant>().HasIndex(i => i.cle).IsUnique();
 
-            // Relationships
-            ConfigureRelationships(modelBuilder);
+            relations(modelBuilder);
 
-            // Properties
-            ConfigureProperties(modelBuilder);
+            proprietes(modelBuilder);
 
-            // Indexes
-            ConfigureIndexes(modelBuilder);
+            indexes(modelBuilder);
 
-            // Archive Configurations
-            ConfigureArchives(modelBuilder);
+            archives(modelBuilder);
         }
 
-        private void ConfigureRelationships(ModelBuilder modelBuilder)
+        private void relations(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<FichierExcel>()
                 .HasMany(fex => fex.erreurs)
@@ -203,6 +198,12 @@ namespace DCCR_SERVER.Context
                 .HasForeignKey(l => l.code_pays)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Agence>()
+                .HasOne(l => l.wilaya)
+                .WithMany(p => p.agences)
+                .HasForeignKey(l => l.wilaya_code)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Audit>()
                 .HasOne(a => a.utilisateur_acteur)
                 .WithMany(u => u.actions_de_cet_utilisateur)
@@ -252,7 +253,7 @@ namespace DCCR_SERVER.Context
                 .OnDelete(DeleteBehavior.Cascade);
         }
 
-        private void ConfigureProperties(ModelBuilder modelBuilder)
+        private void proprietes(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Crédit>().Property(l => l.taux).HasColumnType("decimal(8,5)");
             modelBuilder.Entity<Crédit>().Property(l => l.credit_accorde).HasColumnType("decimal(18,0)");
@@ -265,9 +266,22 @@ namespace DCCR_SERVER.Context
             modelBuilder.Entity<Crédit>().Property(l => l.numero_contrat_credit).HasMaxLength(20);
             modelBuilder.Entity<Garantie>().Property(g => g.montant_garantie).HasColumnType("decimal(18,0)");
             modelBuilder.Entity<Crédit>().Property(l => l.solde_restant).HasColumnType("decimal(18,0)");
+
+            modelBuilder.Entity<ArchiveCrédit>().Property(l => l.taux).HasColumnType("decimal(8,5)");
+            modelBuilder.Entity<ArchiveCrédit>().Property(l => l.credit_accorde).HasColumnType("decimal(18,0)");
+            modelBuilder.Entity<ArchiveCrédit>().Property(l => l.mensualite).HasColumnType("decimal(18,0)");
+            modelBuilder.Entity<ArchiveCrédit>().Property(l => l.cout_total_credit).HasColumnType("decimal(18,0)");
+            modelBuilder.Entity<ArchiveCrédit>().Property(l => l.montant_capital_retard).HasColumnType("decimal(18,0)");
+            modelBuilder.Entity<ArchiveCrédit>().Property(l => l.montant_interets_courus).HasColumnType("decimal(18,0)");
+            modelBuilder.Entity<ArchiveCrédit>().Property(l => l.montant_interets_retard).HasColumnType("decimal(18,0)");
+            modelBuilder.Entity<ArchiveCrédit>().Property(l => l.id_plafond).HasMaxLength(15);
+            modelBuilder.Entity<ArchiveCrédit>().Property(l => l.numero_contrat_credit).HasMaxLength(20);
+            modelBuilder.Entity<ArchiveCrédit>().Property(l => l.solde_restant).HasColumnType("decimal(18,0)");
+            modelBuilder.Entity<ArchiveGarantie>().Property(g => g.montant_garantie).HasColumnType("decimal(18,0)");
+
         }
 
-        private void ConfigureIndexes(ModelBuilder modelBuilder)
+        private void indexes(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Crédit>().HasIndex(c => c.numero_contrat_credit);
             modelBuilder.Entity<Crédit>().HasIndex(c => c.date_declaration);
@@ -330,11 +344,13 @@ namespace DCCR_SERVER.Context
             modelBuilder.Entity<Wilaya>().HasIndex(w => w.code);
         }
 
-        private void ConfigureArchives(ModelBuilder modelBuilder)
+        private void archives(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ArchiveCrédit>().HasKey(c => new { c.numero_contrat_credit, c.date_declaration, c.id_excel });
             modelBuilder.Entity<ArchiveFichierExcel>().HasKey(fex => fex.id_fichier_excel);
             modelBuilder.Entity<ArchiveFichierXml>().HasKey(fx => fx.id_fichier_xml);
+            modelBuilder.Entity<ArchiveGarantie>().HasKey(g => g.id_garantie);
+            modelBuilder.Entity<ArchiveIntervenantCrédit>().HasKey(ic => ic.id_intervenantcredit);
 
             modelBuilder.Entity<ArchiveCrédit>()
                 .HasOne(ac => ac.excel)
@@ -350,6 +366,25 @@ namespace DCCR_SERVER.Context
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired(false);
 
+            modelBuilder.Entity<ArchiveGarantie>()
+                .HasOne(ag => ag.credit)
+                .WithMany(ac => ac.garanties)
+                .HasForeignKey(ag => new { ag.numero_contrat_credit, ag.date_declaration, ag.id_excel })
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+
+            modelBuilder.Entity<ArchiveIntervenantCrédit>()
+                .HasOne(aic => aic.credit)
+                .WithMany(ac => ac.intervenantsCredit)
+                .HasForeignKey(aic => new { aic.numero_contrat_credit, aic.date_declaration, aic.id_excel })
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+            modelBuilder.Entity<Intervenant>()
+               .HasMany(i => i.intervenant_credits_archives)
+               .WithOne(ic => ic.intervenant)
+               .HasForeignKey(ic => ic.cle_intervenant)
+               .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<ArchiveCrédit>().HasIndex(ac => ac.numero_contrat_credit);
             modelBuilder.Entity<ArchiveCrédit>().HasIndex(ac => ac.date_declaration);
             modelBuilder.Entity<ArchiveCrédit>().HasIndex(ac => ac.id_excel);
@@ -357,8 +392,17 @@ namespace DCCR_SERVER.Context
             modelBuilder.Entity<ArchiveFichierExcel>().HasIndex(afe => afe.id_fichier_excel);
             modelBuilder.Entity<ArchiveFichierXml>().HasIndex(afx => afx.id_fichier_xml);
             modelBuilder.Entity<ArchiveFichierXml>().HasIndex(afx => afx.id_fichier_excel);
+            modelBuilder.Entity<ArchiveGarantie>().HasIndex(ag => ag.id_garantie);
+            modelBuilder.Entity<ArchiveGarantie>().HasIndex(ag => ag.cle_interventant);
+            modelBuilder.Entity<ArchiveGarantie>().HasIndex(ag => ag.numero_contrat_credit);
+            modelBuilder.Entity<ArchiveGarantie>().HasIndex(ag => ag.date_declaration);
+            modelBuilder.Entity<ArchiveGarantie>().HasIndex(ag => ag.id_excel);
+            modelBuilder.Entity<ArchiveIntervenantCrédit>().HasIndex(aic => aic.id_intervenantcredit);
+            modelBuilder.Entity<ArchiveIntervenantCrédit>().HasIndex(aic => aic.numero_contrat_credit);
+            modelBuilder.Entity<ArchiveIntervenantCrédit>().HasIndex(aic => aic.date_declaration);
+            modelBuilder.Entity<ArchiveIntervenantCrédit>().HasIndex(aic => aic.id_excel);
+            modelBuilder.Entity<ArchiveIntervenantCrédit>().HasIndex(aic => aic.cle_intervenant);
+            modelBuilder.Entity<ArchiveIntervenantCrédit>().HasIndex(aic => aic.niveau_responsabilite);
         }
     }
 }
-
-           

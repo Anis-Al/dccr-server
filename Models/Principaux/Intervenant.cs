@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using DCCR_SERVER.Models.Principaux.Archives;
 
 
 namespace DCCR_SERVER.Models.Principaux
@@ -15,6 +16,8 @@ namespace DCCR_SERVER.Models.Principaux
 
         public List<Garantie>? garanties_intervenant {  get; set; } 
         public List<IntervenantCrédit> intervenant_credits { get; set; }
+        public List<ArchiveIntervenantCrédit> intervenant_credits_archives { get; set; }
+
 
     }
 }

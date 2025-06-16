@@ -1,4 +1,4 @@
-﻿using DCCR_SERVER.Context;
+using DCCR_SERVER.Context;
 using DCCR_SERVER.Models.Principaux;
 using DCCR_SERVER.Services;
 using DCCR_SERVER.Services.Décl.BA;
@@ -11,12 +11,12 @@ namespace DCCR_SERVER.Controllers
     [ApiController]
     public class declarationsBAController : ControllerBase
     {
-        private readonly ServiceXmlCRUD _xmlService;
+        private readonly ServiceXmlCRUD _declBaService;
         private readonly BddContext _context;
 
-        public declarationsBAController(ServiceXmlCRUD xmlService, BddContext context)
+        public declarationsBAController(ServiceXmlCRUD declBaService, BddContext context)
         {
-            _xmlService = xmlService;
+            _declBaService = declBaService;
             _context = context;
         }
 
@@ -25,8 +25,7 @@ namespace DCCR_SERVER.Controllers
         {
             try
             {
-                var fichierXml = _xmlService.genererDonneesFichiersXml(idExcel);
-
+                var fichierXml = _declBaService.genererDonneesFichiersXml(idExcel);
                 _context.fichiers_xml.Add(fichierXml);
                 _context.SaveChanges();
 
@@ -42,7 +41,7 @@ namespace DCCR_SERVER.Controllers
         public async Task<IActionResult> telechargerLesFichiersParDeclarations(int idXml)
         {
             var (contenuCorrection, nomFichierCorrection, contenuSuppression, nomFichierSuppression) =
-                await _xmlService.envoyerLesDonneesDeDeclarationPourTelecharger(idXml);
+                await _declBaService.envoyerLesDonneesDeDeclarationPourTelecharger(idXml);
 
             if (contenuCorrection == null || contenuSuppression == null)
             {
@@ -76,7 +75,7 @@ namespace DCCR_SERVER.Controllers
         {
             try
             {
-                var xmlFiles = await _xmlService.getTousLesFichiersXml();
+                var xmlFiles = await _declBaService.getTousLesFichiersXml();
                 return Ok(xmlFiles);
             }
             catch (Exception ex)
@@ -90,7 +89,7 @@ namespace DCCR_SERVER.Controllers
         {
             try
             {
-                var resultat = await _xmlService.supprimerDeclaration(idXml);
+                var resultat = await _declBaService.supprimerDeclaration(idXml);
                 if (!resultat)
                     return NotFound();
 
@@ -99,6 +98,23 @@ namespace DCCR_SERVER.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = $"Erreur lors de la suppression du fichier Excel.\n {ex}" });
+            }
+        }
+
+        [HttpPost("archiver/{idExcel}")]
+        public async Task<IActionResult> archiver(int idExcel)
+        {
+            try
+            {
+                var result = await _declBaService.MigrerVersArchivesAsync(idExcel);
+                if (!result)
+                    return BadRequest(new { success = false, message = "La migration vers les archives a échoué." });
+
+                return Ok(new { success = true, message = "Données migrées vers les archives avec succès." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"Erreur lors de la migration vers les archives: {ex.Message}" });
             }
         }
     }

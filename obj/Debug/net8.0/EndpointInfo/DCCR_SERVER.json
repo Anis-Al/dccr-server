@@ -5,6 +5,120 @@
     "version": "1.0"
   },
   "paths": {
+    "/api/archives/fichiers-excel": {
+      "get": {
+        "tags": [
+          "archives"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArchiveDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArchiveDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArchiveDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/archives/fichiers-xml": {
+      "get": {
+        "tags": [
+          "archives"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArchiveFichierXmlDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArchiveFichierXmlDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArchiveFichierXmlDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/archives/credits": {
+      "get": {
+        "tags": [
+          "archives"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArchiveCreditListeDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArchiveCreditListeDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArchiveCreditListeDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth": {
       "post": {
         "tags": [
@@ -379,6 +493,29 @@
         }
       }
     },
+    "/api/declarationsBA/archiver/{idExcel}": {
+      "post": {
+        "tags": [
+          "declarationsBA"
+        ],
+        "parameters": [
+          {
+            "name": "idExcel",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Excel/importer": {
       "post": {
         "tags": [
@@ -723,12 +860,416 @@
             "type": "string",
             "nullable": true
           },
+          "wilaya_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "wilaya": {
+            "$ref": "#/components/schemas/Wilaya"
+          },
           "agences": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Lieu"
             },
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ArchiveCreditListeDto": {
+        "type": "object",
+        "properties": {
+          "num_contrat_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_declaration": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "libelle_type_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "libelle_activite": {
+            "type": "string",
+            "nullable": true
+          },
+          "libelle_situation": {
+            "type": "string",
+            "nullable": true
+          },
+          "id_excel": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ArchiveCrédit": {
+        "type": "object",
+        "properties": {
+          "numero_contrat_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_declaration": {
+            "type": "string",
+            "format": "date"
+          },
+          "id_excel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "est_plafond_accorde": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "situation_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_octroi": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "date_rejet": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "date_expiration": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "date_execution": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "duree_initiale": {
+            "type": "string",
+            "nullable": true
+          },
+          "duree_restante": {
+            "type": "string",
+            "nullable": true
+          },
+          "id_lieu": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "type_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "activite_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "monnaie": {
+            "type": "string",
+            "nullable": true
+          },
+          "credit_accorde": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "id_plafond": {
+            "type": "string",
+            "nullable": true
+          },
+          "taux": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "mensualite": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "cout_total_credit": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "solde_restant": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "classe_retard": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_constatation": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "nombre_echeances_impayes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "montant_interets_courus": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "montant_interets_retard": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "montant_capital_retard": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "motif": {
+            "type": "string",
+            "nullable": true
+          },
+          "excel": {
+            "$ref": "#/components/schemas/ArchiveFichierExcel"
+          },
+          "intervenantsCredit": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArchiveIntervenantCrédit"
+            },
+            "nullable": true
+          },
+          "garanties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArchiveGarantie"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ArchiveDto": {
+        "type": "object",
+        "properties": {
+          "idFichierExcel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nomFichierExcel": {
+            "type": "string",
+            "nullable": true
+          },
+          "cheminFichierExcel": {
+            "type": "string",
+            "nullable": true
+          },
+          "dateHeureIntegrationExcel": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "integrateur": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ArchiveFichierExcel": {
+        "type": "object",
+        "properties": {
+          "id_fichier_excel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nom_fichier_excel": {
+            "type": "string",
+            "nullable": true
+          },
+          "chemin_fichier_excel": {
+            "type": "string",
+            "nullable": true
+          },
+          "id_integrateur_excel": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_heure_integration_excel": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "credits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArchiveCrédit"
+            },
+            "nullable": true
+          },
+          "fichiers_xml": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArchiveFichierXml"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ArchiveFichierXml": {
+        "required": [
+          "contenu_correction",
+          "contenu_suppression"
+        ],
+        "type": "object",
+        "properties": {
+          "id_fichier_xml": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nom_fichier_correction": {
+            "type": "string",
+            "nullable": true
+          },
+          "nom_fichier_suppression": {
+            "type": "string",
+            "nullable": true
+          },
+          "contenu_correction": {
+            "type": "string",
+            "nullable": true
+          },
+          "contenu_suppression": {
+            "type": "string",
+            "nullable": true
+          },
+          "id_utilisateur_generateur_xml": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_heure_generation_xml": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id_fichier_excel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fichier_excel": {
+            "$ref": "#/components/schemas/ArchiveFichierExcel"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ArchiveFichierXmlDto": {
+        "type": "object",
+        "properties": {
+          "idFichierXml": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nomFichierCorrection": {
+            "type": "string",
+            "nullable": true
+          },
+          "nomFichierSuppression": {
+            "type": "string",
+            "nullable": true
+          },
+          "dateHeureGenerationXml": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "nomUtilisateurGenerateur": {
+            "type": "string",
+            "nullable": true
+          },
+          "nomFichierExcelSource": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ArchiveGarantie": {
+        "type": "object",
+        "properties": {
+          "id_garantie": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cle_interventant": {
+            "type": "string",
+            "nullable": true
+          },
+          "numero_contrat_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_declaration": {
+            "type": "string",
+            "format": "date"
+          },
+          "id_excel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "type_garantie": {
+            "type": "string",
+            "nullable": true
+          },
+          "montant_garantie": {
+            "type": "number",
+            "format": "double"
+          },
+          "guarant": {
+            "$ref": "#/components/schemas/Intervenant"
+          },
+          "credit": {
+            "$ref": "#/components/schemas/ArchiveCrédit"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ArchiveIntervenantCrédit": {
+        "type": "object",
+        "properties": {
+          "id_intervenantcredit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numero_contrat_credit": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_declaration": {
+            "type": "string",
+            "format": "date"
+          },
+          "id_excel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cle_intervenant": {
+            "type": "string",
+            "nullable": true
+          },
+          "niveau_responsabilite": {
+            "type": "string",
+            "nullable": true
+          },
+          "credit": {
+            "$ref": "#/components/schemas/ArchiveCrédit"
+          },
+          "intervenant": {
+            "$ref": "#/components/schemas/Intervenant"
           }
         },
         "additionalProperties": false
@@ -1045,7 +1586,8 @@
           },
           "date_octroi": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "nullable": true
           },
           "date_rejet": {
             "type": "string",
@@ -1054,7 +1596,8 @@
           },
           "date_expiration": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "nullable": true
           },
           "date_execution": {
             "type": "string",
@@ -1087,7 +1630,8 @@
           },
           "credit_accorde": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "id_plafond": {
             "type": "string",
@@ -1095,19 +1639,23 @@
           },
           "taux": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "mensualite": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "cout_total_credit": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "solde_restant": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "classe_retard": {
             "type": "string",
@@ -1518,6 +2066,13 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IntervenantCrédit"
+            },
+            "nullable": true
+          },
+          "intervenant_credits_archives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArchiveIntervenantCrédit"
             },
             "nullable": true
           }
@@ -2000,6 +2555,13 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Lieu"
+            },
+            "nullable": true
+          },
+          "agences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Agence"
             },
             "nullable": true
           }

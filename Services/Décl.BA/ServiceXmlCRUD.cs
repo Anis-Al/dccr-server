@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using DCCR_SERVER.Models.DTOs;
 using DocumentFormat.OpenXml.InkML;
 using Azure;
+using DCCR_SERVER.Models.Principaux.Archives;
 
 namespace DCCR_SERVER.Services.Décl.BA
 {
@@ -19,6 +20,190 @@ namespace DCCR_SERVER.Services.Décl.BA
             _context = context;
         }
         Stream outputStream;
+        public async Task<bool> MigrerVersArchivesAsync(int idExcel)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            
+            try
+            {
+                var fichierExcel = await _context.fichiers_excel
+                    .FirstOrDefaultAsync(fe => fe.id_fichier_excel == idExcel);
+
+                if (fichierExcel == null)
+                {
+                    throw new Exception("Fichier Excel non trouvé");
+                }
+
+
+                var dejaArchive = await _context.archives_fichiers_excel
+                    .AnyAsync(afe => afe.id_fichier_excel == idExcel);
+
+                if (dejaArchive)
+                {
+                    throw new Exception("Ce fichier a déjà été archivé");
+                }
+
+
+                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.archives_fichiers_excel ON");
+
+                try
+                {
+                    var archiveFichierExcel = new ArchiveFichierExcel
+                    {
+                        id_fichier_excel = fichierExcel.id_fichier_excel,
+                        nom_fichier_excel = fichierExcel.nom_fichier_excel,
+                        chemin_fichier_excel = fichierExcel.chemin_fichier_excel,
+                        id_integrateur_excel = fichierExcel.id_integrateur_excel,
+                        date_heure_integration_excel = fichierExcel.date_heure_integration_excel
+                    };
+
+                    _context.archives_fichiers_excel.Add(archiveFichierExcel);
+                    await _context.SaveChangesAsync();
+                }
+                finally
+                {
+                    await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.archives_fichiers_excel OFF");
+                }
+
+
+                var credits = await _context.credits
+                    .Include(c => c.garanties)
+                    .Include(c => c.intervenantsCredit)
+                    .Where(c => c.id_excel == idExcel)
+                    .ToListAsync();
+
+                foreach (var credit in credits)
+                {
+                    var archiveCredit = new ArchiveCrédit
+                    {
+                        numero_contrat_credit = credit.numero_contrat_credit,
+                        date_declaration = credit.date_declaration,
+                        id_excel = credit.id_excel,
+                        est_plafond_accorde = credit.est_plafond_accorde,
+                        situation_credit = credit.situation_credit,
+                        date_octroi = credit.date_octroi,
+                        date_rejet = credit.date_rejet,
+                        date_expiration = credit.date_expiration,
+                        date_execution = credit.date_execution,
+                        duree_initiale = credit.duree_initiale,
+                        duree_restante = credit.duree_restante,
+                        id_lieu = credit.id_lieu,
+                        type_credit = credit.type_credit,
+                        activite_credit = credit.activite_credit,
+                        monnaie = credit.monnaie,
+                        credit_accorde = credit.credit_accorde ?? 0,
+                        id_plafond = credit.id_plafond,
+                        taux = credit.taux ?? 0,
+                        mensualite = credit.mensualite ?? 0,
+                        cout_total_credit = credit.cout_total_credit ?? 0,
+                        solde_restant = credit.solde_restant ?? 0,
+                        classe_retard = credit.classe_retard,
+                        date_constatation = credit.date_constatation,
+                        nombre_echeances_impayes = credit.nombre_echeances_impayes,
+                        montant_interets_courus = credit.montant_interets_courus,
+                        montant_interets_retard = credit.montant_interets_retard,
+                        montant_capital_retard = credit.montant_capital_retard,
+                        motif = credit.motif
+                    };
+
+                    _context.archives_credits.Add(archiveCredit);
+                    await _context.SaveChangesAsync(); 
+
+                    foreach (var garantie in credit.garanties)
+                    {
+                        await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.archives_garanties ON");
+                        try
+                        {
+                            var archiveGarantie = new ArchiveGarantie
+                            {
+                                id_garantie = garantie.id_garantie,
+                                cle_interventant = garantie.cle_interventant,
+                                numero_contrat_credit = garantie.numero_contrat_credit,
+                                date_declaration = garantie.date_declaration,
+                                id_excel = garantie.id_excel,
+                                type_garantie = garantie.type_garantie,
+                                montant_garantie = garantie.montant_garantie
+                            };
+                            _context.Add(archiveGarantie);
+                            await _context.SaveChangesAsync();
+                        }
+                        finally
+                        {
+                            await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.archives_garanties OFF");
+                        }
+                    }
+
+                    foreach (var intervenantCredit in credit.intervenantsCredit)
+                    {
+                        var archiveIntervenantCredit = new ArchiveIntervenantCrédit
+                        {
+                            numero_contrat_credit = credit.numero_contrat_credit,
+                            date_declaration = credit.date_declaration,
+                            id_excel = credit.id_excel,
+                            cle_intervenant = intervenantCredit.cle_intervenant,
+                            niveau_responsabilite = intervenantCredit.niveau_responsabilite,
+                        };
+                        _context.Add(archiveIntervenantCredit);
+                    }
+                    await _context.SaveChangesAsync();
+                }
+
+                _context.garanties.RemoveRange(_context.garanties.Where(g => g.id_excel == idExcel));
+                _context.intervenants_credits.RemoveRange(
+                    _context.intervenants_credits.Where(ic => ic.id_excel == idExcel));
+                _context.credits.RemoveRange(credits);
+                var fichierXml = await _context.fichiers_xml
+                    .FirstOrDefaultAsync(fx => fx.id_fichier_excel == idExcel);
+
+                if (fichierXml != null)
+                {
+                    await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.archives_fichiers_xml ON");
+                    try
+                    {
+                        var archiveFichierXml = new ArchiveFichierXml
+                        {
+                            id_fichier_xml = fichierXml.id_fichier_xml,
+                            nom_fichier_correction = fichierXml.nom_fichier_correction,
+                            nom_fichier_suppression = fichierXml.nom_fichier_suppression,
+                            contenu_correction = fichierXml.contenu_correction,
+                            contenu_suppression = fichierXml.contenu_suppression,
+                            id_utilisateur_generateur_xml = fichierXml.id_utilisateur_generateur_xml,
+                            date_heure_generation_xml = fichierXml.date_heure_generation_xml,
+                            id_fichier_excel = fichierXml.id_fichier_excel
+                        };
+                        _context.archives_fichiers_xml.Add(archiveFichierXml);
+                        await _context.SaveChangesAsync();
+                    }
+                    finally
+                    {
+                        await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.archives_fichiers_xml OFF");
+                    }
+
+                    _context.fichiers_xml.Remove(fichierXml);
+                }
+
+
+                _context.fichiers_excel.Remove(fichierExcel);
+                
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    await transaction.RollbackAsync();
+                }
+                catch (Exception rollbackEx)
+                {
+                    Console.WriteLine($"rollback: {rollbackEx.Message}");
+                }
+                throw new Exception($"Erreur : {ex.Message}", ex);
+            }
+        }
+
         public FichierXml genererDonneesFichiersXml(int idExcel)
         {
             var credits = _context.credits
@@ -156,8 +341,8 @@ namespace DCCR_SERVER.Services.Décl.BA
                                 if (credit.date_rejet.HasValue)
                                     writer.WriteAttributeString("s123", credit.date_rejet.Value.ToString("yyyy-MM-dd"));
 
-                                writer.WriteAttributeString("s124", credit.date_octroi.ToString("yyyy-MM-dd"));
-                                writer.WriteAttributeString("s125", credit.date_expiration.ToString("yyyy-MM-dd"));
+                                writer.WriteAttributeString("s124", credit.date_octroi?.ToString("yyyy-MM-dd"));
+                                writer.WriteAttributeString("s125", credit.date_expiration?.ToString("yyyy-MM-dd"));
                                 writer.WriteAttributeString("s102", creditsCettePersonne.IntervenantCredit.niveau_responsabilite);
 
                                 if (!string.IsNullOrEmpty(creditsCettePersonne.Intervenant.rib))
@@ -317,7 +502,8 @@ namespace DCCR_SERVER.Services.Décl.BA
                 NomFichierCorrection = fx.nom_fichier_correction,
                 NomFichierSuppression = fx.nom_fichier_suppression,
                 DateHeureGenerationXml = fx.date_heure_generation_xml,
-                NomUtilisateurGenerateur = fx.generateurXml?.nom_complet ,
+                NomUtilisateurGenerateur = fx.generateurXml?.nom_complet,
+                IdFichierExcelSource = fx.id_fichier_excel,
                 NomFichierExcelSource = fx.fichier_excel?.nom_fichier_excel
             }).ToList();
         }

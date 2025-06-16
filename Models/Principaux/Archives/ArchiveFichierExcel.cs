@@ -11,10 +11,7 @@ namespace DCCR_SERVER.Models.Principaux.Archives
         public string chemin_fichier_excel { get; set; }
         public string id_integrateur_excel { get; set; }
         public DateTime date_heure_integration_excel { get; set; }
-        public Guid id_session_import { get; set; }
-        public StatutImport statut_import { get; set; }
-        public string? message_statut { get; set; }
-        public string? resume_validation { get; set; }
+       
         public List<ArchiveCrédit> credits { get; set; } = new List<ArchiveCrédit>();
         public List<ArchiveFichierXml> fichiers_xml { get; set; } = new List<ArchiveFichierXml>();
     }

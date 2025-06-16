@@ -1,5 +1,65 @@
 [
   {
+    "ContainingType": "DCCR_SERVER.Controllers.archivesController",
+    "Method": "GetCreditsArchives",
+    "RelativePath": "api/archives/credits",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[DCCR_SERVER.DTOs.Archives.ArchiveCreditDto\u002BArchiveCreditListeDto, DCCR_SERVER, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.archivesController",
+    "Method": "GetFichiersExcelArchives",
+    "RelativePath": "api/archives/fichiers-excel",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[DCCR_SERVER.DTOs.Archives.ArchiveDto, DCCR_SERVER, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.archivesController",
+    "Method": "GetFichiersXmlArchives",
+    "RelativePath": "api/archives/fichiers-xml",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[DCCR_SERVER.DTOs.Archives.ArchiveFichierXmlDto, DCCR_SERVER, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "DCCR_SERVER.Controllers.authController",
     "Method": "Login",
     "RelativePath": "api/auth",
@@ -157,6 +217,22 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.declarationsBAController",
+    "Method": "archiver",
+    "RelativePath": "api/declarationsBA/archiver/{idExcel}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idExcel",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "DCCR_SERVER.Controllers.declarationsBAController",

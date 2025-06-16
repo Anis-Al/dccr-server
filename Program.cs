@@ -1,4 +1,5 @@
 using DCCR_SERVER.Context;
+using DCCR_SERVER.Services.Archives;
 using DCCR_SERVER.Services.Credits;
 using DCCR_SERVER.Services.Dashboard;
 using DCCR_SERVER.Services.Décl.BA;
@@ -39,6 +40,8 @@ builder.Services.AddScoped<ServiceExcelCRUD>();
 builder.Services.AddScoped<ServiceXmlCRUD>();
 builder.Services.AddScoped<AuthentificationService>();
 builder.Services.AddScoped<ServiceUtilisateurCRUD>();
+builder.Services.AddScoped<ServiceArchivesCRUD>();
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
