@@ -40,7 +40,7 @@ INSERT INTO mapping_colonnes (colonne_excel, colonne_bdd, colonne_prod, table_pr
 ('numero_plafond', 'id_plafond', 'id_plafond', 'credits', 'string'),
 ('statut', NULL, NULL, NULL, 'string'),
 ('motif', 'motif', 'motif', 'credits', 'string'),
-('date_exe', 'date_execution', 'date_execution', NULL, 'dateonly');
+('date_exe', 'date_execution', 'date_execution', 'credits', 'dateonly');
 -- #endregion
 
 -- #region tables des domaines
@@ -436,7 +436,7 @@ INSERT INTO regles_validation (
 ('monnaie', 'DOMAINE', 'monnaies', 'La valeur de code monnaie est hors domaine autorisé.', NULL, NULL, NULL, NULL),
 ('code_pays', 'DOMAINE', 'pays', 'La valeur de code pays est hors domaine autorisé.', NULL, NULL, NULL, NULL),
 ('code_agence', 'DOMAINE', 'agences', 'La valeur de code agence est hors domaine autorisé.', NULL, NULL, NULL, NULL),
-('code_activite', 'DOMAINE', 'activites_credit', 'La valeur de code activité est hors domaine autorisé.', NULL, NULL, NULL, NULL),
+('activite_credit', 'DOMAINE', 'activites_credit', 'La valeur de code activité est hors domaine autorisé.', NULL, NULL, NULL, NULL),
 ('type_credit', 'DOMAINE', 'types_credit', 'La valeur de type crédit est hors domaine autorisé.', NULL, NULL, NULL, NULL),
 ('classe_retard', 'DOMAINE', 'classes_retard', 'La valeur de classe retard est hors domaine autorisé.', NULL, NULL, NULL, NULL), --marche
 ('situation_credit', 'DOMAINE', 'situations_credit', 'La valeur de situation crédit est hors domaine autorisé.', NULL, NULL, NULL, NULL),
@@ -642,7 +642,8 @@ GROUP BY
 ORDER BY
     NombreUtilisations DESC;'),
 
--- KPI 7: Somme des échéances impayées par agence
+
+-- KPI X: Somme des échéances impayées par agence
 ('Somme des échéances impayées par agence',
 'SELECT
     a.domaine AS Agence,
@@ -660,4 +661,20 @@ GROUP BY
 HAVING
     SUM(c.nombre_echeances_impayes) > 0
 ORDER BY
-    TotalEcheancesImpayees DESC;');
+    TotalEcheancesImpayees DESC;'),
+    
+    ('Crédits utilisés vs Reste à payer',
+'SELECT
+    ''Crédit utilisé'' AS Libellé,
+    SUM(credit_accorde - solde_restant) AS Montant
+FROM credits
+WHERE credit_accorde > 0 
+  AND solde_restant >= 0
+  AND credit_accorde >= solde_restant
+UNION ALL
+SELECT
+    ''Reste à payer'' AS Libellé,
+    SUM(solde_restant) AS Montant
+FROM credits
+WHERE credit_accorde > 0 
+  AND solde_restant > 0;');

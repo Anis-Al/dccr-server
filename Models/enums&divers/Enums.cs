@@ -30,7 +30,8 @@ namespace DCCR_SERVER.Models.enums
             Telechargement = 1,
             PretPourConfirmation = 2,
             EchecValidation = 3,
-            ImportConfirme = 4
+            ImportConfirme = 4,
+            declarationGenere=5
         }
     }
 }

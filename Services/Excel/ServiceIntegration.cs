@@ -1438,7 +1438,9 @@ namespace DCCR_SERVER.Services.Excel
                                 switch (mapping.type_donnee_prod?.ToLower())
                                 {
                                     case "dateonly":
-                                        if (DateOnly.TryParse(value.ToString(), out var dateOnlyValue))
+                                        if (DateTime.TryParse(value.ToString(), out var dateTimeValue1))
+                                            convertedValue = DateOnly.FromDateTime(dateTimeValue1);
+                                        else if (DateOnly.TryParse(value.ToString(), out var dateOnlyValue))
                                             convertedValue = dateOnlyValue;
                                         else
                                             throw new Exception($"{value} : {donneeCible.Name}");

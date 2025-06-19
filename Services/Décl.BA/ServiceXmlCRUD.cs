@@ -8,6 +8,7 @@ using DCCR_SERVER.Models.DTOs;
 using DocumentFormat.OpenXml.InkML;
 using Azure;
 using DCCR_SERVER.Models.Principaux.Archives;
+using static DCCR_SERVER.Models.enums.Enums;
 
 namespace DCCR_SERVER.Services.Décl.BA
 {
@@ -204,7 +205,7 @@ namespace DCCR_SERVER.Services.Décl.BA
             }
         }
 
-        public FichierXml genererDonneesFichiersXml(int idExcel)
+        public async Task<FichierXml> genererDonneesFichiersXmlAsync(int idExcel)
         {
             var credits = _context.credits
                 .AsNoTracking() 
@@ -233,7 +234,7 @@ namespace DCCR_SERVER.Services.Décl.BA
             
             parametreSequence.valeur = sequenceProchaine;
             _context.parametrage.Update(parametreSequence);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             
             string sequenceSuppression = suppressionSequence.ToString().PadLeft(3, '0');
             string sequenceCorrection = correctionSequence.ToString().PadLeft(3, '0');
@@ -250,6 +251,14 @@ namespace DCCR_SERVER.Services.Décl.BA
                 id_fichier_excel = idExcel,
                 id_utilisateur_generateur_xml = "anis2002"
             };
+
+            var fichierExcel = await _context.fichiers_excel
+                .FirstOrDefaultAsync(f => f.id_fichier_excel == idExcel);
+            if (fichierExcel != null)
+            {
+                fichierExcel.statut_import = StatutImport.declarationGenere;
+                await _context.SaveChangesAsync();
+            }
 
             return fichierXml;
         }
@@ -509,39 +518,30 @@ namespace DCCR_SERVER.Services.Décl.BA
         }
         public async Task<bool> supprimerDeclaration(int id_fichier_xml)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 var declarationba = await _context.fichiers_xml
+                    .Include(f => f.fichier_excel)
                     .FirstOrDefaultAsync(f => f.id_fichier_xml == id_fichier_xml);
-
                 if (declarationba == null)
                     return false;
-
+                if (declarationba.fichier_excel != null)
+                {
+                    declarationba.fichier_excel.statut_import = StatutImport.ImportConfirme;
+                }
                 _context.fichiers_xml.Remove(declarationba);
                 await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
 
                 return true;
             }
             catch (Exception)
             {
+                await transaction.RollbackAsync();
                 throw;
             }
         }
-
-        //  public async Task<bool>archiverDonnees<>()       
-        // {
-        //     using var transaction = await _context.Database.BeginTransactionAsync();
-        //     try
-        //     {
-
-        //     }
-        //     catch (Exception ex)
-        //     {
-
-        //         await transaction.RollbackAsync();
-        //         throw new Exception(ex,ex.Message);
-        //     }
-        // }
 
     }
 }

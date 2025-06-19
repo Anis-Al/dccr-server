@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DCCR_SERVER")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+116ea156e1bfb8120491925c81147e809df0d6da")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c27a87c1cb37bb160bf8d0363d89e86f75cbdea1")]
 [assembly: System.Reflection.AssemblyProductAttribute("DCCR_SERVER")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DCCR_SERVER")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
