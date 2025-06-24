@@ -322,10 +322,16 @@ namespace DCCR_SERVER.Services.Décl.BA
                                 var credit = creditsCettePersonne.Credit;
                                 writer.WriteStartElement("s20");
 
-                                if (credit.id_plafond != null) writer.WriteAttributeString("s129", credit.id_plafond);
+                                if (credit.id_plafond != null) 
+                                {
+                                    var plafondValue = credit.id_plafond.Contains(',') 
+                                        ? credit.id_plafond.Split(',')[0] 
+                                        : credit.id_plafond;
+                                    writer.WriteAttributeString("s129", plafondValue);
+                                }
                                 writer.WriteAttributeString("s128", credit.numero_contrat_credit);
                                 writer.WriteAttributeString("s111", credit.monnaie);
-                                writer.WriteAttributeString("s115", credit.activite_credit);
+                                if (credit.activite_credit!=null) writer.WriteAttributeString("s115", credit.activite_credit);
                                 writer.WriteAttributeString("s107", credit.type_credit);
                                 writer.WriteAttributeString("s103", credit.situation_credit);
                                 if (credit.classe_retard != null) writer.WriteAttributeString("s104", credit.classe_retard);
@@ -333,9 +339,11 @@ namespace DCCR_SERVER.Services.Décl.BA
                                 writer.WriteAttributeString("s106", credit.duree_restante);
                                 writer.WriteAttributeString("s117", credit.credit_accorde.ToString());
                                 writer.WriteAttributeString("s101", credit.solde_restant.ToString());
-                                writer.WriteAttributeString("s119", credit.cout_total_credit.ToString());
-                                writer.WriteAttributeString("s110", credit.mensualite.ToString());
-                                writer.WriteAttributeString("s118", credit.taux.ToString());
+                                
+                                if (credit.cout_total_credit != null) writer.WriteAttributeString("s119", credit.cout_total_credit.ToString());
+                                if (credit.mensualite != null) writer.WriteAttributeString("s110", credit.mensualite.ToString());
+                                if (credit.taux != null) writer.WriteAttributeString("s118", credit.taux.ToString());
+                                if (credit.date_octroi != null) writer.WriteAttributeString("s124", credit.date_octroi?.ToString("yyyy-MM-dd"));
 
                                 if (credit.date_constatation.HasValue)
                                     writer.WriteAttributeString("s120", credit.date_constatation.Value.ToString("yyyy-MM-dd"));
@@ -350,7 +358,6 @@ namespace DCCR_SERVER.Services.Décl.BA
                                 if (credit.date_rejet.HasValue)
                                     writer.WriteAttributeString("s123", credit.date_rejet.Value.ToString("yyyy-MM-dd"));
 
-                                writer.WriteAttributeString("s124", credit.date_octroi?.ToString("yyyy-MM-dd"));
                                 writer.WriteAttributeString("s125", credit.date_expiration?.ToString("yyyy-MM-dd"));
                                 writer.WriteAttributeString("s102", creditsCettePersonne.IntervenantCredit.niveau_responsabilite);
 

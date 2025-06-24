@@ -663,7 +663,7 @@ HAVING
 ORDER BY
     TotalEcheancesImpayees DESC;'),
     
-    ('Crédits utilisés vs Reste à payer',
+('Crédits utilisés vs Reste à payer',
 'SELECT
     ''Crédit utilisé'' AS Libellé,
     SUM(credit_accorde - solde_restant) AS Montant

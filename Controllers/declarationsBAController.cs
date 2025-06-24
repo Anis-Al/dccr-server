@@ -21,15 +21,15 @@ namespace DCCR_SERVER.Controllers
         }
 
         [HttpPost("generer-declarations/{idExcel}")]
-        public IActionResult genererDeclarationsParSource(int idExcel)
+        public async Task<IActionResult> genererDeclarationsParSource(int idExcel)
         {
             try
             {
-                var fichierXml = _declBaService.genererDonneesFichiersXml(idExcel);
+                var fichierXml = await _declBaService.genererDonneesFichiersXmlAsync(idExcel);
                 _context.fichiers_xml.Add(fichierXml);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
-                return Ok(new { id = fichierXml.id_fichier_xml});
+                return Ok(new { id = fichierXml.id_fichier_xml });
             }
             catch (Exception ex)
             {
