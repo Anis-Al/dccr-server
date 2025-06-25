@@ -76,54 +76,34 @@ namespace DCCR_SERVER.Services.Utilisateur
             return true;
         }
 
-       
-        
-        // te3 ldap 
-        private async Task<bool> VerifierUtilisateurLDAP(string matricule)
+        public async Task<UtilisateurDto?> majUtilisateur(string matricule, UtilisateurDto utilisateurDto)
         {
-            // 3eyet l gateway/ api te3 l ldap w wach lazem
-            return await Task.FromResult(true); 
-        }
-        private async Task<(string nomComplet, byte[] motDePasse)> ObtenirInfosUtilisateurLDAP(string matricule)
-        {
-           // pour recuperer les infos de cet utilisateur depuis ldap sale paresseux va
-            return await Task.FromResult(("Nom Complet", new byte[] { 0x00, 0x01 })); // remplaci hadi b return les vraies infos
+            var utilisateur = await _context.utilisateurs
+                .FirstOrDefaultAsync(u => u.matricule == matricule);
 
-        }
-        //public async Task<UtilisateurDto> AjouterUtilisateurLDAP(string matricule, RoleUtilisateur role)
-        //{
-        //    if (await _context.utilisateurs.AnyAsync(u => u.matricule == matricule))
-        //    {
-        //        throw new InvalidOperationException("Un utilisateur avec ce matricule existe déjà.");
-        //    }
+            if (utilisateur == null)
+            {
+                return null;
+            }
 
-        //    if (!await VerifierUtilisateurLDAP(matricule))
-        //    {
-        //        throw new InvalidOperationException("Utilisateur non trouvé dans l'Active Directory.");
-        //    }
-
-        //    var (nomComplet, motDePasse) = await ObtenirInfosUtilisateurLDAP(matricule);
-
-        //    var nouvelUtilisateur = new Models.Utilisateurs_audit.Utilisateur
-        //    {
-        //        matricule = matricule,
-        //        nom_complet = nomComplet,
-        //        mot_de_passe = motDePasse,
-        //        role = role
-        //    };
-
-        //    _context.utilisateurs.Add(nouvelUtilisateur);
-        //    await _context.SaveChangesAsync();
+            utilisateur.nom_complet = utilisateurDto.nom_complet;
+            utilisateur.email = utilisateurDto.email;
             
-        //    return new UtilisateurDto
-        //    {
-        //        matricule = nouvelUtilisateur.matricule,
-        //        nom_complet = nouvelUtilisateur.nom_complet,
-        //        role = nouvelUtilisateur.role.ToString()
-        //    };
-        //}
-    
-    
-    
+            if (Enum.TryParse<RoleUtilisateur>(utilisateurDto.role, out var role))
+            {
+                utilisateur.role = role;
+            }
+
+            _context.utilisateurs.Update(utilisateur);
+            await _context.SaveChangesAsync();
+
+            return new UtilisateurDto
+            {
+                matricule = utilisateur.matricule,
+                nom_complet = utilisateur.nom_complet,
+                role = utilisateur.role.ToString(),
+                email = utilisateur.email
+            };
+        }
     }
 }

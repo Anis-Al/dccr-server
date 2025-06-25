@@ -112,5 +112,63 @@ namespace DCCR_SERVER.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur est survenue lors de la récupération des informations de crédit.");
             }
         }
+
+        [HttpDelete("supprimer/{numeroContratCredit}")]
+        public async Task<ActionResult> SupprimerCredit(
+            [FromRoute] string numeroContratCredit,
+            [FromQuery] DateOnly dateDeclaration)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(numeroContratCredit))
+                {
+                    return BadRequest("Le numéro de contrat est requis.");
+                }
+
+                var result = await _serviceCreditsCRUD.SupprimerCredit(numeroContratCredit, dateDeclaration);
+
+                if (result.Any())
+                {
+                    return BadRequest(result);
+                }
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la suppression du crédit {NumeroContrat}", numeroContratCredit);
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    new { Message = "Une erreur est survenue lors de la suppression du crédit." });
+            }
+        }
+
+        [HttpPut("modifier")]
+        public async Task<ActionResult<List<string>>> ModifierCredit([FromBody] CreditDto credit)
+        {
+            try
+            {
+                if (credit == null)
+                {
+                    return BadRequest(new List<string> { "Les données du crédit sont requises." });
+                }
+
+                var erreurs = await _serviceCreditsCRUD.ModifierCreditDepuisUi(credit);
+                
+                if (erreurs.Any())
+                {
+                    return BadRequest(erreurs);
+                }
+
+                return Ok(new List<string> { "Le crédit a été modifié avec succès." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la modification du crédit");
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError, 
+                    new List<string> { "Une erreur est survenue lors de la modification du crédit." });
+            }
+        }
     }
 }

@@ -190,10 +190,174 @@ namespace DCCR_SERVER.Services.Credits
         }
         public async Task<List<string>> creerCreditDepuisUi(CreditDto credit)
         {
+            var donnees = new List<donnees_brutes>();
+
+            if (credit == null)
+            {
+                return new List<string> { "Les données du crédit sont requises." };
+            }
+
             try
             {
-                var donnees = new List<donnees_brutes>();
+                if (credit.intervenants == null || !credit.intervenants.Any())
+                {
+                    return new List<string> { "Au moins un intervenant est requis pour le crédit." };
+                }
 
+                var sessionId = Guid.NewGuid();
+
+                foreach (var intervenant in credit.intervenants)
+                {
+                    var garantieForIntervenant = credit.garanties?.FirstOrDefault(g => g.cle_intervenant == intervenant.cle);
+
+                    var donneeRecord = new donnees_brutes
+                    {
+                        numero_contrat = credit.num_contrat_credit,
+                        date_declaration = credit.date_declaration?.ToString("yyyy-MM-dd"), 
+                        id_import_excel = credit.id_excel,
+                        type_credit = credit.type_credit,
+                        id_plafond = credit.id_plafond,
+                        activite_credit = credit.code_activite,
+                        situation_credit = credit.situation,
+                        motif = credit.motif,
+                        code_agence = credit.code_agence,
+                        code_wilaya = credit.code_wilaya,
+                        code_pays = credit.code_pays,
+                        credit_accorde = credit.credit_accorde.ToString(),
+                        monnaie = credit.monnaie,
+                        taux = credit.taux_interets.ToString(),
+                        cout_total_credit = credit.cout_total_credit.ToString(),
+                        solde_restant = credit.solde_restant.ToString(),
+                        mensualite = credit.mensualite.ToString(),
+                        duree_initiale = credit.duree_initiale,
+                        duree_restante = credit.duree_restante,
+                        classe_retard = credit.classe_retard,
+                        nombre_echeances_impayes = credit.nombre_echeances_impayes.ToString(),
+                        date_constatation = credit.date_constatation_echeances_impayes?.ToString("yyyy-MM-dd"), 
+                        montant_capital_retard = credit.montant_capital_retard.ToString(),
+                        montant_interets_retard = credit.montant_interets_retard.ToString(),
+                        montant_interets_courus = credit.montant_interets_courus.ToString(),
+                        date_octroi = credit.date_octroi?.ToString("yyyy-MM-dd"),   
+                        date_expiration = credit.date_expiration?.ToString("yyyy-MM-dd"),  
+                        date_execution = credit.date_execution?.ToString("yyyy-MM-dd"),   
+                        date_rejet = credit.date_rejet?.ToString("yyyy-MM-dd"), 
+                        participant_cle = intervenant.cle,
+                        participant_type_cle = intervenant.type_cle,
+                        participant_nif = intervenant.nif,
+                        participant_rib = intervenant.rib,
+                        participant_cli = intervenant.cli,
+                        role_niveau_responsabilite = intervenant.niveau_responsabilite,
+                        type_garantie = garantieForIntervenant?.type_garantie,
+                        montant_garantie = garantieForIntervenant?.montant_garantie.ToString(),
+                        ligne_original = 1,
+                        est_valide = true,
+                        id_session_import = sessionId
+                    };
+                    donnees.Add(donneeRecord);
+                }
+
+                var erreurs = await new ServiceIntegration(_contexte, null, null).ValiderAvecReglesAsync(donnees);
+
+                if (erreurs.Any())
+                {
+                    return erreurs.Select(e => e.message_erreur).ToList();
+                }
+
+                using (var transaction = await _contexte.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        await _contexte.table_intermediaire_traitement.AddRangeAsync(donnees);
+                        await _contexte.SaveChangesAsync();
+
+                        await new ServiceIntegration(_contexte, null, null).MigrerDonneesStagingVersProdAsync(credit.id_excel);
+
+                        await transaction.CommitAsync();
+                        return new List<string>();
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        _journal.LogError(ex, "Database error in creerCreditDepuisUi: {Message}", ex.Message);
+                        return new List<string> { "Une erreur est survenue lors de l'enregistrement du crédit." };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _journal.LogError(ex, "Error in creerCreditDepuisUi: {Message}", ex.Message);
+                return new List<string> { "Une erreur inattendue est survenue." };
+            }
+        }
+
+        public async Task<List<string>> SupprimerCredit(string numeroContratCredit, DateOnly dateDeclaration)
+        {
+            try
+            {
+                var credit = await _contexte.credits
+                    .Include(c => c.intervenantsCredit)
+                    .Include(c => c.garanties)
+                    .Include(c => c.lieu)
+                    .FirstOrDefaultAsync(c => c.numero_contrat_credit == numeroContratCredit && 
+                                            c.date_declaration == dateDeclaration);
+                if (credit == null)
+                {
+                    return new List<string> { "Le crédit spécifié est introuvable." };
+                }
+
+                using (var transaction = await _contexte.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        if (credit.intervenantsCredit != null)
+                        {
+                            _contexte.intervenants_credits.RemoveRange(credit.intervenantsCredit);
+                        }
+                        if (credit.garanties != null)
+                        {
+                            _contexte.garanties.RemoveRange(credit.garanties);
+                        }
+                        _contexte.credits.Remove(credit);
+
+                       
+                        await _contexte.SaveChangesAsync();
+                        await transaction.CommitAsync();
+
+                        return new List<string>();
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        _journal.LogError(ex, "Database error in SupprimerCredit: {Message}", ex.Message);
+                        return new List<string> { "Une erreur est survenue lors de la suppression du crédit." };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _journal.LogError(ex, "Error in SupprimerCredit: {Message}", ex.Message);
+                return new List<string> { "Une erreur inattendue est survenue lors de la suppression du crédit." };
+            }
+        }
+
+        public async Task<List<string>> ModifierCreditDepuisUi(CreditDto credit)
+        {
+            try
+            {
+                var existingCredit = await _contexte.credits
+                    .Include(c => c.intervenantsCredit)
+                    .ThenInclude(ic => ic.intervenant)
+                    .Include(c => c.garanties)
+                    .FirstOrDefaultAsync(c => c.numero_contrat_credit == credit.num_contrat_credit && 
+                                            c.date_declaration == credit.date_declaration);
+
+                if (existingCredit == null)
+                {
+                    return new List<string> { "Le crédit spécifié est introuvable." };
+                }
+
+                
+                var donnees = new List<donnees_brutes>();
                 if (credit.intervenants != null)
                 {
                     foreach (var intervenant in credit.intervenants)
@@ -204,7 +368,7 @@ namespace DCCR_SERVER.Services.Credits
                         {
                             numero_contrat = credit.num_contrat_credit,
                             date_declaration = credit.date_declaration.ToString(),
-                            id_import_excel = credit.id_excel,
+                            id_import_excel = existingCredit.id_excel,
                             type_credit = credit.type_credit,
                             id_plafond = credit.id_plafond,
                             activite_credit = credit.code_activite,
@@ -223,14 +387,14 @@ namespace DCCR_SERVER.Services.Credits
                             duree_restante = credit.duree_restante,
                             classe_retard = credit.classe_retard,
                             nombre_echeances_impayes = credit.nombre_echeances_impayes.ToString(),
-                            date_constatation = credit.date_constatation_echeances_impayes.ToString(),
+                            date_constatation = credit.date_constatation_echeances_impayes?.ToString(),
                             montant_capital_retard = credit.montant_capital_retard.ToString(),
                             montant_interets_retard = credit.montant_interets_retard.ToString(),
                             montant_interets_courus = credit.montant_interets_courus.ToString(),
-                            date_octroi = credit.date_octroi.ToString(),
-                            date_expiration = credit.date_expiration.ToString(),
-                            date_execution = credit.date_execution.ToString(),
-                            date_rejet = credit.date_rejet.ToString(),
+                            date_octroi = credit.date_octroi?.ToString("yyyy-MM-dd"),
+                            date_expiration = credit.date_expiration?.ToString("yyyy-MM-dd"),
+                            date_execution = credit.date_execution?.ToString("yyyy-MM-dd"),
+                            date_rejet = credit.date_rejet?.ToString("yyyy-MM-dd"),
                             participant_cle = intervenant.cle,
                             participant_type_cle = intervenant.type_cle,
                             participant_nif = intervenant.nif,
@@ -247,25 +411,92 @@ namespace DCCR_SERVER.Services.Credits
                     }
                 }
 
-                _contexte.table_intermediaire_traitement.AddRange(donnees);
-                await _contexte.SaveChangesAsync();
-
                 var erreurs = await new ServiceIntegration(_contexte, null, null).ValiderAvecReglesAsync(donnees);
                 
-                if (!erreurs.Any())
+                if (erreurs.Any())
                 {
-                    var id_import_excel = donnees.First().id_import_excel;
-                    await new ServiceIntegration(_contexte, null, null).MigrerDonneesStagingVersProdAsync(id_import_excel);
+                    return erreurs.Select(e => e.message_erreur).ToList();
                 }
 
-                return erreurs.Select(e => e.message_erreur).ToList();
+                existingCredit.type_credit = credit.type_credit;
+                existingCredit.est_plafond_accorde = credit.est_plafond_accorde;
+                existingCredit.id_plafond = credit.id_plafond;
+                existingCredit.activite_credit = credit.code_activite;
+                existingCredit.situation_credit = credit.situation;
+                existingCredit.motif = credit.motif;            
+                existingCredit.lieu.code_agence = credit.code_agence;
+                existingCredit.lieu.code_wilaya = credit.code_wilaya;
+                existingCredit.lieu.code_pays = credit.code_pays;
+                existingCredit.credit_accorde = credit.credit_accorde;
+                existingCredit.monnaie = credit.monnaie;
+                existingCredit.taux = credit.taux_interets;
+                existingCredit.cout_total_credit = credit.cout_total_credit;
+                existingCredit.solde_restant = credit.solde_restant;
+                existingCredit.mensualite = credit.mensualite;
+                existingCredit.duree_initiale = credit.duree_initiale;
+                existingCredit.duree_restante = credit.duree_restante;
+                existingCredit.classe_retard = credit.classe_retard;
+                existingCredit.nombre_echeances_impayes = credit.nombre_echeances_impayes;
+                existingCredit.date_constatation = credit.date_constatation_echeances_impayes;
+                existingCredit.montant_capital_retard = credit.montant_capital_retard;
+                existingCredit.montant_interets_retard = credit.montant_interets_retard;
+                existingCredit.montant_interets_courus = credit.montant_interets_courus;
+
+                existingCredit.date_octroi = credit.date_octroi;
+                existingCredit.date_expiration = credit.date_expiration;
+                existingCredit.date_execution = credit.date_execution;
+                existingCredit.date_rejet = credit.date_rejet;
+
+                if (credit.intervenants != null)
+                {
+                    _contexte.intervenants_credits.RemoveRange(existingCredit.intervenantsCredit);
+
+                    
+                    foreach (var intervenantDto in credit.intervenants)
+                    {
+                        var intervenantCredit = new IntervenantCrédit
+                        {
+                            credit = existingCredit,
+                            intervenant = new Intervenant
+                            {
+                                cle = intervenantDto.cle,
+                                type_cle = intervenantDto.type_cle,
+                                nif = intervenantDto.nif,
+                                rib = intervenantDto.rib,
+                                cli = intervenantDto.cli
+                            },
+                            niveau_responsabilite = intervenantDto.niveau_responsabilite
+                        };
+                        _contexte.intervenants_credits.Add(intervenantCredit);
+                    }
+                }
+
+
+                if (credit.garanties != null)
+                {
+                    _contexte.garanties.RemoveRange(existingCredit.garanties);
+                    foreach (var garantieDto in credit.garanties)
+                    {
+                        var garantie = new Garantie
+                        {
+                            credit = existingCredit,
+                            type_garantie = garantieDto.type_garantie,
+                            montant_garantie = (decimal)garantieDto.montant_garantie,
+                            cle_interventant = garantieDto.cle_intervenant
+                        };
+                        _contexte.garanties.Add(garantie);
+                    }
+                }
+                await _contexte.SaveChangesAsync();
+                await new ServiceIntegration(_contexte, null, null).MigrerDonneesStagingVersProdAsync(existingCredit.id_excel); 
+                return new List<string>();
             }
             catch (Exception ex)
             {
-                _journal.LogError(ex, "Error in creerCreditDepuisUi: {Message}", ex.Message);
+                _journal.LogError(ex, "Erreur lors de la modification du crédit: {Message}", ex.Message);
                 throw;
             }
         }
+    }
+}
 
-}
-}

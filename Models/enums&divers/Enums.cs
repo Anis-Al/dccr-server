@@ -8,7 +8,8 @@ namespace DCCR_SERVER.Models.enums
             admin = 1,
             integrateurExcel = 2,
             modificateurCredits = 3,
-            generateurDeclarations = 4
+            generateurDeclarations =4,
+            demo=5
         }
 
         public enum typeActionAudit

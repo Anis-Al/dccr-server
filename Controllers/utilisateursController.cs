@@ -91,5 +91,27 @@ namespace DCCR_SERVER.Controllers
                 return StatusCode(500, $"Erreur interne du serveur: {ex.Message}");
             }
         }
+
+        [HttpPut("modifier/{matricule}")]
+        public async Task<ActionResult<UtilisateurDto>> ModifierUtilisateur(string matricule, [FromBody] UtilisateurDto utilisateurDto)
+        {
+            try
+            {
+               
+
+                var utilisateurMisAJour = await _serviceUtilisateur.majUtilisateur(matricule, utilisateurDto);
+                
+                if (utilisateurMisAJour == null)
+                {
+                    return NotFound($"Aucun utilisateur trouvé avec : {matricule}");
+                }
+
+                return Ok(utilisateurMisAJour);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erreur: {ex.Message}");
+            }
+        }
     }
 }
