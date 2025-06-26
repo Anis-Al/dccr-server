@@ -509,18 +509,24 @@ namespace DCCR_SERVER.Services.Décl.BA
             var fichiers = await _context.fichiers_xml
                 .Include(fx => fx.fichier_excel)
                 .Include(fx => fx.generateurXml)
+                .Select(fx => new 
+                {
+                    Fichier = fx,
+                    NbCredits = _context.credits.Count(c => c.id_excel == fx.id_fichier_excel)
+                })
                 .AsNoTracking()
                 .ToListAsync();
                 
-            return fichiers.Select(fx => new XmlDto
+            return fichiers.Select(x => new XmlDto
             {
-                IdFichierXml = fx.id_fichier_xml,
-                NomFichierCorrection = fx.nom_fichier_correction,
-                NomFichierSuppression = fx.nom_fichier_suppression,
-                DateHeureGenerationXml = fx.date_heure_generation_xml,
-                NomUtilisateurGenerateur = fx.generateurXml?.nom_complet,
-                IdFichierExcelSource = fx.id_fichier_excel,
-                NomFichierExcelSource = fx.fichier_excel?.nom_fichier_excel
+                IdFichierXml = x.Fichier.id_fichier_xml,
+                NomFichierCorrection = x.Fichier.nom_fichier_correction,
+                NomFichierSuppression = x.Fichier.nom_fichier_suppression,
+                DateHeureGenerationXml = x.Fichier.date_heure_generation_xml,
+                NomUtilisateurGenerateur = x.Fichier.generateurXml?.nom_complet,
+                IdFichierExcelSource = x.Fichier.id_fichier_excel,
+                NomFichierExcelSource = x.Fichier.fichier_excel?.nom_fichier_excel,
+                NbCredits = x.NbCredits
             }).ToList();
         }
         public async Task<bool> supprimerDeclaration(int id_fichier_xml)

@@ -11,5 +11,6 @@ namespace DCCR_SERVER.Models.DTOs
         public string NomUtilisateurGenerateur { get; set; }
         public int IdFichierExcelSource { get; set; }
         public string NomFichierExcelSource { get; set; }
+        public int NbCredits { get; set; }
     }
 }
