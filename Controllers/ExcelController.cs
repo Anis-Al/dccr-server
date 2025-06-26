@@ -55,7 +55,6 @@ namespace DCCR_SERVER.Controllers
             }
         }
 
-     
         [HttpPost("confirmer-integration")]
         public async Task<IActionResult> MigrerStagingVersProd([FromQuery] int idExcel)
         {

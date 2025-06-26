@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DCCR_SERVER.Migrations
 {
     [DbContext(typeof(BddContext))]
-    [Migration("20250619133125_insertions")]
+    [Migration("20250626100348_insertions")]
     partial class insertions
     {
         /// <inheritdoc />

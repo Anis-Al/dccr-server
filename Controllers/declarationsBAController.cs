@@ -20,12 +20,12 @@ namespace DCCR_SERVER.Controllers
             _context = context;
         }
 
-        [HttpPost("generer-declarations/{idExcel}")]
-        public async Task<IActionResult> genererDeclarationsParSource(int idExcel)
+        [HttpPost("generer-declarations/{idExcel}&{matricule_utilisateur}")]
+        public async Task<IActionResult> genererDeclarationsParSource(int idExcel,string matricule_utilisateur)
         {
             try
             {
-                var fichierXml = await _declBaService.genererDonneesFichiersXmlAsync(idExcel);
+                var fichierXml = await _declBaService.genererDonneesFichiersXmlAsync(idExcel,matricule_utilisateur);
                 _context.fichiers_xml.Add(fichierXml);
                 await _context.SaveChangesAsync();
 

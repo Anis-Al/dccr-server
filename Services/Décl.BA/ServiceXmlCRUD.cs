@@ -205,7 +205,7 @@ namespace DCCR_SERVER.Services.Décl.BA
             }
         }
 
-        public async Task<FichierXml> genererDonneesFichiersXmlAsync(int idExcel)
+        public async Task<FichierXml> genererDonneesFichiersXmlAsync(int idExcel,string matricule_utilisateur)
         {
             var credits = _context.credits
                 .AsNoTracking() 
@@ -249,7 +249,7 @@ namespace DCCR_SERVER.Services.Décl.BA
                 contenu_correction = correctionXml,
                 contenu_suppression = suppressionXml,
                 id_fichier_excel = idExcel,
-                id_utilisateur_generateur_xml = "anis2002"
+                id_utilisateur_generateur_xml = matricule_utilisateur
             };
 
             var fichierExcel = await _context.fichiers_excel

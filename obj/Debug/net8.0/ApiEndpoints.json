@@ -284,7 +284,7 @@
   {
     "ContainingType": "DCCR_SERVER.Controllers.declarationsBAController",
     "Method": "genererDeclarationsParSource",
-    "RelativePath": "api/declarationsBA/generer-declarations/{idExcel}",
+    "RelativePath": "api/declarationsBA/generer-declarations/{idExcel}\u0026{matricule_utilisateur}",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -292,6 +292,11 @@
       {
         "Name": "idExcel",
         "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "matricule_utilisateur",
+        "Type": "System.String",
         "IsRequired": true
       }
     ],
@@ -465,6 +470,37 @@
     "ReturnTypes": [
       {
         "Type": "System.String",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.utilisateursController",
+    "Method": "ModifierUtilisateur",
+    "RelativePath": "api/utilisateurs/modifier/{matricule}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "matricule",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "utilisateurDto",
+        "Type": "DCCR_SERVER.DTOs.Auth.UtilisateurDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DCCR_SERVER.DTOs.Auth.UtilisateurDto",
         "MediaTypes": [
           "text/plain",
           "application/json",
