@@ -190,4 +190,3 @@ C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\refint\DCCR_SER
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\DCCR_SERVER.pdb
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\DCCR_SERVER.genruntimeconfig.cache
 C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\ref\DCCR_SERVER.dll
-C:\Users\j\source\repos\DCCR_SERVER\DCCR_SERVER\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
