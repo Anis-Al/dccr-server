@@ -481,12 +481,20 @@ namespace DCCR_SERVER.Services.Excel
 
         public async Task MigrerDonneesStagingVersProdAsync(int idExcel)
         {
+            var dejaTraite = await _contexte.credits
+                .AnyAsync(c => c.id_excel == idExcel);
+
+            if (dejaTraite)
+            {
+                return;
+            }
+
             var pasValide = await _contexte.table_intermediaire_traitement
                 .AnyAsync(x => x.id_import_excel == idExcel && !x.est_valide);
 
             if (pasValide)
             {
-                throw new InvalidOperationException("");
+                throw new InvalidOperationException("Des données non valides empêchent la migration.");
             }
 
             using var transaction = await _contexte.Database.BeginTransactionAsync();
@@ -584,12 +592,14 @@ namespace DCCR_SERVER.Services.Excel
                         .ToList();
 
                     var existingIntervenants = await _contexte.intervenants
-                        .Where(i => allIntervenantCles.Contains(i.cle))
+                        .Where(i => allIntervenantCles.Select(cle => cle.ToUpper())
+                            .Contains(i.cle != null ? i.cle.ToUpper() : string.Empty))
                         .AsNoTracking()
                         .ToListAsync();
 
-                    intervenantsDict = existingIntervenants.ToDictionary(i => i.cle, i => i);
-
+                    intervenantsDict = existingIntervenants
+                        .GroupBy(i => i.cle, StringComparer.OrdinalIgnoreCase)
+                        .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
                     foreach (var ligne in donnees_en_attentes_de_migration)
                     {
@@ -609,36 +619,8 @@ namespace DCCR_SERVER.Services.Excel
                         }
 
 
-                        if (intervenantsDict.TryGetValue(mappedCle, out var existingInDict))
-                        {
-                            continue;
-                        }
-
-                        var existingInContext = _contexte.ChangeTracker.Entries<Intervenant>()
-                            .FirstOrDefault(e => string.Equals(e.Entity.cle, mappedCle, StringComparison.OrdinalIgnoreCase))?.Entity;
-
-                        if (existingInContext != null)
-                        {
-                            intervenantsDict[mappedCle] = existingInContext;
-                        }
-                        else
-                        {
-                            var existsInDb = await _contexte.intervenants
-                                .AsNoTracking()
-                                .AnyAsync(i => i.cle.ToLower() == mappedCle.ToLower());
-
-                            if (existsInDb)
-                            {
-                                var fromDb = await _contexte.intervenants
-                                    .FirstOrDefaultAsync(i => i.cle.ToLower() == mappedCle.ToLower());
-                                intervenantsDict[mappedCle] = fromDb;
-                            }
-                            else
-                            {
-                                _contexte.intervenants.Add(newIntervenant);
-                                intervenantsDict[mappedCle] = newIntervenant;
-                            }
-                        }
+                       _contexte.intervenants.Add(newIntervenant);
+                        intervenantsDict[mappedCle] = newIntervenant;
                     }
                 }
 

@@ -1,6 +1,37 @@
 [
   {
     "ContainingType": "DCCR_SERVER.Controllers.archivesController",
+    "Method": "GetDetailsCreditArchives",
+    "RelativePath": "api/archives/credit/details",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "numContrat",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "dateDeclaration",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[DCCR_SERVER.DTOs.Archives.ArchiveCreditDto\u002BArchiveCreditDetailsDto, DCCR_SERVER, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.archivesController",
     "Method": "GetCreditsArchives",
     "RelativePath": "api/archives/credits",
     "HttpMethod": "GET",
@@ -365,6 +396,26 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DCCR_SERVER.Controllers.ExcelController",
+    "Method": "getTousLesMetaDonneesDuExcelPourGenererDecls",
+    "RelativePath": "api/Excel/get-metadonnes-pour-generation-declarations",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[DCCR_SERVER.DTOs.Excel.ExcelMetaDonneesDto, DCCR_SERVER, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "DCCR_SERVER.Controllers.ExcelController",

@@ -41,6 +41,8 @@ builder.Services.AddScoped<ServiceXmlCRUD>();
 builder.Services.AddScoped<AuthentificationService>();
 builder.Services.AddScoped<ServiceUtilisateurCRUD>();
 builder.Services.AddScoped<ServiceArchivesCRUD>();
+builder.Services.AddScoped<ExcelExportService>();
+
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

@@ -8,6 +8,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using System.Collections.Generic;
 
 namespace DCCR_SERVER.Controllers
 {
@@ -20,13 +21,14 @@ namespace DCCR_SERVER.Controllers
         private readonly ErreurExcelExportService _exportService;
         private readonly ServiceExcelCRUD _serviceExcelCRUD;
         private readonly BddContext _context;
+        private readonly ExcelExportService _excelExportService;
 
-
-        public ExcelController(ServiceIntegration integration, 
-                               ILogger<ExcelController> logger, 
+        public ExcelController(ServiceIntegration integration,
+                               ILogger<ExcelController> logger,
                                ErreurExcelExportService exportService,
                                ServiceExcelCRUD serviceExcelCRUD,
-                                BddContext context
+                                BddContext context,
+                               ExcelExportService excelExportService
                                 )
         {
             _integration = integration;
@@ -34,10 +36,11 @@ namespace DCCR_SERVER.Controllers
             _exportService = exportService;
             _serviceExcelCRUD = serviceExcelCRUD;
             _context = context;
+            _excelExportService = excelExportService;
 
         }
-    
-   
+
+
         [HttpPost("importer")]
         public async Task<IActionResult> ImporterExcel([FromForm] ImportRequeteDto ird)
         {
@@ -105,7 +108,20 @@ namespace DCCR_SERVER.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Erreur interne wtf.");
             }
+        }
 
+        [HttpGet("get-metadonnes-pour-generation-declarations")]
+        public async Task<ActionResult<List<ExcelMetaDonneesDto>>> getTousLesMetaDonneesDuExcelPourGenererDecls()
+        {
+            try
+            {
+                var metadonnees_excel = await _serviceExcelCRUD.getTousLesMetaDonneesDuExcelPourGenererDecls();
+                return Ok(metadonnees_excel);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erreur.");
+            }
         }
 
 
@@ -126,5 +142,36 @@ namespace DCCR_SERVER.Controllers
                 return StatusCode(500, new { success = false, message = "Erreur lors de la suppression du fichier Excel." });
             }
         }
+
+        [HttpPost("exporter-donnees")]
+        public async Task<IActionResult> ExporterDonneesVersExcel<T>([FromBody] ExportDonneesDto<T> exportDto) where T : class
+        {
+            if (exportDto?.Donnees == null || !exportDto.Donnees.Any())
+                return BadRequest("Aucune donnée à exporter.");
+
+            try
+            {
+                var donnees = exportDto.Donnees;
+                var nomFeuille = string.IsNullOrEmpty(exportDto.NomFeuille) ? "export" : exportDto.NomFeuille;
+
+                var fileBytes = await _excelExportService.ExporterVersExcelAsync(
+                    donnees,
+                    nomFeuille);
+
+                var fileName = $"{nomFeuille}_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+                return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de l'export des données vers Excel");
+                return StatusCode(500, $"Erreur lors de l'export : {ex.Message}");
+            }
+        }
+    }
+
+    public class ExportDonneesDto<T> where T : class
+    {
+        public IEnumerable<T> Donnees { get; set; }
+        public string NomFeuille { get; set; } = "export";
     }
 }

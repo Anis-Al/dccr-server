@@ -62,6 +62,27 @@ namespace DCCR_SERVER.Controllers
             }
         }
 
-       
+        [HttpGet("credit/details")]
+        public async Task<ActionResult<IEnumerable<ArchiveCreditDto.ArchiveCreditDetailsDto>>> GetDetailsCreditArchives(
+            [FromQuery] string? numContrat = null,
+            [FromQuery] string? dateDeclaration = null)
+        {
+            try
+            {
+                DateOnly dateDeclarationParsed = default;
+                var credits = await _archivesService.GetDetailsCreditArchive(numContrat, dateDeclarationParsed);
+                
+                if (credits == null || !credits.Any())
+                {
+                    return NotFound(new { message = "Aucun crédit archivé trouvé." });
+                }
+
+                return Ok(credits);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "erreur.", error = ex.Message });
+            }
+        }
     }
 }

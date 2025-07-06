@@ -20,7 +20,7 @@ namespace DCCR_SERVER.Services.Excel
             try
             {
                 var requete = _contexte.fichiers_excel
-                    .Where(fe => fe.statut_import == StatutImport.ImportConfirme)
+                    .Where(fe => fe.statut_import == StatutImport.ImportConfirme || fe.statut_import == StatutImport.declarationGenere)
                     .AsNoTracking();
 
                 var MetaDonnees = await requete
@@ -31,6 +31,34 @@ namespace DCCR_SERVER.Services.Excel
                         nom_fichier_excel=emd.nom_fichier_excel,
                         chemin_fichier_excel=emd.chemin_fichier_excel,
                         date_heure_integration_excel=emd.date_heure_integration_excel,
+                        integrateur = emd.integrateurExcel.nom_complet,
+                    })
+                    .ToListAsync();
+
+                return MetaDonnees;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<List<ExcelMetaDonneesDto>> getTousLesMetaDonneesDuExcelPourGenererDecls()
+        {
+            try
+            {
+                var requete = _contexte.fichiers_excel
+                    .Where(fe => fe.statut_import == StatutImport.ImportConfirme)
+                    .AsNoTracking();
+
+                var MetaDonnees = await requete
+                    .OrderByDescending(fe => fe.id_fichier_excel)
+                    .Select(emd => new ExcelMetaDonneesDto
+                    {
+                        id_fichier_excel = emd.id_fichier_excel,
+                        nom_fichier_excel = emd.nom_fichier_excel,
+                        chemin_fichier_excel = emd.chemin_fichier_excel,
+                        date_heure_integration_excel = emd.date_heure_integration_excel,
                         integrateur = emd.integrateurExcel.nom_complet,
                     })
                     .ToListAsync();
